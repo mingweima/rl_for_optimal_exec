@@ -4,16 +4,18 @@ import pandas as pd
 from datetime import datetime
 import sys
 
-historical_date = pd.to_datetime('2019-06-03')
-mkt_open = historical_date + pd.to_timedelta('09:30:00')
-mkt_close = historical_date + pd.to_timedelta('16:00:00')
-orders_file_path = 'E:/Git/rl_abmnew1/Market_Replay/gym_simulator/envs/sample_orders_file.csv'
-a=2
-print(-a)
-# print(mkt_open + pd.to_timedelta('{}ms'.format(1)))
-#
-# a = OrderBookOracle(mkt_open,mkt_close,orders_file_path)
-# print(a.orders_list)
+historical_date = pd.to_datetime('2012-06-21')
+mkt_open = historical_date + pd.to_timedelta('34200s')
+mkt_close = historical_date + pd.to_timedelta('57600s')
+orders_file_path = 'E:/Git/rl_abmnew1/Market_Replay/gym_simulator' \
+                   '/envs/GOOG_2012-06-21_34200000_57600000_message_5.csv'
+LOB_file_path = 'E:/Git/rl_abmnew1/Market_Replay/gym_simulator' \
+                '/envs/GOOG_2012-06-21_34200000_57600000_orderbook_5.csv'
+
+a = OrderBookOracle(mkt_open,mkt_close,orders_file_path,LOB_file_path)
+b = a.getHistoricalOrderBook(34201)
+a = OrderBook(b)
+print(a.asks)
 
 
 # a = OrderBook()

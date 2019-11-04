@@ -1,30 +1,45 @@
 import pandas as pd
-from datetime import datetime
+import numpy as np
 
 
 class OrderBookOracle:
-    COLUMNS = ['TIMESTAMP', 'ORDER_ID', 'PRICE', 'SIZE', 'BUY_SELL_FLAG']
-
     # Oracle for reading historical exchange orders stream
-    def __init__(self, start_time, end_time, orders_file_path):
+    def __init__(self, start_time, end_time, orders_file_path, LOB_file_path):
         self.start_time = start_time
         self.end_time = end_time
         self.orders_file_path = orders_file_path
-        self.orders_list = self.processOrders()
+        self.LOB_file_path = LOB_file_path
+        self.orders_list, self.LOB_df = self.processData()
 
-    def processOrders(self):
-        def convertDate(date_str):
-            try:
-                return datetime.strptime(date_str, '%Y%m%d%H%M%S.%f')
-            except ValueError:
-                return convertDate(date_str[:-1])
+    def getHistoricalOrderBook(self, time):
+        # Output the Limit OrderBook at any historical moment
+        LOB = np.array(self.LOB_df.loc[self.LOB_df['TIME'] == time].tail(1))[0]
+        # Generating the Ask Order Book
+        asks = []
+        for i in range(5):
+            price = LOB[4 * i]
+            size = LOB[4 * i + 1]
+            asks.append({'TIME': time, 'PRICE': price, 'SIZE': size, 'BUY_SELL_FLAG': 'SELL'})
+        # Generating the Bid Order Book
+        bids = []
+        for i in range(5):
+            price = LOB[4 * i + 2]
+            size = LOB[4 * i + 3]
+            bids.append({'TIME': time, 'PRICE': price, 'SIZE': size, 'BUY_SELL_FLAG': 'BUY'})
+        return [bids, asks]
 
-        orders_df = pd.read_csv(self.orders_file_path)
-        orders_df['TIMESTAMP'] = orders_df['TIMESTAMP'].astype(str).apply(convertDate)
-        orders_df['SIZE'] = orders_df['SIZE'].astype(int)
-        orders_df['PRICE'] = orders_df['PRICE'].astype(float)
-        orders_df = orders_df.loc[(orders_df.TIMESTAMP >= self.start_time) & (orders_df.TIMESTAMP < self.end_time)]
+
+    def processData(self):
+        columns = ['TIME', 'TYPE', 'ORDER_ID', 'SIZE', 'PRICE', 'BUY_SELL_FLAG']
+        orders_df = pd.read_csv(self.orders_file_path, header=None, names=columns)
+        orders_df['BUY_SELL_FLAG'] = orders_df['BUY_SELL_FLAG'].replace({-1: 'BUY', 1: 'SELL'})
+        orders_df['TIME'] = orders_df['TIME'].astype(int)
+        orders_df['PRICE'] = orders_df['PRICE']/10000
         orders_list = orders_df.to_dict('records')
 
-        return orders_list
+        LOB_df = pd.read_csv(self.LOB_file_path, header=None)
+        LOB_df['TIME'] = orders_df['TIME']
 
+        # orders_list is a list of dictionaries listing all the orders
+        # LOB_df is a DataFrame of the configuration of the LOB
+        return orders_list, LOB_df

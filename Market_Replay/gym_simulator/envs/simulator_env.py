@@ -6,55 +6,66 @@ from gym import spaces
 import pandas as pd
 import numpy as np
 
-historical_date = pd.to_datetime('2019-06-03')
-mkt_open = historical_date + pd.to_timedelta('09:30:00')
-mkt_close = historical_date + pd.to_timedelta('16:00:00')
-orders_file_path = 'E:/Git/rl_abmnew1/Market_Replay/gym_simulator/envs/sample_orders_file.csv'
+# mkt_open and mkt_close are in unit "second": 34200 denotes 09:30 and 57600 denotes 16:00
+mkt_open = 34200
+mkt_close = 57600
+orders_file_path = 'E:/Git/rl_abmnew1/Market_Replay/gym_simulator' \
+                   '/envs/GOOG_2012-06-21_34200000_57600000_message_5.csv'
+LOB_file_path = 'E:/Git/rl_abmnew1/Market_Replay/gym_simulator' \
+                '/envs/GOOG_2012-06-21_34200000_57600000_orderbook_5.csv'
 
 class Simulator(gym.Env):
     metadata = {'render.modes': ['human']}
 
     def __init__(self):
         super(Simulator, self).__init__()
-        self.OrderBook = OrderBook()
-        self.OrderBookOracle = OrderBookOracle(mkt_open, mkt_close, orders_file_path)
-        self.current_step = 0
+        self.current_time = 34201
+
+        # Initializes the Oracle by inputing historical data files.
+        self.OrderBookOracle = OrderBookOracle(mkt_open, mkt_close, orders_file_path, LOB_file_path)
+        # Initializes the OrderBook at a given historical time.
+        self.OrderBook = OrderBook(self.OrderBookOracle.getHistoricalOrderBook(self.current_time))
+        # Inventory of shares hold to sell.
         self.inventory = 300
         # Action Space: Size of the Market Order (Buy: > 0, Sell: < 0)
         self.action_space = spaces.Box(
-            low=-200, high=200, dtype=np.int64)
+            low=-200, high=200, shape=(1,), dtype=np.int64)
         # Observation Space: [Time, Inventory, Current_Price, Bid_Ask_Spread]
         self.observation_space = spaces.Box(
             low=np.array([0, 0, 0, 0]), high=np.array([100, 100, 100, 100]), dtype=np.float16)
 
     def reset(self):
-        self.OrderBook = OrderBook()
-        self.OrderBookOracle = OrderBookOracle(mkt_open, mkt_close, orders_file_path)
-        self.current_step = 0
+        self.current_time = 34201
+        self.OrderBook = OrderBook(self.OrderBookOracle.getHistoricalOrderBook(self.current_time))
+        self.OrderBookOracle = OrderBookOracle(mkt_open, mkt_close, orders_file_path, LOB_file_path)
         self.inventory = 300
-        return self.observation()
 
 
     def step(self, action):
-        time = mkt_open + pd.to_timedelta('{}ms'.format(self.current_step))
+        self.current_time += 1
 
-        while OrderBookOracle.orders_list[0]['TIMESTAMP'] == time:
-            self.OrderBook.handleLimitOrder(OrderBookOracle.orders_list[0])
-            OrderBookOracle.orders_list.pop(0)
+        # Add market replay orders.
+        while self.OrderBookOracle.orders_list[0]['TIME'] <= self.current_time:
+            if self.OrderBookOracle.orders_list[0]['TIME'] == self.current_time:
+                self.OrderBook.handleLimitOrder(self.OrderBookOracle.orders_list[0])
+            self.OrderBookOracle.orders_list.pop(0)
 
+        # Take action (market order) and calculate reward
         execution_price, implementation_shortfall = self.OrderBook.handleMarketOrder(action)
-        self.inventory += action
-        self.current_step += 1
-        done = self.inventory <= 0
         reward = -implementation_shortfall
+
+        self.inventory += action
+        done = self.inventory <= 0
         obs = self.observation()
 
         return obs, reward, done, {}
 
     def observation(self):
-        return [self.current_step, self.inventory,
-                self.OrderBook.getMidPrice(), self.OrderBook.getBidAskSpread()]
+        return [self.current_time, self.inventory,
+                self.OrderBook.getInsideBids(), self.OrderBook.getInsideAsks()]
 
     def render(self, mode='human', close=False):
-        print('Step: {}'.format(self.current_step))
-        print('Inventory: {}'.format(self.inventory))
+        # print('Step: {}'.format(self.current_step))
+        # print('Inventory: {}'.format(self.inventory))
+        print('Bids: \n', self.OrderBook.bids)
+        print('Asks: \n', self.OrderBook.asks)
