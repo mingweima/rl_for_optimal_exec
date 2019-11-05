@@ -7,10 +7,6 @@ import numpy as np
 import matplotlib.pyplot as plt
 from collections import deque
 
-q = deque([3,4,2,5])
-q.append(13)
-q.append(12)
+a = {}
 
-for i in q:
-    print(i)
-    q.popleft()
+a.repla

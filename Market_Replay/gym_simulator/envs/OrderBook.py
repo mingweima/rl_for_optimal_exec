@@ -247,6 +247,14 @@ class OrderBook:
         else:
             return -1
 
+    def getBidAskVolume(self):
+        qty = 0
+        for order in self.asks[0]:
+            qty += order['SIZE']
+        for order in self.bids[0]:
+            qty += order['SIZE']
+        return qty
+
     def getBidAskSpread(self):
         # Returns the current bid-ask spread.
         if self.asks and self.bids:
