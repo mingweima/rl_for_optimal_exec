@@ -61,12 +61,12 @@ class Simulator(gym.Env):
         else:
             Replacement = {0: 0, 1: 0.01, 2: 0.02, 3: 0.03, 4: 0.04, 5: 0.1, 6: 0.2, 7: 0.25, 8: 0.5, 9: 1}
             order_size = -round(self.inventory * Replacement[action])
-
+        print(order_size)
         if order_size != 0:
             execution_price, implementation_shortfall = self.OrderBook.handleMarketOrder(order_size)
         else:
             execution_price, implementation_shortfall = 0, 0
-        reward = -implementation_shortfall - 100
+        reward = -implementation_shortfall
 
         self.inventory += order_size
         done = self.inventory <= 0
