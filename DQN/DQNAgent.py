@@ -8,19 +8,19 @@ class DQNAgent:
     def __init__(self, state_size, action_size):
         self.state_size = state_size
         self.action_size = action_size
-        self.memory = deque(maxlen=5000)
+        self.memory = deque(maxlen=int(1e4))
         self.gamma = 1  # discount rate
         self.epsilon = 1.0  # exploration rate
-        self.epsilon_min = 0.1
-        self.epsilon_decay = 0.8
-        self.learning_rate = 0.1
+        self.epsilon_min = 0.005
+        self.epsilon_decay = 0.995
+        self.learning_rate = 1e-3
         self.model = self._build_model()
 
     def _build_model(self):
         # Neural Net for Deep-Q learning Model
         model = keras.Sequential()
-        model.add(keras.layers.Dense(24, input_dim=self.state_size, activation='relu'))
-        model.add(keras.layers.Dense(24, activation='relu'))
+        model.add(keras.layers.Dense(48, input_dim=self.state_size, activation='relu'))
+        model.add(keras.layers.Dense(64, activation='relu'))
         model.add(keras.layers.Dense(self.action_size, activation='linear'))
         model.compile(loss='mse',
                       optimizer=keras.optimizers.Adam(lr=self.learning_rate))
@@ -31,20 +31,21 @@ class DQNAgent:
 
     def act(self, state):
         if np.random.rand() <= self.epsilon:
-            return random.randrange(self.action_size)
+            return round(random.random(), 1)
         act_values = self.model.predict(state)
-        return np.argmax(act_values[0])  # returns action
+        return round(act_values, 1)  # returns action
 
     def replay(self, batch_size):
         if len(self.memory) < batch_size:
             batch_size = len(self.memory)
-        minibatch = random.sample(self.memory, batch_size)
+        minibatch = random.sample(self.memory, batch_size)  # TODO!
         for state, action, reward, next_state, done in minibatch:
             target = reward
             if not done:
                 target = reward + self.gamma * \
                          np.amax(self.model.predict(next_state)[0])
             target_f = self.model.predict(state)
+            print(target_f)
             target_f[0][action] = target
             self.model.fit(state, target_f, epochs=1, verbose=0)
         if self.epsilon > self.epsilon_min:
