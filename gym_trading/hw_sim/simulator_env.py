@@ -1,19 +1,19 @@
-from gym_simulator.envs.OrderBook import OrderBook
-from gym_simulator.envs.OrderBookOracle import OrderBookOracle
+from gym_trading.hw_sim.OrderBook import OrderBook
+from gym_trading.hw_sim.OrderBookOracle import OrderBookOracle
 
 import random
 import gym
 from gym import spaces
-import pandas as pd
 import numpy as np
+import os
 
 # mkt_open and mkt_close are in unit "second": 34200 denotes 09:30 and 57600 denotes 16:00
 mkt_open = 34200
 mkt_close = 57600
-orders_file_path = 'E:/Git/rl_abmnew1/Market_Replay/gym_simulator/envs' \
-                   '/AAPL_2012-06-21_34200000_57600000_message_10.csv'
-LOB_file_path = 'E:/Git/rl_abmnew1/Market_Replay/gym_simulator/envs' \
-                '/AAPL_2012-06-21_34200000_57600000_orderbook_10.csv'
+
+FILE_PATH = os.path.dirname(os.path.abspath(__file__))
+orders_file_path = FILE_PATH + '/AAPL_2012-06-21_34200000_57600000_message_10.csv'
+LOB_file_path = FILE_PATH + '/AAPL_2012-06-21_34200000_57600000_orderbook_10.csv'
 
 class Simulator(gym.Env):
     metadata = {'render.modes': ['human']}

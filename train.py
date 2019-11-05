@@ -1,9 +1,11 @@
 import gym
-import gym_simulator
+import gym_trading
+from collections import deque
+import random
 import numpy as np
 from DQNAgent import DQNAgent
 
-env = gym.make('simulator-v0')
+env = gym.make('hwenv-v0')
 
 action_size = (env.action_space.high - env.action_space.low)[0]
 state_size = env.observation_space.shape[0]
