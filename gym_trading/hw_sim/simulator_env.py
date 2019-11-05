@@ -30,9 +30,9 @@ class Simulator(gym.Env):
         self.OrderBook = OrderBook(self.OrderBookOracle.getHistoricalOrderBook(mkt_open + 1))
         # Inventory of shares hold to sell.
         self.initial_inventory = 500
-        # Action Space: Size of the Market Order (Buy: > 0, Sell: < 0)
+        # Action Space
         self.action_space = spaces.Box(
-            low=0, high=9, shape=(1,), dtype=np.int64)
+            low=0, high=1, shape=(1,), dtype=np.float64)
         # Observation Space: [Time, Inventory, Spread State, Volume State]
         self.observation_space = spaces.Box(
             low=np.array([0, 0, 0, 0]), high=np.array([1, 1, 1, 1]), dtype=np.float16)
@@ -59,9 +59,7 @@ class Simulator(gym.Env):
         if self.current_time == self.initial_time + self.time_horizon:
             order_size = -self.inventory
         else:
-            Replacement = {0: 0, 1: 0.01, 2: 0.02, 3: 0.03, 4: 0.04, 5: 0.1, 6: 0.2, 7: 0.25, 8: 0.5, 9: 1}
-            order_size = -round(self.inventory * Replacement[action])
-        print(order_size)
+            order_size = -self.inventory * action
         if order_size != 0:
             execution_price, implementation_shortfall = self.OrderBook.handleMarketOrder(order_size)
         else:

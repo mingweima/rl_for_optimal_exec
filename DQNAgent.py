@@ -10,7 +10,7 @@ class DQNAgent:
         self.action_size = action_size
         self.memory = deque(maxlen=5000)
         self.gamma = 1  # discount rate
-        self.epsilon = 1.0  # exploration rate
+        self.epsilon = 1  # exploration rate
         self.epsilon_min = 0.1
         self.epsilon_decay = 0.8
         self.learning_rate = 0.1
@@ -30,10 +30,10 @@ class DQNAgent:
         self.memory.append((state, action, reward, next_state, done))
 
     def act(self, state):
+        print("Model.Predict: ", self.model.predict(state))
         if np.random.rand() <= self.epsilon:
-            return random.randrange(self.action_size)
-        act_values = self.model.predict(state)
-        return np.argmax(act_values[0])  # returns action
+            return random.random()
+        return self.model.predict(state)[0] # returns action
 
     def replay(self, batch_size):
         if len(self.memory) < batch_size:
