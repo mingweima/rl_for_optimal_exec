@@ -1,11 +1,11 @@
 import gym
-import gym_simulator
+import gym_trading
 from collections import deque
 import random
 import numpy as np
 from DQNAgent import DQNAgent
 
-env = gym.make('simulator-v0')
+env = gym.make('hwenv-v0')
 
 action_size = (env.action_space.high - env.action_space.low)[0]
 state_size = env.observation_space.shape[0]
@@ -14,7 +14,7 @@ episodes = 5000
 agent = DQNAgent(state_size, action_size)
 for i in range(episodes):
     state = env.reset()
-    state = np.reshape(state, [1,4])
+    state = np.reshape(state, [1, 4])
     total_reward = 0
     for time_t in range(50):
         action = agent.act(state)
