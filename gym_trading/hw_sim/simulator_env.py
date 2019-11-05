@@ -1,5 +1,6 @@
 from gym_trading.hw_sim.OrderBook import OrderBook
 from gym_trading.hw_sim.OrderBookOracle import OrderBookOracle
+from gym_trading.hw_sim.config import ORDER_BOOK_ORACLE, MKT_OPEN
 
 import random
 import gym
@@ -7,27 +8,20 @@ from gym import spaces
 import numpy as np
 import os
 
-# mkt_open and mkt_close are in unit "second": 34200 denotes 09:30 and 57600 denotes 16:00
-mkt_open = 34200
-mkt_close = 57600
-
-FILE_PATH = os.path.dirname(os.path.abspath(__file__))
-orders_file_path = FILE_PATH + '/AAPL_2012-06-21_34200000_57600000_message_10.csv'
-LOB_file_path = FILE_PATH + '/AAPL_2012-06-21_34200000_57600000_orderbook_10.csv'
 
 class Simulator(gym.Env):
     metadata = {'render.modes': ['human']}
 
     def __init__(self):
         super(Simulator, self).__init__()
-        self.current_time = mkt_open + 1
+        self.current_time = MKT_OPEN + 1
         self.time_horizon = 30
         self.num_of_spread_state = 10
         self.num_of_volume_state = 10
         # Initializes the Oracle by inputing historical data files.
-        self.OrderBookOracle = OrderBookOracle(mkt_open, mkt_close, orders_file_path, LOB_file_path)
+        self.OrderBookOracle = ORDER_BOOK_ORACLE
         # Initializes the OrderBook at a given historical time.
-        self.OrderBook = OrderBook(self.OrderBookOracle.getHistoricalOrderBook(mkt_open + 1))
+        self.OrderBook = OrderBook(self.OrderBookOracle.getHistoricalOrderBook(MKT_OPEN + 1))
         # Inventory of shares hold to sell.
         self.initial_inventory = 500
         # Action Space
@@ -37,10 +31,11 @@ class Simulator(gym.Env):
         self.observation_space = spaces.Box(
             low=np.array([0, 0, 0, 0]), high=np.array([1, 1, 1, 1]), dtype=np.float16)
 
+
     def reset(self):
-        self.initial_time = random.randint(mkt_open+100, mkt_open+100)
+        self.initial_time = random.randint(MKT_OPEN+100, MKT_OPEN+100)
         self.current_time = self.initial_time
-        self.OrderBookOracle = OrderBookOracle(mkt_open, mkt_close, orders_file_path, LOB_file_path)
+        self.OrderBookOracle = ORDER_BOOK_ORACLE
         self.OrderBook = OrderBook(self.OrderBookOracle.getHistoricalOrderBook(self.current_time - 1))
         self.inventory = self.initial_inventory
         obs = self.observation()
@@ -48,7 +43,6 @@ class Simulator(gym.Env):
 
 
     def step(self, action):
-
         # Add market replay orders.
         while self.OrderBookOracle.orders_list[0]['TIME'] <= self.current_time:
             if self.OrderBookOracle.orders_list[0]['TIME'] == self.current_time:
@@ -58,15 +52,25 @@ class Simulator(gym.Env):
         # Take action (market order) and calculate reward
         if self.current_time == self.initial_time + self.time_horizon:
             order_size = -self.inventory
+            action = 1
         else:
-            order_size = -self.inventory * action
+
+            # Replacement = {0: 0, 1: 0.01, 2: 0.02, 3: 0.03, 4: 0.04, 5: 0.1, 6: 0.2, 7: 0.25, 8: 0.5, 9: 1}
+            # order_size = -round(self.inventory * Replacement[action])
+            order_size = self.inventory * action
+            order_size = -round(order_size)
+
+
         if order_size != 0:
+            # print(order_size)
             execution_price, implementation_shortfall = self.OrderBook.handleMarketOrder(order_size)
         else:
             execution_price, implementation_shortfall = 0, 0
-        reward = -implementation_shortfall
+
+        reward = -implementation_shortfall if action < 0.5 else -1e5 - implementation_shortfall
 
         self.inventory += order_size
+        # print(self.inventory)
         done = self.inventory <= 0
         obs = self.observation()
         self.current_time += 1
