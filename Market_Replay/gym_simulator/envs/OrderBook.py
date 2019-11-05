@@ -19,30 +19,75 @@ class OrderBook:
         # Matches a limit order or adds it to the order book.
         # Returns execution price and executed size, if the order is completed added to the order book without
         # any matching, both execution price and executed size equal zero.
-        matching = True
         execution_price = 0.0
         executed_size = 0
 
-        # Repeatedly match the order with the order book
-        while matching:
-            matched_order = deepcopy(self.executeOrder(order))
-            if matched_order:
-                # Update the execution price and executed price
-                if executed_size + matched_order['SIZE'] == 0:
-                    execution_price = 0
-                else:
-                    execution_price = (execution_price * executed_size + matched_order['PRICE'] *
-                                       matched_order['SIZE'])/(executed_size + matched_order['SIZE'])
-                executed_size += matched_order['SIZE']
+        if order['TYPE'] == 1:
+            # Submission of a new limit order
+            matching = True
 
-                # Decrement quantity on the order.
-                order['SIZE'] -= matched_order['SIZE']
-                if order['SIZE'] <= 0:
+            # Repeatedly match the order with the order book
+            while matching:
+                matched_order = deepcopy(self.executeOrder(order))
+                if matched_order:
+                    # Update the execution price and executed price
+                    if executed_size + matched_order['SIZE'] == 0:
+                        execution_price = 0
+                    else:
+                        execution_price = (execution_price * executed_size + matched_order['PRICE'] *
+                                        matched_order['SIZE'])/(executed_size + matched_order['SIZE'])
+                    executed_size += matched_order['SIZE']
+
+                    # Decrement quantity on the order.
+                    order['SIZE'] -= matched_order['SIZE']
+                    if order['SIZE'] <= 0:
+                        matching = False
+                else:
+                    # No matching order was found, so the new order enters the order book.
+                    self.enterOrder(deepcopy(order))
                     matching = False
+
+        if order['TYPE'] == 2 or order['TYPE'] == 3:
+            # Order Cancellation
+            if order['BUY_SELL_FLAG'] == 'BUY':
+                book = self.bids
             else:
-                # No matching order was found, so the new order enters the order book.
-                self.enterOrder(deepcopy(order))
-                matching = False
+                book = self.asks
+            for o in book:
+                if o[0]['PRICE'] == order['PRICE']:
+                    while order['SIZE'] > 0 and o:
+                        if o[0]['SIZE'] <= order['SIZE']:
+                            order['SIZE'] -= o[0]['SIZE']
+                            o.pop(0)
+                        else:
+                            o[0]['SIZE'] -= order['SIZE']
+                            order['SIZE'] = 0
+                    if not o:
+                        book.remove(o)
+                    break
+            execution_price = order['TYPE']
+            executed_size = order['SIZE']
+
+        if order['TYPE'] == 4 or order['TYPE'] == 5:
+            # Order Cancellation
+            if order['BUY_SELL_FLAG'] == 'BUY':
+                book = self.bids
+            else:
+                book = self.asks
+            for o in book:
+                if o[0]['PRICE'] == order['PRICE']:
+                    while order['SIZE'] > 0 and o:
+                        if o[0]['SIZE'] <= order['SIZE']:
+                            order['SIZE'] -= o[0]['SIZE']
+                            o.pop(0)
+                        else:
+                            o[0]['SIZE'] -= order['SIZE']
+                            order['SIZE'] = 0
+                    if not o:
+                        book.remove(o)
+                    break
+            execution_price = order['TYPE']
+            executed_size = order['SIZE']
 
         return execution_price, executed_size
 
@@ -52,14 +97,14 @@ class OrderBook:
 
         if action >= 0:
             lowest_ask_price = self.asks[0][0]['PRICE']
-            order = {'SIZE': action, 'PRICE': sys.maxsize, 'BUY_SELL_FLAG': 'BUY'}
+            order = {'TYPE': 1, 'SIZE': action, 'PRICE': sys.maxsize, 'BUY_SELL_FLAG': 'BUY'}
 
             # Handles the corresponding limit order.
             execution_price, executed_size = self.handleLimitOrder(order)
             implementation_shortfall = (execution_price - lowest_ask_price) * executed_size
         else:
             highest_bid_price = self.bids[0][0]['PRICE']
-            order =  {'SIZE': -action, 'PRICE': 0, 'BUY_SELL_FLAG': 'SELL'}
+            order =  {'TYPE': 1, 'SIZE': -action, 'PRICE': 0, 'BUY_SELL_FLAG': 'SELL'}
 
             # Handles the corresponding limit order.
             execution_price, executed_size = self.handleLimitOrder(order)
@@ -165,6 +210,20 @@ class OrderBook:
             book.append([price, qty])
         return book
 
+    def getAsksQuantity(self):
+        qty = 0
+        for i in range(len(self.asks)):
+            for o in self.asks[i]:
+                qty += o['SIZE']
+        return qty
+
+    def getBidsQuantity(self):
+        qty = 0
+        for i in range(len(self.bids)):
+            for o in self.bids[i]:
+                qty += o['SIZE']
+        return qty
+
     def isBetterPrice(self, order, o):
         # Returns True if order has a 'better' price than o.  (That is, a higher bid
         # or a lower ask.)  Must be same order type.
@@ -186,11 +245,11 @@ class OrderBook:
         if self.asks and self.bids:
             return (self.bids[0][0]['PRICE'] + self.asks[0][0]['PRICE'])/2
         else:
-            raise AssertionError('Cannot get bid-ask spread for empty order book!')
+            return -1
 
     def getBidAskSpread(self):
         # Returns the current bid-ask spread.
         if self.asks and self.bids:
             return self.asks[0][0]['PRICE'] - self.bids[0][0]['PRICE']
         else:
-            raise AssertionError('Cannot get bid-ask spread for empty order book!')
+            return -1
