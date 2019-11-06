@@ -8,7 +8,7 @@ env = gym.make('hwenv-v0')
 
 action_size = 10
 state_size = 4
-episodes = 2000
+episodes = 500
 
 agent = DQNAgent(state_size, action_size)
 
@@ -19,7 +19,7 @@ for i in range(episodes):
     state = env.reset()
     state = np.reshape(state, [1, 4])
     total_reward = 0
-    for time_t in range(50):
+    for time_t in range(60):
         action = agent.act(state)
         next_state, reward, done, _ = env.step(action/10)
         next_state = np.reshape(next_state, [1, 4])

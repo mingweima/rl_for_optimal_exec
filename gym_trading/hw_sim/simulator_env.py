@@ -15,7 +15,7 @@ class Simulator(gym.Env):
     def __init__(self):
         super(Simulator, self).__init__()
         self.current_time = MKT_OPEN + 1
-        self.time_horizon = 30
+        self.time_horizon = 50
         self.num_of_spread_state = 10
         self.num_of_volume_state = 10
         # Initializes the Oracle by inputing historical data files.
@@ -23,7 +23,7 @@ class Simulator(gym.Env):
         # Initializes the OrderBook at a given historical time.
         self.OrderBook = OrderBook(self.OrderBookOracle.getHistoricalOrderBook(MKT_OPEN + 1))
         # Inventory of shares hold to sell.
-        self.initial_inventory = 500
+        self.initial_inventory = 100
         # Action Space
         self.action_space = spaces.Box(
             low=0, high=1, shape=(1,), dtype=np.float64)
