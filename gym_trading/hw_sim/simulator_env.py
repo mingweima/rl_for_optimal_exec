@@ -74,7 +74,7 @@ class Simulator(gym.Env):
         done = self.inventory <= 0
         obs = self.observation()
         self.current_time += 1
-        return obs, reward, done, {}
+        return obs, reward/10000, done, {}
 
     def observation(self):
         time_index = (self.current_time - self.initial_time)/100
