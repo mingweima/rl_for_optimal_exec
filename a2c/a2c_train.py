@@ -4,7 +4,7 @@ import gym
 import gym_trading
 
 
-from A2C.ddpg_agent import Agent
+from a2c.ddpg_agent import Agent
 
 
 env = gym.make('hwenv-v0')

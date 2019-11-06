@@ -3,7 +3,7 @@ import random
 import copy
 from collections import namedtuple, deque
 
-from A2C.ac_model import Actor, Critic
+from a2c.ac_model import Actor, Critic
 
 import torch
 import torch.nn.functional as F

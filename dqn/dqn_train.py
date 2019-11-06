@@ -2,13 +2,14 @@ import gym
 import gym_trading
 import numpy as np
 import matplotlib.pyplot as plt
-from DQN.DQNAgent import DQNAgent
+from dqn.DQNAgent import DQNAgent
+from tools.plot_tool import plot_with_avg_std
 
 env = gym.make('hwenv-v0')
 
 action_size = 10
 state_size = 4
-episodes = 500
+episodes = 1000
 
 agent = DQNAgent(state_size, action_size)
 
@@ -32,5 +33,6 @@ for i in range(episodes):
     rewards_list.append(total_reward)
     agent.replay(10)
 
-plt.plot(range(episodes), rewards_list)
-plt.show()
+
+plot_with_avg_std(rewards_list, 20, show=True)
+
