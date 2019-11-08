@@ -34,6 +34,7 @@ class DQNAgent:
         # Ouput: action signal (from 0 to 9)
         reward_list = self.model.predict(state)[0]
         s = np.exp(reward_list)
+        # print(s)
         probability_list = s/np.sum(s)
         prob_mass = 0
         rand = random.random()
@@ -47,6 +48,9 @@ class DQNAgent:
         if len(self.memory) < batch_size:
             batch_size = len(self.memory)
         minibatch = random.sample(self.memory, batch_size)
+        # print(minibatch)
+        states = []
+        targets = []
         for state, action, reward, next_state, done in minibatch:
             target = reward
             if not done:
@@ -54,6 +58,8 @@ class DQNAgent:
                          np.amax(self.model.predict(next_state)[0])
             target_f = self.model.predict(state)
             target_f[0][action] = target
+            # states.append(state[0])
+            # targets.append(target_f[0])
             self.model.fit(state, target_f, epochs=1, verbose=0)
         if self.epsilon > self.epsilon_min:
             self.epsilon *= self.epsilon_decay

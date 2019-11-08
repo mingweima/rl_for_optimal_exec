@@ -15,7 +15,7 @@ class Simulator(gym.Env):
     def __init__(self):
         super(Simulator, self).__init__()
         self.current_time = MKT_OPEN + 1
-        self.time_horizon = 50
+        self.time_horizon = 60
         self.num_of_spread_state = 10
         self.num_of_volume_state = 10
         # Initializes the Oracle by inputing historical data files.
@@ -54,12 +54,10 @@ class Simulator(gym.Env):
             order_size = -self.inventory
             action = 1
         else:
-
             # Replacement = {0: 0, 1: 0.01, 2: 0.02, 3: 0.03, 4: 0.04, 5: 0.1, 6: 0.2, 7: 0.25, 8: 0.5, 9: 1}
             # order_size = -round(self.inventory * Replacement[action])
             order_size = self.inventory * action
             order_size = -round(order_size)
-
 
         if order_size != 0:
             # print(order_size)
@@ -67,14 +65,14 @@ class Simulator(gym.Env):
         else:
             execution_price, implementation_shortfall = 0, 0
 
-        reward = -implementation_shortfall if action < 0.5 else -1e5 - implementation_shortfall
+        reward = execution_price / 10000
 
         self.inventory += order_size
         # print(self.inventory)
         done = self.inventory <= 0
         obs = self.observation()
         self.current_time += 1
-        return obs, reward/10000, done, {}
+        return obs, reward / 1000, done, {}
 
     def observation(self):
         time_index = (self.current_time - self.initial_time)/100
