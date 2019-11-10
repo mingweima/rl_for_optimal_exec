@@ -26,6 +26,7 @@ class ReplayBuffer:
         """Randomly sample a batch of experiences from memory."""
         experiences = random.sample(self.memory, k=1)
         states = np.vstack([e.state for e in experiences if e is not None])
+        # print('state seq', states.shape)
         actions = np.vstack([e.action for e in experiences if e is not None])
         rewards = np.vstack([e.reward for e in experiences if e is not None])
         next_states = np.vstack([e.next_state for e in experiences if e is not None])

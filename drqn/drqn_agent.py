@@ -15,21 +15,52 @@ from drqn.replay_buffer import ReplayBuffer
 from tools.plot_tool import plot_with_avg_std
 
 
+class LinearSchedule(object):
+    def __init__(self, schedule_timesteps, final_p, initial_p=1.0):
+        """Linear interpolation between initial_p and final_p over
+        schedule_timesteps. After this many timesteps pass final_p is
+        returned.
+        Parameters
+        ----------
+        schedule_timesteps: int
+            Number of timesteps for which to linearly anneal initial_p
+            to final_p
+        initial_p: float
+            initial output value
+        final_p: float
+            final output value
+        """
+        self.schedule_timesteps = schedule_timesteps
+        self.final_p = final_p
+        self.initial_p = initial_p
+
+    def value(self, t):
+        """See Schedule.value"""
+        fraction = min(float(t) / self.schedule_timesteps, 1.0)
+        return self.initial_p + fraction * (self.final_p - self.initial_p)
+
+
 class DRQNAgent(object):
-    def __init__(self, state_size, action_size, lookback=1, batch_size=16):
+    def __init__(self,
+                 state_size,
+                 action_size,
+                 lookback=1,
+                 batch_size=64,
+                 initial_exploration_eps=1000,
+                 exploration=LinearSchedule(100000, 0.0001)):
         self.batch_size = batch_size
-        self.replay_buffer = ReplayBuffer(buffer_size=int(1e4), replay_batch_size=batch_size, seed=0)
+        self.replay_buffer = ReplayBuffer(buffer_size=int(1e5), replay_batch_size=batch_size, seed=0)
         # get size of state and action
         self.state_size = state_size
         self.action_size = action_size
-        self.action_space = np.asarray([0.05 * n for n in range(21)])
+        self.action_space = np.asarray([0.1 * n for n in range(10)])
         self.lookback = lookback
+        self.exploration=exploration
 
         # These are hyper parameters
         self.discount_factor = 0.99
-        self.critic_lr = 1e-4
-        self.initial_exploration_eps = 1000
-        self.epsilon = 0.05
+        self.critic_lr = 1e-1
+        self.initial_exploration_eps = initial_exploration_eps
 
         # create model for Q network
         self.model = self.initialize_model()
@@ -37,12 +68,14 @@ class DRQNAgent(object):
         # initialize target model
         self.update_target_model()
 
+        self.t = 0
+
     # approximate Q function using Neural Network
     # obs_seq is input and Q Value of each action is output of network
     def initialize_model(self):
         model = Sequential()
         model.add(Masking(mask_value=0., input_shape=(self.lookback, self.state_size)))
-        model.add(LSTM(24, input_dim=(self.lookback, self.state_size), activation='relu',
+        model.add(LSTM(64, input_dim=(self.lookback, self.state_size), activation='tanh',
                        kernel_initializer='zeros'))
         model.add(Dense(24, activation='relu',
                         kernel_initializer='he_uniform'))
@@ -53,30 +86,26 @@ class DRQNAgent(object):
         return model
 
         # after some time interval update the target model to be same with model
-
     def update_target_model(self):
         self.target_model.set_weights(self.model.get_weights())
 
     def get_action(self, obs_seq):
-        if len(self.replay_buffer) < self.initial_exploration_eps or np.random.rand() < self.epsilon:
+        if len(self.replay_buffer) < self.initial_exploration_eps:
             return np.random.choice(self.action_space, 1)[0]
-        else:
-            # print(obs_seq.shape)
-            # obs_seq = obs_seq.reshape((1, self.lookback, self.state_size))
-            # q_value = self.model.predict(obs_seq, batch_size=1).flatten()
-            # max_q_idx = np.argmax(q_value[0])
-            # return self.action_space[max_q_idx]
+        elif random.random() < self.exploration.value(self.t):
             obs_seq = obs_seq.reshape((1, self.lookback, self.state_size))
             q_value = self.model.predict(obs_seq, batch_size=1).flatten()
             s = np.exp(q_value)
             probability_list = s / np.sum(s)
-            prob_mass = 0
-            rand = random.random()
-            for i in range(self.action_size):
-                if prob_mass <= rand < prob_mass + probability_list[i]:
-                    return self.action_space[i]
-                else:
-                    prob_mass += probability_list[i]
+            ac = np.random.choice(self.action_space, 1, p=probability_list)[0]
+        else:
+            obs_seq = obs_seq.reshape((1, self.lookback, self.state_size))
+            q_value = self.model.predict(obs_seq, batch_size=1).flatten()
+            idx = np.argmax(q_value)
+            ac = self.action_space[idx]
+        if random.random() < 0.001:
+            print(q_value)
+        return ac
 
     def sample_transition_pairs(self, env, max_step=100):
         obs_s, obs_seq_s, ac_s, rew_s, done_s = [], [], [], [], []
@@ -87,8 +116,8 @@ class DRQNAgent(object):
         def padding(seq):
             if len(seq) < self.lookback:
                 len_to_pad = self.lookback - len(seq)
-                # pad = [np.zeros_like(init_obs)] * len_to_pad
-                pad = [init_obs] * len_to_pad
+                pad = [np.zeros_like(init_obs)] * len_to_pad
+                # pad = [init_obs] * len_to_pad
                 seq = pad + seq
             return seq
 
@@ -110,9 +139,11 @@ class DRQNAgent(object):
             self.replay_buffer.add(obs_seq, ac, rew, new_obs_seq, done)
             if done:
                 break
+        self.t += 1
         return total_rew
 
     def train_model(self):
+        # print(len(self.replay_buffer), self.initial_exploration_eps)
         if len(self.replay_buffer) < self.initial_exploration_eps:
             return
         batch_size = min(self.batch_size, len(self.replay_buffer))
@@ -128,9 +159,9 @@ class DRQNAgent(object):
             reward.append(mini_batch[i][2])
             update_target[i] = mini_batch[i][3]
             done.append(mini_batch[i][4])
-
-        update_input = update_input.reshape((-1, self.lookback, self.state_size))
-        update_target = update_target.reshape((-1, self.lookback, self.state_size))
+        # # print('ui shaoe', update_input.shape)
+        # update_input = update_input.reshape((-1, self.lookback, self.state_size))
+        # update_target = update_target.reshape((-1, self.lookback, self.state_size))
 
         target = self.model.predict(update_input)
         target_val = self.target_model.predict(update_target)
@@ -138,26 +169,28 @@ class DRQNAgent(object):
         for i in range(batch_size):
             # Q Learning: get maximum Q value at s' from target model
             if done[i]:
-                target[i][int(action[i] * 20 - 1)] = reward[i]  # TODO: Action dict!
+                target[i][int(action[i] * 10)] = reward[i]  # TODO: Action dict!
             else:
-                target[i][int(action[i] * 20 - 1)] = reward[i] + self.discount_factor * (
+                target[i][int(action[i] * 10)] = reward[i] + self.discount_factor * (
                     np.amax(target_val[i]))
 
         # and do the model fit!
+        # print(update_input.shape)
+        # print('==================================================')
         self.model.fit(update_input, target, batch_size=self.batch_size,
                        epochs=1, verbose=0)
 
 
 if __name__ == "__main__":
-    EPISODES = 20000
+    EPISODES = 100000
 
     # In case of CartPole-v1, maximum length of episode is 500
     env = gym.make('hwenv-v0')
     # get size of state and action from environment
     state_size = 4
-    action_size = 20
+    action_size = 10
 
-    agent = DRQNAgent(state_size, action_size, lookback=5)
+    agent = DRQNAgent(state_size, action_size, lookback=5, batch_size=32, initial_exploration_eps=10000)
 
     scores, episodes = [], []
     avg_step = 100
@@ -168,8 +201,9 @@ if __name__ == "__main__":
             avg = sum(scores[-avg_step:-1]) / avg_step
             print('{} episode: {}/{}, average reward: {}'.
                   format(datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"), eps, EPISODES, avg))
-        agent.train_model()
-        if eps % 100 == 0:
+        if eps % 32 == 0:
+            agent.train_model()
+        if eps % 64 == 0:
             agent.update_target_model()
 
-    plot_with_avg_std(scores, 100, xlabel=f'Number of Episodes in {100}')
+    plot_with_avg_std(scores, 500, xlabel=f'Number of Episodes in {500}')
