@@ -31,7 +31,6 @@ class Simulator(gym.Env):
         self.observation_space = spaces.Box(
             low=np.array([0, 0, 0, 0]), high=np.array([1, 1, 1, 1]), dtype=np.float16)
 
-
     def reset(self):
         self.initial_time = random.randint(MKT_OPEN+100, MKT_OPEN+100)
         self.current_time = self.initial_time
@@ -40,7 +39,6 @@ class Simulator(gym.Env):
         self.inventory = self.initial_inventory
         obs = self.observation()
         return obs
-
 
     def step(self, action):
         # Add market replay orders.
@@ -61,11 +59,11 @@ class Simulator(gym.Env):
 
         if order_size != 0:
             # print(order_size)
-            execution_price, implementation_shortfall = self.OrderBook.handleMarketOrder(order_size)
+            vwap, _ = self.OrderBook.handleMarketOrder(order_size)
         else:
-            execution_price, implementation_shortfall = 0, 0
+            vwap = 0
 
-        reward = execution_price / 10000
+        reward = -order_size*vwap/5000
 
         self.inventory += order_size
         # print(self.inventory)
@@ -80,7 +78,7 @@ class Simulator(gym.Env):
         spread_index = self.OrderBook.getBidAskSpread()/10000
         volume_index = self.OrderBook.getBidAskVolume()/1000
 
-        return [time_index, inventory_index, spread_index, volume_index]
+        return np.asarray(([time_index, inventory_index, spread_index, volume_index]))
 
     def render(self, mode='human', close=False):
         # print('Step: {}'.format(self.current_step))

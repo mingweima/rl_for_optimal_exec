@@ -1,19 +1,21 @@
 import gym
 import gym_trading
 import numpy as np
-import matplotlib.pyplot as plt
-from DQN.DQNAgent import DQNAgent
+import datetime
+
+from dqn.dqn_agent import DQNAgent
 from tools.plot_tool import plot_with_avg_std
+
 
 env = gym.make('hwenv-v0')
 
 action_size = 10
 state_size = 4
-episodes = 1000
+episodes = 20000
 
 agent = DQNAgent(state_size, action_size)
 
-batch_size = 10
+batch_size = 64
 rewards_list = []
 
 for i in range(episodes):
@@ -28,11 +30,12 @@ for i in range(episodes):
         agent.remember(state, action, reward, next_state, done)
         state = next_state
         if done:
-            print('episode: {}/{}, total reward: {}, total time: {}'.format(i, episodes, total_reward, time_t))
+            if (i % 10 == 0):
+                print('{} episode: {}/{}, total reward: {}, total time: {}'.
+                    format(datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"), i, episodes, total_reward, time_t))
             break
     rewards_list.append(total_reward)
-    agent.replay(10)
+    agent.replay(batch_size)
 
 
-plot_with_avg_std(rewards_list, 20, show=True)
-plt.show()
+plot_with_avg_std(rewards_list, 100, xlabel=f'Number of Episodes in {100}')

@@ -1,6 +1,7 @@
 import matplotlib.pyplot as plt
+import seaborn as sns; sns.set()
 import numpy as np
-
+import pandas as pd
 
 def setup_matplotlib():
     #pylab.style.use('fivethirtyeight')
@@ -36,16 +37,19 @@ def plot_custom_errorbar_plot(x, y, std, use_marker=False, color=None, marker=No
     return l
 
 
-def plot_with_avg_std(y, av_step, show=False,
+def plot_with_avg_std(y, av_step, show=True,
                       xlabel='Num Episodes', ylabel='Total Reward'):
     setup_matplotlib()
     x_points = int(len(y) / av_step)
     avg_y = np.array(y).reshape(x_points, av_step)
     means_avg_y = np.mean(avg_y, axis=1)
     stds_avg_y = np.std(avg_y, axis=1)
-    plot_custom_errorbar_plot(range(x_points), means_avg_y, stds_avg_y)
+    conf = 1.96 * stds_avg_y / np.sqrt(av_step)
+    plot_custom_errorbar_plot(range(x_points), means_avg_y, conf)
     plt.xlabel(xlabel)
     plt.ylabel(ylabel)
     if show is True:
         plt.show()
+
+
 
