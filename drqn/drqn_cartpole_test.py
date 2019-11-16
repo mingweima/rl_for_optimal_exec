@@ -16,7 +16,7 @@ if __name__ == "__main__":
     state_size = env.observation_space.shape[0]
     action_size = env.action_space.n
 
-    model = keras.models.load_model('drqn_cartpole_v0_10000_eps.h5')
+    model = keras.models.load_model('drqn_cartpole_v0_5000_eps.h5')
     agent = DRQN_Cartpole_Agent(state_size,
                                 action_size,
                                 lookback=5,

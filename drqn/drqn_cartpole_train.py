@@ -192,7 +192,7 @@ class DRQN_Cartpole_Agent(object):
 
 if __name__ == "__main__":
 
-    EPISODES = 20000
+    EPISODES = 10000
 
     # In case of CartPole-v0, maximum length of episode is 200
     env = gym.make('CartPole-v0')
