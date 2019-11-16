@@ -1,1 +1,1 @@
-from gym_trading.hw_sim.simulator_env import Simulator
+from gym_trading.hw_sim.SimulatorEnv import Simulator

@@ -1,6 +1,4 @@
 import numpy as np
-from collections import deque
-import random
 
 
 class AlmgrenChrissAgent:
@@ -19,8 +17,7 @@ class AlmgrenChrissAgent:
     def reset(self):
         self.j = 1
 
-    def act(self, state):
-        inventory = state[0][1]
+    def act(self, inventory):
         if self.kappa == 0:
             nj = self.tau / self.T * (1 / inventory)
         else:

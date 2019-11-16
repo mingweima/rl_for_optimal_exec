@@ -6,7 +6,6 @@ import datetime
 from dqn.dqn_agent import DQNAgent
 from tools.plot_tool import plot_with_avg_std
 
-
 env = gym.make('hwenv-v0')
 
 action_size = 10
@@ -30,9 +29,9 @@ for i in range(episodes):
         agent.remember(state, action, reward, next_state, done)
         state = next_state
         if done:
-            if (i % 10 == 0):
+            if i % 10 == 0:
                 print('{} episode: {}/{}, total reward: {}, total time: {}'.
-                    format(datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"), i, episodes, total_reward, time_t))
+                      format(datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"), i, episodes, total_reward, time_t))
             break
     rewards_list.append(total_reward)
     agent.replay(batch_size)
