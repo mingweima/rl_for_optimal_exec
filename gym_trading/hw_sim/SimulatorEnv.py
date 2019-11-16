@@ -1,6 +1,7 @@
 from gym_trading.hw_sim.OrderBook import OrderBook
 from gym_trading.hw_sim.OrderBookOracle import OrderBookOracle
 from gym_trading.hw_sim.config import ORDER_BOOK_ORACLE, MKT_OPEN
+from gym_trading.hw_sim.AlmgrenChriss import AlmgrenChrissAgent
 
 import random
 import gym
@@ -31,6 +32,8 @@ class Simulator(gym.Env):
         self.observation_space = spaces.Box(
             low=np.array([0, 0, 0, 0]), high=np.array([1, 1, 1, 1]), dtype=np.float16)
 
+        self.ac_agent = AlmgrenChrissAgent(time_horizon=self.time_horizon)
+
     def reset(self):
         self.initial_time = random.randint(MKT_OPEN+100, MKT_OPEN+100)
         self.current_time = self.initial_time
@@ -38,9 +41,12 @@ class Simulator(gym.Env):
         self.OrderBook = OrderBook(self.OrderBookOracle.getHistoricalOrderBook(self.current_time - 1))
         self.inventory = self.initial_inventory
         obs = self.observation()
+        self.ac_agent.reset()
         return obs
 
     def step(self, action):
+        ac_action = self.ac_agent.act(self.inventory/self.initial_inventory)
+        # print('AC', self.ac_agent.j, self.inventory/self.initial_inventory, ac_action)
         # Add market replay orders.
         while self.OrderBookOracle.orders_list[0]['TIME'] <= self.current_time:
             if self.OrderBookOracle.orders_list[0]['TIME'] == self.current_time:
@@ -55,6 +61,7 @@ class Simulator(gym.Env):
             # Replacement = {0: 0, 1: 0.01, 2: 0.02, 3: 0.03, 4: 0.04, 5: 0.1, 6: 0.2, 7: 0.25, 8: 0.5, 9: 1}
             # order_size = -round(self.inventory * Replacement[action])
             order_size = self.inventory * action
+            # convert to sell order
             order_size = -round(order_size)
 
         if order_size != 0:
@@ -63,14 +70,18 @@ class Simulator(gym.Env):
         else:
             vwap = 0
 
-        reward = -order_size*vwap/5000
+        ac_regularizor= - 10000*(action - ac_action)**2
+        # print(ac_regularizor)
+        reward = (-order_size)*vwap/10000 + ac_regularizor
 
         self.inventory += order_size
         # print(self.inventory)
         done = self.inventory <= 0
+        if done:
+            self.ac_agent.reset()
         obs = self.observation()
         self.current_time += 1
-        return obs, reward / 1000, done, {}
+        return obs, reward / 10000, done, {}
 
     def observation(self):
         time_index = (self.current_time - self.initial_time)/100
