@@ -3,7 +3,7 @@ import keras
 import gym
 
 from tools.plot_tool import plot_with_avg_std
-from drqn.drqn_cartpole_train import DRQN_Cartpole_Agent, LinearSchedule
+from drqn_cartpole.drqn_cartpole_train import DRQN_Cartpole_Agent, LinearSchedule
 
 
 if __name__ == "__main__":
