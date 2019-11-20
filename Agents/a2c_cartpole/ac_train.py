@@ -1,6 +1,6 @@
 import gym
 import numpy as np
-from actor_critic.ac_agent import ACAgent
+from Agents.a2c_cartpole.ac_agent import ACAgent
 from tools.plot_tool import plot_with_avg_std
 env = gym.make('CartPole-v1')
 
@@ -22,7 +22,7 @@ n_iter = 100
 total_timesteps = 0
 for itr in range(n_iter):
     print("********** Iteration %i ************" % itr)
-    paths, timesteps_this_batch, avg_rew = agent.sample_trajectories(itr, env)
+    paths, timesteps_this_batch, avg_rew = agent.sample_trajectories(env, render=True, animate_eps_frequency=10)
     avg_rews.append(avg_rew)
     print(avg_rew)
     total_timesteps += timesteps_this_batch

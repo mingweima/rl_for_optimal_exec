@@ -1,9 +1,8 @@
 import gym
-import gym_trading
 import numpy as np
 import datetime
 
-from dqn.dqn_agent import DQNAgent
+from Agents.dqn.dqn_agent import DQNAgent
 from tools.plot_tool import plot_with_avg_std
 
 env = gym.make('hwenv-v0')

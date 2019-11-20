@@ -2,7 +2,7 @@ import datetime
 import gym
 
 
-from drqn.drqn_agent import DRQNAgent
+from Agents.drqn import DRQNAgent
 from tools.plot_tool import plot_with_avg_std
 
 

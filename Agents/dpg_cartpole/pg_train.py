@@ -1,6 +1,6 @@
 import gym
 import numpy as np
-from policy_gradient.pg_keras import PGAgent
+from Agents.dpg_cartpole.pg_keras import PGAgent
 
 env = gym.make('CartPole-v1')
 

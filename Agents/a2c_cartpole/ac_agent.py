@@ -7,8 +7,6 @@ from keras import utils as np_utils
 from keras import optimizers
 
 
-
-
 class ACAgent(object):
     def __init__(self, ob_dim, ac_dim):
         self.ob_dim = ob_dim
@@ -25,6 +23,7 @@ class ACAgent(object):
         self.actor_model = self.initialize_actor_model()
         self.__build_train_fn()
         self.critic_model = self.initialize_critic_model()
+        self.num_sampled_trajectories = 0
 
     def initialize_actor_model(self):
         model = Sequential()
@@ -41,13 +40,12 @@ class ACAgent(object):
         model.compile(loss='mean_squared_error', optimizer=optimizers.Adam(lr=self.learning_rate))
         return model
 
-    def sample_trajectories(self, itr, env):
+    def sample_trajectories(self, env, render=False, animate_eps_frequency=10):
         timesteps_this_batch = 0
         paths = []
         total_rew = 0
         while True:
-            animate_this_episode = (len(paths)==0 and (itr % 10 == 0))
-            path = self.sample_trajectory(env, animate_this_episode)
+            path = self.sample_trajectory(env, render=render, animate_eps_frequency=animate_eps_frequency)
             paths.append(path)
             timesteps_this_batch += len(path["reward"])
             total_rew += np.sum(path["reward"])
@@ -56,17 +54,17 @@ class ACAgent(object):
         avg_rew = total_rew / len(paths)
         return paths, timesteps_this_batch, avg_rew
 
-    def sample_trajectory(self, env, animate_this_episode):
+    def sample_trajectory(self, env, render=False, animate_eps_frequency=10):
         ob = env.reset()
         obs, acs, rewards, next_obs, terminals = [], [], [], [], []
         steps = 0
         while True:
-            # if animate_this_episode:
-            #     env.render()
             obs.append(ob)
             action_prob = np.squeeze(self.actor_model.predict(np.reshape(ob, [1, 4])))
             ac = np.random.choice(np.arange(self.ac_dim), p=action_prob)
             ob, rew, done, _ = env.step(ac)
+            if render and self.num_sampled_trajectories % animate_eps_frequency == 0:
+                env.render()
             acs.append(ac)
             next_obs.append(ob)
             rewards.append(rew)
@@ -81,6 +79,7 @@ class ACAgent(object):
                 "action": np.array(acs, dtype=np.float32),
                 "next_observation": np.array(next_obs, dtype=np.float32),
                 "terminal": np.array(terminals, dtype=np.float32)}
+        self.num_sampled_trajectories += 1
         return path
 
     def estimate_advantage(self, ob_no, next_ob_no, re_n, terminal_n):
