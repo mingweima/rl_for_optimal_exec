@@ -10,13 +10,12 @@ if __name__ == "__main__":
 
     EPISODES = 100000
 
-    # In case of CartPole-v1, maximum length of episode is 500
     env = gym.make('hwenv-v0')
     # get size of state and action from environment
     state_size = 4
     action_size = 10
 
-    agent = DRQNAgent(state_size, action_size, lookback=5, batch_size=32, initial_exploration_eps=10000)
+    agent = DRQNAgent(state_size, action_size, lookback=5, batch_size=64, initial_exploration_eps=5000)
 
     scores, episodes = [], []
     avg_step = 100
@@ -24,7 +23,7 @@ if __name__ == "__main__":
         eps_rew = agent.sample_transition_pairs(env, max_step=70)
         scores.append(eps_rew)
         if eps % avg_step == 0:
-            avg = sum(scores[-avg_step:-1]) / avg_step
+            avg = sum(scores[-avg_step-1:-1]) / avg_step
             print('{} episode: {}/{}, average reward: {}'.
                   format(datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"), eps, EPISODES, avg))
         agent.train_model()

@@ -67,7 +67,7 @@ class DRQN_Cartpole_Agent(object):
 
         # These are hyper parameters
         self.discount_factor = 0.95
-        self.critic_lr = 1e-4
+        self.critic_lr = 1e-3
         self.initial_exploration_eps = initial_exploration_eps
 
         # create model for Q network
@@ -89,7 +89,7 @@ class DRQN_Cartpole_Agent(object):
         model.add(Masking(mask_value=0., input_shape=(self.lookback, self.state_size)))
         model.add(GRU(16, input_dim=(self.lookback, self.state_size), activation='tanh',
                        kernel_initializer='zeros'))
-        model.add(Dense(256, activation='linear',
+        model.add(Dense(48, activation='relu',
                         kernel_initializer='he_uniform'))
         model.add(Dense(self.action_size, activation='linear',
                         kernel_initializer='he_uniform'))
@@ -105,13 +105,6 @@ class DRQN_Cartpole_Agent(object):
         if len(self.replay_buffer) < self.initial_exploration_eps:
             return np.random.choice(self.action_space, 1)[0]
         elif random.random() < self.exploration.value(self.t):
-            # obs_seq = obs_seq.reshape((1, self.lookback, self.state_size))
-            # q_value = self.model.predict(obs_seq, batch_size=1).flatten()
-            # norm_q_value = q_value / np.sum(abs(q_value))
-            # s = np.exp(norm_q_value)
-            # probability_list = s / np.sum(s)
-            # # print('plist', probability_list)
-            # ac = np.random.choice(self.action_space, 1, p=probability_list)[0]
             return np.random.choice(self.action_space, 1)[0]
         else:
             obs_seq = obs_seq.reshape((1, self.lookback, self.state_size))
@@ -122,7 +115,7 @@ class DRQN_Cartpole_Agent(object):
             print(q_value)
         return ac
 
-    def sample_transition_pairs(self, train_env, max_step=100):
+    def sample_transition_pairs(self, train_env, render=False, max_step=100):
         obs_s, obs_seq_s, ac_s, rew_s, done_s = [], [], [], [], []
         init_obs = train_env.reset()
         obs_s.append(init_obs)
@@ -143,6 +136,8 @@ class DRQN_Cartpole_Agent(object):
             ac = self.get_action(obs_seq)
             # print(ac)
             new_obs, rew, done, _ = train_env.step(ac)
+            if render:
+                train_env.render()
             obs_s.append(new_obs)
             ac_s.append(ac)
             rew_s.append(rew)
@@ -192,22 +187,27 @@ class DRQN_Cartpole_Agent(object):
 
 if __name__ == "__main__":
 
-    EPISODES = 10000
+    EPISODES = 20000
 
     # In case of CartPole-v0, maximum length of episode is 200
-    env = gym.make('CartPole-v0')
+    env = gym.make('CartPole-v1')
     # get size of state and action from environment
     state_size = env.observation_space.shape[0]
     action_size = env.action_space.n
 
     print(state_size, action_size)
 
-    agent = DRQN_Cartpole_Agent(state_size, action_size, lookback=5, batch_size=64, initial_exploration_eps=1000)
+    agent = DRQN_Cartpole_Agent(state_size,
+                                action_size,
+                                lookback=5,
+                                batch_size=64,
+                                initial_exploration_eps=1000,
+                                buffer_size=int(2e5))
 
     scores, episodes = [], []
     avg_step = 100
     for eps in range(EPISODES):
-        eps_rew = agent.sample_transition_pairs(env, max_step=200)
+        eps_rew = agent.sample_transition_pairs(env, render=(eps % avg_step == 0), max_step=500)
         scores.append(eps_rew)
         if eps % avg_step == 0:
             avg = sum(scores[-avg_step:-1]) / avg_step
@@ -216,8 +216,10 @@ if __name__ == "__main__":
         agent.train_model()
         if eps % 1 == 0:
             agent.update_target_model()
+        if eps % 100 == 0:
+            env.render()
         env.reset()
-        if eps % 5000 == 0:
-            agent.model.save(f'drqn_cartpole_v0_{int(eps)}_eps.h5')
+        if eps % 10000 == 0:
+            agent.model.save(f'drqn_cartpole_tanh_v1_{int(eps)}_eps.h5')
 
     plot_with_avg_std(scores, 500, xlabel=f'Number of Episodes in {500}')

@@ -7,8 +7,6 @@ from tools.plot_tool import plot_with_avg_std
 
 env = gym.make('hwenv-v0')
 
-action_size = 10
-state_size = 4
 episodes = 10
 
 agent = AlmgrenChrissAgent(time_horizon=60)
@@ -22,7 +20,6 @@ for i in range(episodes):
     total_reward = 0
     for time_t in range(60):
         action = agent.act(state)
-        # print("action:", action * state[0][1])
         next_state, reward, done, _ = env.step(action)
         next_state = np.reshape(next_state, [1, 4])
         total_reward += reward

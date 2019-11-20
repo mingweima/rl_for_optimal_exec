@@ -24,10 +24,10 @@ class AlmgrenChrissAgent:
         if self.kappa == 0:
             nj = self.tau / self.T * (1 / inventory)
         else:
-            # nj = 2 * np.sinh(0.5 * self.kappa * self.tau) * np.cosh(self.kappa * (
-            #     self.T - (self.j - 0.5) * self.tau)) * (1 / inventory) / np.sinh(self.kappa * self.T)
             nj = 2 * np.sinh(0.5 * self.kappa * self.tau) * np.cosh(self.kappa * (
-                    self.T - (self.j - 0.5) * self.tau)) / np.sinh(self.kappa * self.T)
+                self.T - (self.j - 0.5) * self.tau)) * (1 / inventory) / np.sinh(self.kappa * self.T)
+            # nj = 2 * np.sinh(0.5 * self.kappa * self.tau) * np.cosh(self.kappa * (
+            #         self.T - (self.j - 0.5) * self.tau)) / np.sinh(self.kappa * self.T)
         self.j += 1
         if self.j == self.T + 1:
             nj = 1

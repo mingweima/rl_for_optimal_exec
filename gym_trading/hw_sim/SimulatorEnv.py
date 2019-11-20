@@ -70,9 +70,9 @@ class Simulator(gym.Env):
         else:
             vwap = 0
 
-        ac_regularizor= - 10000*(action - ac_action)**2
-        # print(ac_regularizor)
-        reward = (-order_size)*vwap/10000 + ac_regularizor
+        ac_regularizor = - 1000*(action - ac_action)**2
+        reward = (-order_size) * vwap/100000
+        # print(-order_size*vwap/10000, ac_regularizor)
 
         self.inventory += order_size
         # print(self.inventory)

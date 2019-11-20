@@ -47,19 +47,19 @@ class DRQNAgent(object):
                  lookback=1,
                  batch_size=64,
                  initial_exploration_eps=1000,
-                 exploration=LinearSchedule(100000, 0.0001)):
+                 exploration=LinearSchedule(10000, 0.001)):
         self.batch_size = batch_size
         self.replay_buffer = ReplayBuffer(buffer_size=int(1e5), replay_batch_size=batch_size, seed=0)
         # get size of state and action
         self.state_size = state_size
         self.action_size = action_size
-        self.action_space = np.asarray([0.1 * n for n in range(10)])
+        self.action_space = np.asarray([0.01 * n for n in range(10)])
         self.lookback = lookback
         self.exploration=exploration
 
         # These are hyper parameters
         self.discount_factor = 0.99
-        self.critic_lr = 1e-1
+        self.critic_lr = 1e-3
         self.initial_exploration_eps = initial_exploration_eps
 
         # create model for Q network
@@ -75,14 +75,14 @@ class DRQNAgent(object):
     def initialize_model(self):
         model = Sequential()
         model.add(Masking(mask_value=0., input_shape=(self.lookback, self.state_size)))
-        model.add(GRU(8, input_dim=(self.lookback, self.state_size), activation='tanh',
+        model.add(GRU(16, input_dim=(self.lookback, self.state_size), activation='tanh',
                        kernel_initializer='zeros'))
-        model.add(Dense(48, activation='relu',
+        model.add(Dense(256, activation='linear',
                         kernel_initializer='he_uniform'))
         model.add(Dense(self.action_size, activation='linear',
                         kernel_initializer='he_uniform'))
         model.summary()
-        model.compile(loss=keras.losses.huber_loss, optimizer=Adam(lr=self.critic_lr))
+        model.compile(loss='mse', optimizer=Adam(lr=self.critic_lr))
         return model
 
         # after some time interval update the target model to be same with model
@@ -166,9 +166,9 @@ class DRQNAgent(object):
         for i in range(batch_size):
             # Q Learning: get maximum Q value at s' from target model
             if done[i]:
-                target[i][int(action[i] * 10)] = reward[i]  # TODO: Action dict!
+                target[i][int(action[i] * 100)] = reward[i]  # TODO: Action dict!
             else:
-                target[i][int(action[i] * 10)] = reward[i] + self.discount_factor * (
+                target[i][int(action[i] * 100)] = reward[i] + self.discount_factor * (
                     np.amax(target_val[i]))
 
         self.model.fit(update_input, target, batch_size=self.batch_size,
