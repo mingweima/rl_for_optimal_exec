@@ -10,7 +10,8 @@ ac_dim = env.action_space.n if discrete else env.action_space.shape[0]
 
 agent = ACRnnAgent(ob_dim,
                    ac_dim,
-                   batch_size=2000)
+                   batch_size=2000,
+                   learning_rate=1e-2)
 
 avg_rews = []
 n_iter = 80
