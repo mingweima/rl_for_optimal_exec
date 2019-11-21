@@ -28,8 +28,8 @@ for itr in range(n_iter):
     agent.update_critic(ob_seq, next_ob_seq, re_n, terminal_n)
     adv_n = agent.estimate_advantage(ob_seq, next_ob_seq, re_n, terminal_n)
     agent.update_actor(ob_seq, ac_na, adv_n)
-    # if itr == 70:
-        # agent.actor_model.save(f'dra2c_cartpole_actor_{int(itr)}_itr.h5')
-        # agent.critic_model.save(f'dra2c_cartpole_critic_{int(itr)}_itr.h5')
+    if itr == 75:
+        agent.actor_model.save(f'dra2c_cartpole_actor_{int(itr)}_itr.h5')
+        agent.critic_model.save(f'dra2c_cartpole_critic_{int(itr)}_itr.h5')
 
 plot_with_avg_std(avg_rews, 1, xlabel=f'Number of Episodes in {1}')
