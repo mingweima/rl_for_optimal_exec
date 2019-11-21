@@ -7,7 +7,7 @@ import random
 import gym
 from gym import spaces
 import numpy as np
-import os
+from copy import deepcopy
 
 
 class Simulator(gym.Env):
@@ -15,76 +15,88 @@ class Simulator(gym.Env):
 
     def __init__(self):
         super(Simulator, self).__init__()
-        self.current_time = MKT_OPEN + 1
-        self.time_horizon = 60
-        self.num_of_spread_state = 10
-        self.num_of_volume_state = 10
+        self.initial_time = random.randint(MKT_OPEN + 10, MKT_OPEN + 10)
+        self.time_horizon = 20
         # Initializes the Oracle by inputing historical data files.
         self.OrderBookOracle = ORDER_BOOK_ORACLE
         # Initializes the OrderBook at a given historical time.
-        self.OrderBook = OrderBook(self.OrderBookOracle.getHistoricalOrderBook(MKT_OPEN + 1))
+        self.OrderBook = OrderBook(self.OrderBookOracle.getHistoricalOrderBook(self.initial_time - 1))
         # Inventory of shares hold to sell.
-        self.initial_inventory = 100
+        self.initial_inventory = 10000
         # Action Space
-        self.action_space = spaces.Box(
-            low=0, high=1, shape=(1,), dtype=np.float64)
+        self.action_space = spaces.Discrete(11)
         # Observation Space: [Time, Inventory, Spread State, Volume State]
         self.observation_space = spaces.Box(
             low=np.array([0, 0, 0, 0]), high=np.array([1, 1, 1, 1]), dtype=np.float16)
 
-        self.ac_agent = AlmgrenChrissAgent(time_horizon=self.time_horizon)
+        self.ac_num_to_act_dict = \
+            {0: 0, 1: 0.01, 2: 0.02, 3: 0.05, 4: 0.08, 5: 0.1, 6: 0.2, 7: 0.3, 8: 0.4, 9: 0.5, 10: 1.0}
+        self.ac_agent = AlmgrenChrissAgent(time_horizon=self.time_horizon, sigma=0)
 
     def reset(self):
-        self.initial_time = random.randint(MKT_OPEN+100, MKT_OPEN+100)
         self.current_time = self.initial_time
-        self.OrderBookOracle = ORDER_BOOK_ORACLE
-        self.OrderBook = OrderBook(self.OrderBookOracle.getHistoricalOrderBook(self.current_time - 1))
+        self.initial_price = self.OrderBook.getMidPrice()
         self.inventory = self.initial_inventory
         obs = self.observation()
         self.ac_agent.reset()
+        self.accumulated_shortfall = 0
+        self.remaining_inventory_list = []
+        self.remaining_inventory_list.append(self.initial_inventory)
+        self.action_list = []
+
+        self.indx_in_orders_list = 0
+
         return obs
 
     def step(self, action):
-        ac_action = self.ac_agent.act(self.inventory/self.initial_inventory)
-        # print('AC', self.ac_agent.j, self.inventory/self.initial_inventory, ac_action)
+        self.action_list.append(action)
+        ac_action = self.ac_agent.act(self.inventory / self.initial_inventory)
         # Add market replay orders.
-        while self.OrderBookOracle.orders_list[0]['TIME'] <= self.current_time:
-            if self.OrderBookOracle.orders_list[0]['TIME'] == self.current_time:
-                self.OrderBook.handleLimitOrder(self.OrderBookOracle.orders_list[0])
-            self.OrderBookOracle.orders_list.pop(0)
+        while True:
+            order = self.OrderBookOracle.orders_list[self.indx_in_orders_list]
+            if order['TIME'] == self.current_time:
+                self.OrderBook.handleLimitOrder(order)
+            self.indx_in_orders_list += 1
+            if order['TIME'] > self.current_time:
+                break
+        # while self.orders_list[0]['TIME'] <= self.current_time:
+        #     if self.orders_list[0]['TIME'] == self.current_time:
+        #         self.OrderBook.handleLimitOrder(self.orders_list[0])
+        #     self.orders_list.pop(0)
 
         # Take action (market order) and calculate reward
         if self.current_time == self.initial_time + self.time_horizon:
             order_size = -self.inventory
-            action = 1
+            action = 1.0
         else:
-            # Replacement = {0: 0, 1: 0.01, 2: 0.02, 3: 0.03, 4: 0.04, 5: 0.1, 6: 0.2, 7: 0.25, 8: 0.5, 9: 1}
-            # order_size = -round(self.inventory * Replacement[action])
-            order_size = self.inventory * action
-            # convert to sell order
-            order_size = -round(order_size)
+            action = self.ac_num_to_act_dict[action]
+            order_size = - round(self.inventory * action)
+            if self.inventory + order_size < 0:
+                order_size = - self.inventory
+
+        self.current_price = self.OrderBook.getMidPrice()
 
         if order_size != 0:
-            # print(order_size)
             vwap, _ = self.OrderBook.handleMarketOrder(order_size)
         else:
             vwap = 0
-
-        ac_regularizor = - 1000*(action - ac_action)**2
-        reward = (-order_size) * vwap/100000
-        # print(-order_size*vwap/10000, ac_regularizor)
-
+        ac_regularizor = - 0.1 * (- order_size - ac_action * self.inventory)**2
+        shortfall = (-order_size) * (vwap - self.initial_price) / 10000
+        shortfall2 = (-order_size) * (vwap - self.current_price) / 10000
+        # print(-order_size, vwap, self.initial_price, shortfall)
         self.inventory += order_size
-        # print(self.inventory)
+        self.remaining_inventory_list.append(self.inventory)
         done = self.inventory <= 0
         if done:
             self.ac_agent.reset()
         obs = self.observation()
+        reward = 0 * shortfall + ac_regularizor
         self.current_time += 1
-        return obs, reward / 10000, done, {}
+        info = {'shortfall': shortfall}
+        return obs, reward, done, info
 
     def observation(self):
-        time_index = (self.current_time - self.initial_time)/100
+        time_index = (self.current_time - self.initial_time)/self.time_horizon
         inventory_index = self.inventory/self.initial_inventory
         spread_index = self.OrderBook.getBidAskSpread()/10000
         volume_index = self.OrderBook.getBidAskVolume()/1000
@@ -94,8 +106,10 @@ class Simulator(gym.Env):
     def render(self, mode='human', close=False):
         # print('Step: {}'.format(self.current_step))
         # print('Inventory: {}'.format(self.inventory))
-        print('Time: ', self.current_time, 'Price: ', self.OrderBook.getMidPrice(),
-              'Asks: ', self.OrderBook.getAsksQuantity(),
-              'Bids: ', self.OrderBook.getBidsQuantity())
-        print('Asks: ', self.OrderBook.getInsideAsks())
-        print('Bids: ', self.OrderBook.getInsideBids(), '\n')
+        # print('Time: ', self.current_time, 'Price: ', self.OrderBook.getMidPrice(),
+        #       'Asks: ', self.OrderBook.getAsksQuantity(),
+        #       'Bids: ', self.OrderBook.getBidsQuantity())
+        # print('Asks: ', self.OrderBook.getInsideAsks())
+        # print('Bids: ', self.OrderBook.getInsideBids(), '\n')
+        print("Remaining Inventory List: ", self.remaining_inventory_list)
+        print("Action List: ", self.action_list)

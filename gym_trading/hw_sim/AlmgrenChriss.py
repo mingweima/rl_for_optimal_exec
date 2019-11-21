@@ -2,10 +2,10 @@ import numpy as np
 
 
 class AlmgrenChrissAgent:
-    def __init__(self, time_horizon=60, eta=2.5e-6, rho=0, sigma=1e-3, tau=1, lamb=0.1):
+    def __init__(self, time_horizon, eta=2.5e-6, rho=0, sigma=5e-4, tau=1, lamb=0):
         self.eta = eta
         self.rho = rho
-        self.sigma = 1.8e-4
+        self.sigma = sigma
         self.tau = 1
         self.T, self.j = time_horizon, 1
         k_bar = np.sqrt(lamb * sigma**2 / (eta * (1 - rho * tau / (2 * eta))))

@@ -7,7 +7,7 @@ orders_file_path = FILE_PATH + '/AAPL_2012-06-21_34200000_57600000_message_10.cs
 LOB_file_path = FILE_PATH + '/AAPL_2012-06-21_34200000_57600000_orderbook_10.csv'
 
 # mkt_open and mkt_close are in unit "second": 34200 denotes 09:30 and 57600 denotes 16:00
-MKT_OPEN = 34200
-MKT_CLOSE = 57600
-
-ORDER_BOOK_ORACLE = OrderBookOracle(MKT_OPEN, MKT_CLOSE, orders_file_path, LOB_file_path)
+trade_interval = 60
+MKT_OPEN = int(34200 / trade_interval)
+MKT_CLOSE = int(57600 / trade_interval)
+ORDER_BOOK_ORACLE = OrderBookOracle(trade_interval, orders_file_path, LOB_file_path)

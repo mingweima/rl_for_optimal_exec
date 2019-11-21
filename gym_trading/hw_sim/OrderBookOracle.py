@@ -4,9 +4,8 @@ import numpy as np
 
 class OrderBookOracle:
     # Oracle for reading historical exchange orders stream
-    def __init__(self, start_time, end_time, orders_file_path, LOB_file_path):
-        self.start_time = start_time
-        self.end_time = end_time
+    def __init__(self, trade_interval, orders_file_path, LOB_file_path):
+        self.trade_interval = trade_interval
         self.orders_file_path = orders_file_path
         self.LOB_file_path = LOB_file_path
         self.orders_list, self.LOB_df = self.processData()
@@ -40,7 +39,7 @@ class OrderBookOracle:
         columns = ['TIME', 'TYPE', 'ORDER_ID', 'SIZE', 'PRICE', 'BUY_SELL_FLAG']
         orders_df = pd.read_csv(self.orders_file_path, header=None, names=columns)
         orders_df['BUY_SELL_FLAG'] = orders_df['BUY_SELL_FLAG'].replace({-1: 'SELL', 1: 'BUY'})
-        orders_df['TIME'] = orders_df['TIME'].astype(int)
+        orders_df['TIME'] = (orders_df['TIME'] / self.trade_interval).astype(int)
         orders_df['PRICE'] = orders_df['PRICE']
         orders_list = orders_df.to_dict('records')
 
