@@ -1,6 +1,5 @@
 import gym
-import numpy as np
-from Agents.a2c_rnn_cartpole.a2c_rnn_agent import ACRnnAgent
+from CartPoleAgents.a2c_rnn_cartpole import ACRnnAgent
 from tools.plot_tool import plot_with_avg_std
 env = gym.make('CartPole-v1')
 

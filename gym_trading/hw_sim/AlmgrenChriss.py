@@ -2,7 +2,7 @@ import numpy as np
 
 
 class AlmgrenChrissAgent:
-    def __init__(self, time_horizon, eta=2.5e-6, rho=0, sigma=5e-4, tau=1, lamb=0):
+    def __init__(self, time_horizon, eta=2.5e-6, rho=0, sigma=5e-4, tau=1, lamb=0.01):
         self.eta = eta
         self.rho = rho
         self.sigma = sigma

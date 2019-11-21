@@ -19,8 +19,10 @@ class Simulator(gym.Env):
         self.time_horizon = 20
         # Initializes the Oracle by inputing historical data files.
         self.OrderBookOracle = ORDER_BOOK_ORACLE
+        self.InitialOrderBookOracle = ORDER_BOOK_ORACLE
         # Initializes the OrderBook at a given historical time.
         self.OrderBook = OrderBook(self.OrderBookOracle.getHistoricalOrderBook(self.initial_time - 1))
+        self.InitialOrderBook = OrderBook(self.OrderBookOracle.getHistoricalOrderBook(self.initial_time - 1))
         # Inventory of shares hold to sell.
         self.initial_inventory = 10000
         # Action Space
@@ -34,6 +36,8 @@ class Simulator(gym.Env):
         self.ac_agent = AlmgrenChrissAgent(time_horizon=self.time_horizon, sigma=0)
 
     def reset(self):
+        self.OrderBook = self.InitialOrderBook
+        self.OrderBookOracle = self.InitialOrderBookOracle
         self.current_time = self.initial_time
         self.initial_price = self.OrderBook.getMidPrice()
         self.inventory = self.initial_inventory
@@ -66,8 +70,7 @@ class Simulator(gym.Env):
 
         # Take action (market order) and calculate reward
         if self.current_time == self.initial_time + self.time_horizon:
-            order_size = -self.inventory
-            action = 1.0
+            order_size = -self.inventory  # action = 1.0
         else:
             action = self.ac_num_to_act_dict[action]
             order_size = - round(self.inventory * action)
@@ -82,15 +85,13 @@ class Simulator(gym.Env):
             vwap = 0
         ac_regularizor = - 0.1 * (- order_size - ac_action * self.inventory)**2
         shortfall = (-order_size) * (vwap - self.initial_price) / 10000
-        shortfall2 = (-order_size) * (vwap - self.current_price) / 10000
-        # print(-order_size, vwap, self.initial_price, shortfall)
         self.inventory += order_size
         self.remaining_inventory_list.append(self.inventory)
         done = self.inventory <= 0
         if done:
             self.ac_agent.reset()
         obs = self.observation()
-        reward = 0 * shortfall + ac_regularizor
+        reward = 0 * shortfall + ac_regularizor/ (1e4)
         self.current_time += 1
         info = {'shortfall': shortfall}
         return obs, reward, done, info
@@ -104,12 +105,11 @@ class Simulator(gym.Env):
         return np.asarray(([time_index, inventory_index, spread_index, volume_index]))
 
     def render(self, mode='human', close=False):
-        # print('Step: {}'.format(self.current_step))
-        # print('Inventory: {}'.format(self.inventory))
-        # print('Time: ', self.current_time, 'Price: ', self.OrderBook.getMidPrice(),
-        #       'Asks: ', self.OrderBook.getAsksQuantity(),
-        #       'Bids: ', self.OrderBook.getBidsQuantity())
-        # print('Asks: ', self.OrderBook.getInsideAsks())
-        # print('Bids: ', self.OrderBook.getInsideBids(), '\n')
+        print('Inventory: {}'.format(self.inventory))
+        print('Time: ', self.current_time, 'Price: ', self.OrderBook.getMidPrice(),
+              'Asks: ', self.OrderBook.getAsksQuantity(),
+              'Bids: ', self.OrderBook.getBidsQuantity())
+        print('Asks: ', self.OrderBook.getInsideAsks())
+        print('Bids: ', self.OrderBook.getInsideBids(), '\n')
         print("Remaining Inventory List: ", self.remaining_inventory_list)
         print("Action List: ", self.action_list)

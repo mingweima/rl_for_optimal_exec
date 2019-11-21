@@ -1,6 +1,6 @@
 import gym
 import numpy as np
-from Agents.dpg_cartpole.pg_keras import PGAgent
+from CartPoleAgents.dpg_cartpole import PGAgent
 
 env = gym.make('CartPole-v1')
 

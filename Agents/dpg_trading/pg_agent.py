@@ -12,7 +12,7 @@ class PGAgent(object):
         self.ac_dim = ac_dim
         self.learning_rate = 5e-3
         self.gamma = 1
-        self.min_timesteps_per_batch = 1000
+        self.min_timesteps_per_batch = 2000
         self.nn_baseline = True
         self.reward_to_go = True
         self.normalize_advantages = True
@@ -21,8 +21,8 @@ class PGAgent(object):
 
     def __build_network(self, ob_dim, ac_dim):
         model = Sequential()
-        model.add(layers.Dense(256, input_dim=self.ob_dim, activation='linear'))
-        # model.add(layers.Dense(64, activation='relu'))
+        model.add(layers.Dense(48, input_dim=self.ob_dim, activation='tanh'))
+        model.add(layers.Dense(24, activation='relu'))
         model.add(layers.Dense(self.ac_dim, activation='softmax'))
         return model
 

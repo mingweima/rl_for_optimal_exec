@@ -1,7 +1,6 @@
 import gym
 import keras
-import numpy as np
-from Agents.a2c_cartpole.ac_agent import ACAgent
+from CartPoleAgents.a2c_cartpole.ac_agent import ACAgent
 from tools.plot_tool import plot_with_avg_std
 env = gym.make('CartPole-v1')
 
