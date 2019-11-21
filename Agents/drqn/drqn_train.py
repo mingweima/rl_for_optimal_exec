@@ -1,8 +1,9 @@
 import datetime
 import gym
+import gym_trading
 
 
-from Agents.drqn import DRQNAgent
+from Agents.drqn.drqn_agent import DRQNAgent
 from tools.plot_tool import plot_with_avg_std
 
 

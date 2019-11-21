@@ -5,7 +5,7 @@ from keras.layers import Dense, GRU, Masking
 from keras.models import Sequential
 from keras.optimizers import Adam
 
-from Agents.drqn import ReplayBuffer
+from Agents.drqn.replay_buffer import ReplayBuffer
 
 
 class LinearSchedule(object):
