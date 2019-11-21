@@ -15,7 +15,8 @@ class Simulator(gym.Env):
 
     def __init__(self):
         super(Simulator, self).__init__()
-        self.initial_time = random.randint(MKT_OPEN + 10, MKT_OPEN + 10)
+        # self.initial_time = random.randint(MKT_OPEN + 10, MKT_OPEN + 10)
+        self.initial_time = MKT_OPEN + 10
         self.time_horizon = 20
         # Initializes the Oracle by inputing historical data files.
         self.OrderBookOracle = ORDER_BOOK_ORACLE
@@ -24,7 +25,7 @@ class Simulator(gym.Env):
         self.OrderBook = OrderBook(self.OrderBookOracle.getHistoricalOrderBook(self.initial_time - 1))
         self.InitialOrderBook = OrderBook(self.OrderBookOracle.getHistoricalOrderBook(self.initial_time - 1))
         # Inventory of shares hold to sell.
-        self.initial_inventory = 10000
+        self.initial_inventory = 1000
         # Action Space
         self.action_space = spaces.Discrete(11)
         # Observation Space: [Time, Inventory, Spread State, Volume State]
@@ -36,6 +37,7 @@ class Simulator(gym.Env):
         self.ac_agent = AlmgrenChrissAgent(time_horizon=self.time_horizon, sigma=0)
 
     def reset(self):
+        self.initial_time = random.randint(MKT_OPEN + 10, MKT_OPEN + 10)
         self.OrderBook = self.InitialOrderBook
         self.OrderBookOracle = self.InitialOrderBookOracle
         self.current_time = self.initial_time
