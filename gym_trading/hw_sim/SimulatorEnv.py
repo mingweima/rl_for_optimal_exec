@@ -15,15 +15,11 @@ class Simulator(gym.Env):
 
     def __init__(self):
         super(Simulator, self).__init__()
-        # self.initial_time = random.randint(MKT_OPEN + 10, MKT_OPEN + 10)
-        self.initial_time = MKT_OPEN + 10
         self.time_horizon = 20
         # Initializes the Oracle by inputing historical data files.
         self.OrderBookOracle = ORDER_BOOK_ORACLE
-        self.InitialOrderBookOracle = ORDER_BOOK_ORACLE
-        # Initializes the OrderBook at a given historical time.
-        self.OrderBook = OrderBook(self.OrderBookOracle.getHistoricalOrderBook(self.initial_time - 1))
-        self.InitialOrderBook = OrderBook(self.OrderBookOracle.getHistoricalOrderBook(self.initial_time - 1))
+
+
         # Inventory of shares hold to sell.
         self.initial_inventory = 1000
         # Action Space
@@ -38,20 +34,23 @@ class Simulator(gym.Env):
 
     def reset(self):
         self.initial_time = random.randint(MKT_OPEN + 10, MKT_OPEN + 10)
-        self.OrderBook = self.InitialOrderBook
-        self.OrderBookOracle = self.InitialOrderBookOracle
+        self.OrderBook = OrderBook(self.OrderBookOracle.getHistoricalOrderBook(self.initial_time))
         self.current_time = self.initial_time
         self.initial_price = self.OrderBook.getMidPrice()
         self.inventory = self.initial_inventory
         obs = self.observation()
         self.ac_agent.reset()
-        self.accumulated_shortfall = 0
         self.remaining_inventory_list = []
         self.remaining_inventory_list.append(self.initial_inventory)
         self.action_list = []
 
         self.indx_in_orders_list = 0
 
+        # print('Time: ', self.current_time, 'Price: ', self.OrderBook.getMidPrice(),
+        #       'Asks: ', self.OrderBook.getAsksQuantity(),
+        #       'Bids: ', self.OrderBook.getBidsQuantity())
+        # print('Asks: ', self.OrderBook.getInsideAsks())
+        # print('Bids: ', self.OrderBook.getInsideBids(), '\n')
         return obs
 
     def step(self, action):
@@ -61,7 +60,11 @@ class Simulator(gym.Env):
         while True:
             order = self.OrderBookOracle.orders_list[self.indx_in_orders_list]
             if order['TIME'] == self.current_time:
+                # if order['ORDER_ID'] == 38439754:
+                #     print(order)
                 self.OrderBook.handleLimitOrder(order)
+                # if order['ORDER_ID'] == 38439754:
+                #     print(order)
             self.indx_in_orders_list += 1
             if order['TIME'] > self.current_time:
                 break
@@ -113,5 +116,6 @@ class Simulator(gym.Env):
               'Bids: ', self.OrderBook.getBidsQuantity())
         print('Asks: ', self.OrderBook.getInsideAsks())
         print('Bids: ', self.OrderBook.getInsideBids(), '\n')
-        print("Remaining Inventory List: ", self.remaining_inventory_list)
-        print("Action List: ", self.action_list)
+        # print("Remaining Inventory List: ", self.remaining_inventory_list)
+        # print("Action List: ", self.action_list)
+        pass

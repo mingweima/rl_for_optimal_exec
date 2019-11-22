@@ -15,17 +15,17 @@ class OrderBook:
         for ask_order in initialOrders[1]:
             self.handleLimitOrder(ask_order)
 
-    def handleLimitOrder(self, order):
+    def handleLimitOrder(self, input_order):
         # Matches a limit order or adds it to the order book.
         # Returns execution price and executed size, if the order is completed added to the order book without
         # any matching, both execution price and executed size equal zero.
         execution_price = 0.0
         executed_size = 0
 
+        order = deepcopy(input_order)
         if order['TYPE'] == 1:
             # Submission of a new limit order
             matching = True
-
             # Repeatedly match the order with the order book
             while matching:
                 matched_order = deepcopy(self.executeOrder(order))
@@ -65,8 +65,6 @@ class OrderBook:
                     if not o:
                         book.remove(o)
                     break
-            execution_price = order['TYPE']
-            executed_size = order['SIZE']
 
         if order['TYPE'] == 4 or order['TYPE'] == 5:
             # Order Cancellation
@@ -86,8 +84,6 @@ class OrderBook:
                     if not o:
                         book.remove(o)
                     break
-            execution_price = order['TYPE']
-            executed_size = order['SIZE']
 
         return execution_price, executed_size
 
@@ -97,14 +93,14 @@ class OrderBook:
 
         if action >= 0:
             lowest_ask_price = self.asks[0][0]['PRICE']
-            order = {'TYPE': 1, 'SIZE': action, 'PRICE': sys.maxsize, 'BUY_SELL_FLAG': 'BUY'}
+            order = {'TYPE': 1, 'SIZE': action, 'ORDER_ID': -1, 'PRICE': sys.maxsize, 'BUY_SELL_FLAG': 'BUY'}
 
             # Handles the corresponding limit order.
             execution_price, executed_size = self.handleLimitOrder(order)
             implementation_shortfall = (execution_price - lowest_ask_price) * executed_size
         else:
             highest_bid_price = self.bids[0][0]['PRICE']
-            order =  {'TYPE': 1, 'SIZE': -action, 'PRICE': 0, 'BUY_SELL_FLAG': 'SELL'}
+            order =  {'TYPE': 1, 'SIZE': -action, 'ORDER_ID': -1, 'PRICE': 0, 'BUY_SELL_FLAG': 'SELL'}
 
             # Handles the corresponding limit order.
             execution_price, executed_size = self.handleLimitOrder(order)
