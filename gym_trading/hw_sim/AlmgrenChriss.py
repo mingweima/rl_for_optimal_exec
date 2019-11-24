@@ -1,12 +1,11 @@
 import numpy as np
 
-
 class AlmgrenChrissAgent:
-    def __init__(self, time_horizon, eta=2.5e-6, rho=0, sigma=5e-4, tau=1, lamb=0.01):
+    def __init__(self, time_horizon, eta=2.5e-6, rho=0, sigma=5e-4, tau=60, lamb=0.01):
         self.eta = eta
         self.rho = rho
         self.sigma = sigma
-        self.tau = 1
+        self.tau = tau
         self.T, self.j = time_horizon, 1
         k_bar = np.sqrt(lamb * sigma**2 / (eta * (1 - rho * tau / (2 * eta))))
         self.kappa = (1/tau) * np.arccosh(tau**2 * k_bar**2 * 0.5 + 1)

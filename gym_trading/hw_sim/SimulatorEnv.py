@@ -1,5 +1,4 @@
 from gym_trading.hw_sim.OrderBook import OrderBook
-from gym_trading.hw_sim.OrderBookOracle import OrderBookOracle
 from gym_trading.hw_sim.config import ORDER_BOOK_ORACLE, MKT_OPEN
 from gym_trading.hw_sim.AlmgrenChriss import AlmgrenChrissAgent
 
@@ -23,13 +22,14 @@ class Simulator(gym.Env):
         # Inventory of shares hold to sell.
         self.initial_inventory = 1000
         # Action Space
-        self.action_space = spaces.Discrete(11)
+        self.action_space = spaces.Discrete(21)
         # Observation Space: [Time, Inventory, Spread State, Volume State]
         self.observation_space = spaces.Box(
             low=np.array([0, 0, 0, 0]), high=np.array([1, 1, 1, 1]), dtype=np.float16)
 
         self.ac_num_to_act_dict = \
-            {0: 0, 1: 0.01, 2: 0.02, 3: 0.05, 4: 0.08, 5: 0.1, 6: 0.2, 7: 0.3, 8: 0.4, 9: 0.5, 10: 1.0}
+            {0: 0, 1: 0.01, 2: 0.02, 3: 0.03, 4: 0.04, 5: 0.05, 6: 0.06, 7: 0.07, 8: 0.08, 9: 0.09, 10: 0.1,
+             11: 0.12, 12: 0.14, 13: 0.16, 14: 0.18, 15: 0.2, 16: 0.22, 17: 0.24, 18: 0.26, 19: 0.28, 20: 0.3}
         self.ac_agent = AlmgrenChrissAgent(time_horizon=self.time_horizon, sigma=0)
 
     def reset(self):
@@ -96,7 +96,7 @@ class Simulator(gym.Env):
         if done:
             self.ac_agent.reset()
         obs = self.observation()
-        reward = 0 * shortfall + ac_regularizor/ (1e4)
+        reward = shortfall + 0 * ac_regularizor/ (1e4)
         self.current_time += 1
         info = {'shortfall': shortfall}
         return obs, reward, done, info
@@ -116,6 +116,6 @@ class Simulator(gym.Env):
               'Bids: ', self.OrderBook.getBidsQuantity())
         print('Asks: ', self.OrderBook.getInsideAsks())
         print('Bids: ', self.OrderBook.getInsideBids(), '\n')
-        # print("Remaining Inventory List: ", self.remaining_inventory_list)
-        # print("Action List: ", self.action_list)
+        print("Remaining Inventory List: ", self.remaining_inventory_list)
+        print("Action List: ", self.action_list)
         pass

@@ -12,7 +12,7 @@ class PGAgent(object):
         self.ac_dim = ac_dim
         self.learning_rate = 5e-3
         self.gamma = 1
-        self.min_timesteps_per_batch = 2000
+        self.min_timesteps_per_batch = 200
         self.nn_baseline = True
         self.reward_to_go = True
         self.normalize_advantages = True
@@ -58,8 +58,6 @@ class PGAgent(object):
                     total_info += info
             if timesteps_this_batch > self.min_timesteps_per_batch:
                 break
-            # if True:
-            #     break
         avg_info = total_info / len(paths)
         avg_rew = total_rew / len(paths)
         return paths, timesteps_this_batch, avg_rew, avg_info
