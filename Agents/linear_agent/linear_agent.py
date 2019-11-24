@@ -15,7 +15,7 @@ class LinearAgent(object):
         percentage_left = 1 - (self.done_step/self.steps)
         percentage_of_current_to_act = (1/self.steps) / percentage_left
         self.done_step += 1
-        return int(10*percentage_of_current_to_act)
+        return int(100*percentage_of_current_to_act)
 
     def reset(self):
         self.done_step = 0
@@ -39,6 +39,7 @@ for i in range(episodes):
         total_shortfall += info['shortfall']
         actions_list.append(action)
         if done:
+            print('='*80)
             print('episode: {}/{}, total shortfall: {}, total time: {}'.format(i, episodes, total_shortfall, time_t))
             env.render()
             actions_list = []

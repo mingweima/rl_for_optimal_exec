@@ -18,8 +18,6 @@ class Simulator(gym.Env):
         self.time_horizon = 20
         # Initializes the Oracle by inputing historical data files.
         self.OrderBookOracle = ORDER_BOOK_ORACLE
-
-
         # Inventory of shares hold to sell.
         self.initial_inventory = 1000
         # Action Space
@@ -40,17 +38,9 @@ class Simulator(gym.Env):
         self.inventory = self.initial_inventory
         obs = self.observation()
         self.ac_agent.reset()
-        self.remaining_inventory_list = []
-        self.remaining_inventory_list.append(self.initial_inventory)
+        self.remaining_inventory_list = [self.initial_inventory]
         self.action_list = []
-
         self.indx_in_orders_list = 0
-
-        # print('Time: ', self.current_time, 'Price: ', self.OrderBook.getMidPrice(),
-        #       'Asks: ', self.OrderBook.getAsksQuantity(),
-        #       'Bids: ', self.OrderBook.getBidsQuantity())
-        # print('Asks: ', self.OrderBook.getInsideAsks())
-        # print('Bids: ', self.OrderBook.getInsideBids(), '\n')
         return obs
 
     def step(self, action):
@@ -60,19 +50,10 @@ class Simulator(gym.Env):
         while True:
             order = self.OrderBookOracle.orders_list[self.indx_in_orders_list]
             if order['TIME'] == self.current_time:
-                # if order['ORDER_ID'] == 38439754:
-                #     print(order)
                 self.OrderBook.handleLimitOrder(order)
-                # if order['ORDER_ID'] == 38439754:
-                #     print(order)
             self.indx_in_orders_list += 1
             if order['TIME'] > self.current_time:
                 break
-        # while self.orders_list[0]['TIME'] <= self.current_time:
-        #     if self.orders_list[0]['TIME'] == self.current_time:
-        #         self.OrderBook.handleLimitOrder(self.orders_list[0])
-        #     self.orders_list.pop(0)
-
         # Take action (market order) and calculate reward
         if self.current_time == self.initial_time + self.time_horizon:
             order_size = -self.inventory  # action = 1.0
@@ -81,9 +62,7 @@ class Simulator(gym.Env):
             order_size = - round(self.inventory * action)
             if self.inventory + order_size < 0:
                 order_size = - self.inventory
-
         self.current_price = self.OrderBook.getMidPrice()
-
         if order_size != 0:
             vwap, _ = self.OrderBook.handleMarketOrder(order_size)
         else:
@@ -96,7 +75,7 @@ class Simulator(gym.Env):
         if done:
             self.ac_agent.reset()
         obs = self.observation()
-        reward = 0 * shortfall + ac_regularizor/ (1e4)
+        reward = shortfall + ac_regularizor/ (1e4)
         self.current_time += 1
         info = {'shortfall': shortfall}
         return obs, reward, done, info
@@ -106,16 +85,15 @@ class Simulator(gym.Env):
         inventory_index = self.inventory/self.initial_inventory
         spread_index = self.OrderBook.getBidAskSpread()/10000
         volume_index = self.OrderBook.getBidAskVolume()/1000
-
         return np.asarray(([time_index, inventory_index, spread_index, volume_index]))
 
     def render(self, mode='human', close=False):
-        print('Inventory: {}'.format(self.inventory))
-        print('Time: ', self.current_time, 'Price: ', self.OrderBook.getMidPrice(),
-              'Asks: ', self.OrderBook.getAsksQuantity(),
-              'Bids: ', self.OrderBook.getBidsQuantity())
-        print('Asks: ', self.OrderBook.getInsideAsks())
-        print('Bids: ', self.OrderBook.getInsideBids(), '\n')
-        # print("Remaining Inventory List: ", self.remaining_inventory_list)
-        # print("Action List: ", self.action_list)
+        # print('Inventory: {}'.format(self.inventory))
+        # print('Time: ', self.current_time, 'Price: ', self.OrderBook.getMidPrice(),
+        #       'Asks: ', self.OrderBook.getAsksQuantity(),
+        #       'Bids: ', self.OrderBook.getBidsQuantity())
+        # print('Asks: ', self.OrderBook.getInsideAsks())
+        # print('Bids: ', self.OrderBook.getInsideBids(), '\n')
+        print("Remaining Inventory List: ", self.remaining_inventory_list)
+        print("Action List: ", self.action_list)
         pass

@@ -13,10 +13,10 @@ agent = PGAgent(ob_dim, ac_dim)
 n_iter = 100
 avg_rews = []
 for itr in range(n_iter):
-    print("********** Iteration %i ************" % itr)
+    print("******************** Iteration %i **********************" % itr)
     paths, timesteps_this_batch, avg_rew, avg_info = agent.sample_trajectories(itr, env, info_name='shortfall')
     avg_rews.append(avg_rew)
-    print(avg_rew, avg_info)
+    print(f'Average reward: {avg_rew}, Average shortfall: {avg_info}.')
     ob_no = np.concatenate([path["observation"] for path in paths])
     ac_na = np.concatenate([path["action"] for path in paths])
     re_n = [path["reward"] for path in paths]
