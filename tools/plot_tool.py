@@ -1,11 +1,8 @@
 import matplotlib.pyplot as plt
 import seaborn as sns; sns.set()
 import numpy as np
-import pandas as pd
 
 def setup_matplotlib():
-    #pylab.style.use('fivethirtyeight')
-    #pylab.style.use('ggplot')
     from cycler import cycler
 
     _cmap = plt.get_cmap('tab20')

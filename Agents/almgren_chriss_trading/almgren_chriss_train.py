@@ -1,8 +1,9 @@
-import gym
-import gym_trading
 import numpy as np
 import matplotlib.pyplot as plt
-from Agents.almgren_chriss.almgren_chriss_agent import AlmgrenChrissAgent
+import gym
+import gym_trading
+
+from Agents.almgren_chriss_trading.almgren_chriss_agent import AlmgrenChrissAgent
 from tools.plot_tool import plot_with_avg_std
 
 env = gym.make('hwenv-v0')

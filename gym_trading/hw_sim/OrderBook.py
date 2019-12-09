@@ -2,9 +2,16 @@ import sys
 from copy import deepcopy
 
 class OrderBook:
-    # An OrderBook maintains a bid book and an ask book.
-    # The OrderBook handles limit and market orders either by executing it or adding it into the bid/ask book.
-    # The OrderBook also conduct easy calculation including mid_price and spread.
+    """
+    An OrderBook maintains a bid book and an ask book.
+    The OrderBook handles limit and market orders either by executing it or adding it into the bid/ask book.
+    The OrderBook also conduct easy calculation including mid_price and spread.
+
+        Attributes:
+            bids (list): a list of dictionaries of bid orders
+            asks (list): a list of dictionaries of ask orders
+    """
+
     def __init__(self, initialOrders):
         self.bids = []
         self.asks = []
@@ -16,17 +23,26 @@ class OrderBook:
             self.handleLimitOrder(ask_order)
 
     def handleLimitOrder(self, input_order):
-        # Matches a limit order or adds it to the order book.
-        # Returns execution price and executed size, if the order is completed added to the order book without
-        # any matching, both execution price and executed size equal zero.
+        """
+        Matches a limit order or adds it to the order book.
+        Returns execution price and executed size, if the order is completed added to the order book without
+            any matching, both execution price and executed size are set to zero.
+
+            Args:
+                input_order (dictionary): the order to handle
+            Returns:
+                execution_price (float64)
+                execution_size (float64)
+        """
+
         execution_price = 0.0
         executed_size = 0
 
         order = deepcopy(input_order)
         if order['TYPE'] == 1:
-            # Submission of a new limit order
-            matching = True
+            # Order type 1 corresponds to new limit order.
             # Repeatedly match the order with the order book
+            matching = True
             while matching:
                 matched_order = deepcopy(self.executeOrder(order))
                 if matched_order:
@@ -48,7 +64,7 @@ class OrderBook:
                     matching = False
 
         if order['TYPE'] == 2 or order['TYPE'] == 3:
-            # Order Cancellation
+            # Order type 2 or 3 corresponds to Order Cancellation
             if order['BUY_SELL_FLAG'] == 'BUY':
                 book = self.bids
             else:
@@ -67,7 +83,7 @@ class OrderBook:
                     break
 
         if order['TYPE'] == 4 or order['TYPE'] == 5:
-            # Order Cancellation
+            # Order type 4 and 5 corresponds to Order Cancellation
             if order['BUY_SELL_FLAG'] == 'BUY':
                 book = self.bids
             else:
@@ -88,9 +104,16 @@ class OrderBook:
         return execution_price, executed_size
 
     def handleMarketOrder(self, action):
-        # Input: an integer specifying the size of the market order (Buy: positive; Sell: Negative).
-        # Output: weighted average execution price and order-wise implementation shortfall.
+        """
+        Handle an market order.
+            Args:
+                action (int32):
+                    an integer specifying the size of the market order (Buy: positive; Sell: Negative).
+            Returns:
+                execution_price (float64): weighted average execution price
+                implementation shortfall (float64): the order-wise implementation shortfall.
 
+        """
         if action >= 0:
             lowest_ask_price = self.asks[0][0]['PRICE']
             order = {'TYPE': 1, 'SIZE': action, 'ORDER_ID': -1, 'PRICE': sys.maxsize, 'BUY_SELL_FLAG': 'BUY'}
@@ -98,6 +121,7 @@ class OrderBook:
             # Handles the corresponding limit order.
             execution_price, executed_size = self.handleLimitOrder(order)
             implementation_shortfall = (execution_price - lowest_ask_price) * executed_size
+
         else:
             highest_bid_price = self.bids[0][0]['PRICE']
             order =  {'TYPE': 1, 'SIZE': -action, 'ORDER_ID': -1, 'PRICE': 0, 'BUY_SELL_FLAG': 'SELL'}
@@ -114,9 +138,11 @@ class OrderBook:
 
 
     def executeOrder(self, order):
-        # Finds a single best match for this order, without regard for quantity.
-        # Returns the matched order or None if no match found.
-        # Remove or decrement quantity from the matched order from the order book
+        """
+        Finds a single best match for this order, without regard for quantity.
+        Returns the matched order or None if no match found.
+        Remove or decrement quantity from the matched order from the order book
+        """
 
         # Which order book (bid or ask) should we look at?
         if order['BUY_SELL_FLAG'] == 'BUY':
@@ -150,7 +176,10 @@ class OrderBook:
             return matched_order
 
     def isMatch(self, order, o):
-        # Returns True if order 'o' can be matched against input 'order'.
+        """
+        Returns True if order 'o' can be matched against input 'order'.
+        """
+
         if order['BUY_SELL_FLAG'] == o['BUY_SELL_FLAG']:
             return False
         elif order['BUY_SELL_FLAG'] == 'BUY' and (order['PRICE'] >= o['PRICE']):
@@ -160,7 +189,10 @@ class OrderBook:
         else: return False
 
     def enterOrder(self, order):
-        # Enters a limit order into the OrderBook in the appropriate location.
+        """
+        Enters a limit order into the OrderBook in the appropriate location.
+        """
+
         if order['BUY_SELL_FLAG'] == 'BUY':
             book = self.bids
         else:
@@ -183,8 +215,11 @@ class OrderBook:
                     break
 
     def getInsideBids(self, depth=sys.maxsize):
-        # Get the inside bid price(s) and share volume available at each price, to a limit
-        # of "depth".   Returns a list of [price, total shares]:
+        """
+        Get the inside bid price(s) and share volume available at each price, to a limit
+        of "depth".   Returns a list of [price, total shares]
+        """
+
         book = []
         for i in range(min(depth, len(self.bids))):
             qty = 0
@@ -195,8 +230,11 @@ class OrderBook:
         return book
 
     def getInsideAsks(self, depth=sys.maxsize):
-        # Get the inside ask price(s) and share volume available at each price, to a limit
-        # of "depth".   Returns a list of [price, total shares]:
+        """
+        Get the inside ask price(s) and share volume available at each price, to a limit
+        of "depth".   Returns a list of [price, total shares]
+        """
+
         book = []
         for i in range(min(depth, len(self.asks))):
             qty = 0
@@ -221,8 +259,11 @@ class OrderBook:
         return qty
 
     def isBetterPrice(self, order, o):
-        # Returns True if order has a 'better' price than o.  (That is, a higher bid
-        # or a lower ask.)  Must be same order type.
+        """
+        Returns True if order has a 'better' price than o.  (That is, a higher bid
+        or a lower ask.)  Must be same order type.
+        """
+
         if order['BUY_SELL_FLAG'] == 'BUY' and (order['PRICE'] > o['PRICE']):
             return True
         elif order['BUY_SELL_FLAG'] == 'SELL' and (order['PRICE'] < o['PRICE']):
@@ -237,7 +278,10 @@ class OrderBook:
         return order['ORDER_ID'] == new_order['ORDER_ID']
 
     def getMidPrice(self):
-        # Returns the current mid-price.
+        """
+        Returns the current mid-price.
+        """
+
         if self.asks and self.bids:
             return (self.bids[0][0]['PRICE'] + self.asks[0][0]['PRICE'])/2
         else:
@@ -252,7 +296,10 @@ class OrderBook:
         return qty
 
     def getBidAskSpread(self):
-        # Returns the current bid-ask spread.
+        """
+        Returns the current bid-ask spread.
+        """
+
         if self.asks and self.bids:
             return self.asks[0][0]['PRICE'] - self.bids[0][0]['PRICE']
         else:

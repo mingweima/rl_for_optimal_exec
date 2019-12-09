@@ -1,6 +1,7 @@
-import gym
-import numpy as np
 import datetime
+import numpy as np
+import gym
+import gym_trading
 
 from Agents.dqn.dqn_agent import DQNAgent
 from tools.plot_tool import plot_with_avg_std

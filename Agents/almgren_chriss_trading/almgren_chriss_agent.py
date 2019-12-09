@@ -1,7 +1,6 @@
-import numpy as np
-from collections import deque
-import random
 from copy import deepcopy
+import numpy as np
+
 
 class AlmgrenChrissAgent:
     def __init__(self, env, time_horizon=60, eta=2.5e-6, rho=0, sigma=1e-3, tau=1, lamb=0):
