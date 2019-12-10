@@ -1,4 +1,4 @@
-## Reinforcement Learning for Optimal Execution 
+# Reinforcement Learning for Optimal Execution 
 
 This is the repo that researches RL for optimal trade execution. We design RL methods that learn from L>10 limit order book (LOB) data and compare out result with the Almgren-Chriss benchmark method in [Almgren & Chriss (1999)](https://www.google.com/url?sa=t&rct=j&q=&esrc=s&source=web&cd=1&cad=rja&uact=8&ved=2ahUKEwi2-LKP-qnmAhW-RBUIHdapB80QFjAAegQIBRAC&url=https%3A%2F%2Fwww.math.nyu.edu%2Ffaculty%2Fchriss%2Foptliq_f.pdf&usg=AOvVaw2zXBvgn3vwTcEv5__jTDy).
 
