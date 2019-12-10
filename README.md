@@ -2,7 +2,7 @@
 
 This is the repo that researches RL for optimal trade execution. We design RL methods that learn from L>10 limit order book (LOB) data and compare our result with the Almgren-Chriss benchmark method in [Almgren & Chriss (1999)](https://www.google.com/url?sa=t&rct=j&q=&esrc=s&source=web&cd=1&cad=rja&uact=8&ved=2ahUKEwi2-LKP-qnmAhW-RBUIHdapB80QFjAAegQIBRAC&url=https%3A%2F%2Fwww.math.nyu.edu%2Ffaculty%2Fchriss%2Foptliq_f.pdf&usg=AOvVaw2zXBvgn3vwTcEv5__jTDy).
 
-## The *Gym Trading* Envirnment 
+## The *Gym Trading* Environment 
 
 TODO: Introduce the Gym Trading Env. Cite ABIDES.
 
@@ -22,7 +22,7 @@ TODO: How to choose your own observations and reward functions.
 
 TODO: Introduce the Algos we use. Cite the original papers and 294-112.
 
-## New Methods
+## New Tricks and New Methods
 
-TODO: Outline some new methods we want to experiment with. 
+TODO: Outline some new methods we want to experiment with. E.g. regularization, CNN, ...
 
