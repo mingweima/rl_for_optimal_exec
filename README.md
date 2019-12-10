@@ -6,15 +6,15 @@ This is the repo that researches RL for optimal trade execution. We design RL me
 
 TODO: Introduce the Gym Trading Env. Cite ABIDES.
 
-### Installing *Gym Trading*
+### 1. Installing *Gym Trading*
 
 To install the gym trading environment , run `pip install -e .`
 
-### Load LOB Data with *Gym Trading*
+### 2. Load LOB Data with *Gym Trading*
 
 TODO: How to load data
 
-### Customize Observations and Rewards with *Gym Trading*
+### 3. Customize Observations and Rewards with *Gym Trading*
 
 TODO: How to choose your own observations and reward functions. 
 
