@@ -12,15 +12,15 @@ if __name__ == "__main__":
 
     env = gym.make('hwenv-v0')
     # get size of state and action from environment
-    state_size = 4
-    action_size = 10
+    ob_dim = env.observation_space.shape[0]
+    ac_dim = env.action_space.n
 
-    agent = DRQNAgent(state_size, action_size, lookback=5, batch_size=64, initial_exploration_eps=5000)
+    agent = DRQNAgent(ob_dim, ac_dim, lookback=1, batch_size=64, initial_exploration_steps=1000)
 
-    scores, episodes = [], []
+    scores = []
     avg_step = 100
     for eps in range(EPISODES):
-        eps_rew = agent.sample_transition_pairs(env, max_step=70)
+        eps_rew = agent.sample_trajectory(env)
         scores.append(eps_rew)
         if eps % avg_step == 0:
             avg = sum(scores[-avg_step-1:-1]) / avg_step

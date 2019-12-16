@@ -34,7 +34,7 @@ class DPGAgent(object):
         Build a feedforward neural network.
         """
         model = Sequential()
-        model.add(layers.Dense(48, input_dim=self.ob_dim, activation='tanh'))
+        model.add(layers.Dense(48, input_dim=self.ob_dim, activation='relu'))
         model.add(layers.Dense(24, activation='relu'))
         model.add(layers.Dense(self.ac_dim, activation='softmax'))
         return model
@@ -108,7 +108,7 @@ class DPGAgent(object):
         steps = 0
         while True:
             obs.append(ob)
-            action_prob = np.squeeze(self.model.predict(np.reshape(ob, [1, 4])))
+            action_prob = np.squeeze(self.model.predict(np.reshape(ob, [1, self.ob_dim])))
             ac = np.random.choice(np.arange(self.ac_dim), p=action_prob)
             acs.append(ac)
             ob, rew, done, info = env.step(ac)
