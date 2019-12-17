@@ -14,14 +14,19 @@ if __name__ == "__main__":
     parser.add_argument('--seed', type=int, default=1)
     args = parser.parse_args()
 
-    ac_dict = {0: 0, 1: 0.01, 2: 0.02, 3: 0.03, 4: 0.04, 5: 0.05, 6: 0.06,
-                         7: 0.07, 8: 0.08, 9: 0.09, 10: 0.1, 11: 0.12, 12: 0.14, 13: 0.16,
-                         14: 0.18, 15: 0.2, 16: 0.22, 17: 0.24, 18: 0.26, 19: 0.28, 20: 0.3}
+    ac_dict = {0: 0, 1: 0.01, 2: 0.02,
+               3: 0.03, 4: 0.04, 5: 0.05,
+               6: 0.06, 7: 0.07, 8: 0.08,
+               9: 0.09, 10: 0.1, 11: 0.12,
+               12: 0.14, 13: 0.16, 14: 0.18,
+               15: 0.2, 16: 0.22, 17: 0.24,
+               18: 0.26, 19: 0.28, 20: 0.3}
+    
     ob_dict = {
         'Elapsed Time': True,
         'Remaining Inventory': True,
-        'Bid Ask Spread': False,
-        'Order Book Volume': False
+        'Bid Ask Spread': True,
+        'Order Book Volume': True,
     }
 
     scenario_args = {
