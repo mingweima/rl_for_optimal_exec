@@ -4,7 +4,7 @@ import numpy as np
 
 class AlmgrenChrissAgent:
     def __init__(self, env, time_horizon=60, eta=2.5e-6, rho=0, sigma=1e-3, tau=1, lamb=0):
-        self.ac_num_to_act_dict = deepcopy(env.ac_num_to_act_dict)
+        self.ac_dict = deepcopy(env.ac_dict)
         self.eta = eta
         self.rho = rho
         self.sigma = sigma
@@ -22,8 +22,8 @@ class AlmgrenChrissAgent:
     def act(self, state):
         def closest_action(nj):
             action = 0
-            difference = abs(self.ac_num_to_act_dict[action] - nj)
-            for ac, proportion in self.ac_num_to_act_dict.items():
+            difference = abs(self.ac_dict[action] - nj)
+            for ac, proportion in self.ac_dict.items():
                 if (proportion - nj) < difference:
                     action = ac
             return action
@@ -34,8 +34,6 @@ class AlmgrenChrissAgent:
         else:
             nj = 2 * np.sinh(0.5 * self.kappa * self.tau) * np.cosh(self.kappa * (
                 self.T - (self.j - 0.5) * self.tau)) * (1 / inventory) / np.sinh(self.kappa * self.T)
-            # nj = 2 * np.sinh(0.5 * self.kappa * self.tau) * np.cosh(self.kappa * (
-            #         self.T - (self.j - 0.5) * self.tau)) / np.sinh(self.kappa * self.T)
         self.j += 1
         if self.j == self.T + 1:
             nj = 1

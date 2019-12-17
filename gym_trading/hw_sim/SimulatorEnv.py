@@ -11,33 +11,35 @@ class Simulator(gym.Env):
     """
     The gym environment for optimal execution: managing a limit order book by taking in historical
     orders and reacting to the actions of the agent.
-
-        Attributes:
-            time_horizon (int32): the number of time steps to execute the deal
-            OrderBookOracle: class object managing historical orders
-            initial_inventory (int32): the initial inventory held by the agent
-            action_space: the action space of the environment
-            observation_space: the observation space of the environment
-            ac_num_to_act_dict (dict):
-                the dictionary matching integer numbers to the proportion of inventory to trade
-            ac_agent: the Almgren Chriss Agent following Almgren Chriss Algorithm, used to compare
-                with the actions of the agent
     """
 
-    def __init__(self):
+    def __init__(self,
+                 scenario_args,
+                 observation_space_args,
+                 action_space_args):
         super(Simulator, self).__init__()
-        self.time_horizon = 20
+
+        self.time_horizon = scenario_args['Time Horizon']
+        self.initial_inventory = scenario_args['Initial Inventory']
+
+        # Initializes the action space
+        self.ac_dict = action_space_args['Action Dictionary']
+        self.action_space = spaces.Discrete(len(self.ac_dict))
+
+        # Initializes the observation space
+        self.ob_dict = {k:v for k,v in observation_space_args['Observation Dictionary'].items() if v}
+        self.observation_space = spaces.Box(
+            low=observation_space_args['Lower Limit'],
+            high=observation_space_args['Upper Limit'],
+            shape=(len(self.ob_dict), 1),
+            dtype=np.float64
+        )
+
+        # Initializes the baseline agent
+        self.ac_agent = AlmgrenChrissAgent(time_horizon=self.time_horizon, sigma=0)
+
         # Initializes the Oracle by inputing historical data files.
         self.OrderBookOracle = ORDER_BOOK_ORACLE
-
-        self.initial_inventory = 1000
-        self.action_space = spaces.Discrete(21)
-        self.observation_space = spaces.Box(
-            low=np.array([0, 0, 0, 0]), high=np.array([1, 1, 1, 1]), dtype=np.float16)
-        self.ac_num_to_act_dict = \
-            {0: 0, 1: 0.01, 2: 0.02, 3: 0.03, 4: 0.04, 5: 0.05, 6: 0.06, 7: 0.07, 8: 0.08, 9: 0.09, 10: 0.1,
-             11: 0.12, 12: 0.14, 13: 0.16, 14: 0.18, 15: 0.2, 16: 0.22, 17: 0.24, 18: 0.26, 19: 0.28, 20: 0.3}
-        self.ac_agent = AlmgrenChrissAgent(time_horizon=self.time_horizon, sigma=0)
 
     def reset(self):
         """
@@ -97,7 +99,7 @@ class Simulator(gym.Env):
         if self.current_time == self.initial_time + self.time_horizon:
             order_size = -self.inventory
         else:
-            action = self.ac_num_to_act_dict[action]
+            action = self.ac_dict[action]
             order_size = - round(self.inventory * action)
             if self.inventory + order_size < 0:
                 order_size = - self.inventory
@@ -131,12 +133,16 @@ class Simulator(gym.Env):
             Returns:
                 a vector reflecting the current market condition
         """
-        time_index = (self.current_time - self.initial_time)/self.time_horizon
-        inventory_index = self.inventory/self.initial_inventory
-        spread_index = self.OrderBook.getBidAskSpread()/10000
-        volume_index = self.OrderBook.getBidAskVolume()/1000
-
-        return np.asarray(([time_index, inventory_index, spread_index, volume_index]))
+        obs = []
+        if 'Elapsed Time' in self.ob_dict.keys():
+            obs.append((self.current_time - self.initial_time)/self.time_horizon)
+        if 'Remaining Inventory' in self.ob_dict.keys():
+            obs.append(self.inventory/self.initial_inventory)
+        if 'Bid Ask Spread' in self.ob_dict.keys():
+            obs.append(self.OrderBook.getBidAskSpread()/10000)
+        if 'Order Book Volume' in self.ob_dict.keys():
+            obs.append(self.OrderBook.getBidAskVolume()/1000)
+        return np.asarray(obs)
 
     def render(self, mode='human', close=False):
         """

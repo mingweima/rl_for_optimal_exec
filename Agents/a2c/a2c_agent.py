@@ -122,7 +122,7 @@ class A2CAgent(object):
         steps = 0
         while True:
             obs.append(ob)
-            action_prob = np.squeeze(self.actor_model.predict(np.reshape(ob, [1, 4])))
+            action_prob = np.squeeze(self.actor_model.predict(np.reshape(ob, [1, self.ob_dim])))
             ac = np.random.choice(np.arange(self.ac_dim), p=action_prob)
             ob, rew, done, info = env.step(ac)
             acs.append(ac)

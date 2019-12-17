@@ -2,7 +2,7 @@ import os
 from gym_trading.hw_sim.OrderBookOracle import OrderBookOracle
 
 """
-Config.py is used to add the file path of the historical data while specifying the trading interval
+config.py is used to add the file path of the historical data while specifying the trading interval
 """
 
 FILE_PATH = os.path.dirname(os.path.abspath(__file__))
