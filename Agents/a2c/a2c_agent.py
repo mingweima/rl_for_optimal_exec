@@ -178,7 +178,7 @@ class A2CAgent(object):
                 re_n (ndarray): shape: (sum_of_path_lengths)
                 terminal_n (ndarray): shape: (sum_of_path_lengths)
             Returns:
-                nothing
+                None
         """
         n = self.num_grad_steps_per_target_update * self.num_target_updates
         for t in range(0, n):
@@ -196,7 +196,7 @@ class A2CAgent(object):
                 ac_na (ndarray): shape: (sum_of_path_lengths).
                 adv_n (list): shape: (sum_of_path_lengths).
             Returns:
-                nothing
+                None
         """
         ac_onehot = np_utils.to_categorical(ac_na, num_classes=self.ac_dim)
         self.train_fn([ob_no, ac_onehot, adv_n])
