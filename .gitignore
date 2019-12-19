@@ -105,3 +105,4 @@ venv.bak/
 
 #log
 *.bz2/
+data/sample.csv

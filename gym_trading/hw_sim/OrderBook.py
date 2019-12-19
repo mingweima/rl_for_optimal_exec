@@ -22,6 +22,14 @@ class OrderBook:
         for ask_order in initialOrders[1]:
             self.handleLimitOrder(ask_order)
 
+    def update(self, historical_orders):
+        self.bids = []
+        self.asks = []
+        for bid_order in historical_orders[0]:
+            self.handleLimitOrder(bid_order)
+        for ask_order in historical_orders[1]:
+            self.handleLimitOrder(ask_order)
+
     def handleLimitOrder(self, input_order):
         """
         Matches a limit order or adds it to the order book.

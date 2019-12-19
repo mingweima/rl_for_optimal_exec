@@ -1,4 +1,6 @@
 import random
+
+import pandas as pd
 import numpy as np
 import gym
 from gym import spaces
@@ -6,6 +8,7 @@ from gym import spaces
 from gym_trading.hw_sim.OrderBook import OrderBook
 from gym_trading.hw_sim.config import ORDER_BOOK_ORACLE, MKT_OPEN
 from gym_trading.hw_sim.AlmgrenChriss import AlmgrenChrissAgent
+from gym_trading.hw_sim.data_OMI.OMI_Data_Oracle import OrderBookOracle
 
 class Simulator(gym.Env):
     """
@@ -19,7 +22,7 @@ class Simulator(gym.Env):
                  action_space_args):
         super(Simulator, self).__init__()
 
-        self.time_horizon = scenario_args['Time Horizon']
+        self.time_horizon = pd.Timedelta(seconds=scenario_args['Time Horizon'])
         self.initial_inventory = scenario_args['Initial Inventory']
 
         # Initializes the action space
@@ -39,7 +42,7 @@ class Simulator(gym.Env):
         self.ac_agent = AlmgrenChrissAgent(time_horizon=self.time_horizon, sigma=0)
 
         # Initializes the Oracle by inputing historical data files.
-        self.OrderBookOracle = ORDER_BOOK_ORACLE
+        self.OrderBookOracle = OrderBookOracle()
 
     def reset(self):
         """
@@ -50,7 +53,7 @@ class Simulator(gym.Env):
             Returns:
                 obs (ndarray): the current observation
         """
-        self.initial_time = random.randint(MKT_OPEN + 10, MKT_OPEN + 10)
+        self.initial_time = pd.datetime(2013, 1, 2, 9, 0, 0)
 
         # Initialize the OrderBook
         self.OrderBook = OrderBook(self.OrderBookOracle.getHistoricalOrderBook(self.initial_time))
@@ -62,7 +65,7 @@ class Simulator(gym.Env):
         self.ac_agent.reset()
         self.remaining_inventory_list = [self.initial_inventory]
         self.action_list = []
-        self.indx_in_orders_list = 0
+        # self.indx_in_orders_list = 0
 
         return obs
 
@@ -82,18 +85,20 @@ class Simulator(gym.Env):
 
         # Append the action taken to the action list
         self.action_list.append(action)
-
         # The action an Almgren Chriss Agent should take under the current condition
         ac_action = self.ac_agent.act(self.inventory / self.initial_inventory)
 
-        # Add the market replay orders to the limit order book.
-        while True:
-            order = self.OrderBookOracle.orders_list[self.indx_in_orders_list]
-            if order['TIME'] == self.current_time:
-                self.OrderBook.handleLimitOrder(order)
-            self.indx_in_orders_list += 1
-            if order['TIME'] > self.current_time:
-                break
+        # Add the market replay orders to the limit order book. (for lobster data)
+        # while True:
+        #     order = self.OrderBookOracle.orders_list[self.indx_in_orders_list]
+        #     if order['TIME'] == self.current_time:
+        #         self.OrderBook.handleLimitOrder(order)
+        #     self.indx_in_orders_list += 1
+        #     if order['TIME'] > self.current_time:
+        #         break
+
+        # Input the historical LOB. (for OMI data)
+        self.OrderBook.update(self.OrderBookOracle.getHistoricalOrderBook(self.current_time))
 
         # Place the agent's order to the limit order book
         if self.current_time == self.initial_time + self.time_horizon:
@@ -107,10 +112,10 @@ class Simulator(gym.Env):
             vwap, _ = self.OrderBook.handleMarketOrder(order_size)
         else:
             vwap = 0
-
+        print(self.inventory)
         # Calculate the reward by adding the regularization term to the execution shortfall
         ac_regularizor = - 0.1 * (- order_size - ac_action * self.inventory)**2
-        shortfall = (-order_size) * (vwap - self.initial_price) / 10000
+        shortfall = (-order_size) * (vwap - self.initial_price)
         reward = shortfall + 0 * ac_regularizor/ (1e4)
 
         # Update the environment and get new observation
@@ -120,7 +125,7 @@ class Simulator(gym.Env):
         if done:
             self.ac_agent.reset()
         obs = self.observation()
-        self.current_time += 1
+        self.current_time += pd.Timedelta(seconds=1)
         info = {'shortfall': shortfall}
         return obs, reward, done, info
 

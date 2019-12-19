@@ -5,7 +5,7 @@ class AlmgrenChrissAgent:
     The AlmgrenChriss Agent relies on the Almgren Chriss model to make trading decisions.
 
         Attributes:
-            time_horizon (int32): the number of time steps to fully liquidate the position
+            time_horizon: the number of time steps to fully liquidate the position
             time (int32): current time step
             eta (float64): temporary price impact parameter
             rho (float64): permanant price impact parameter
@@ -18,7 +18,7 @@ class AlmgrenChrissAgent:
         self.rho = rho
         self.sigma = sigma
         self.tau = tau
-        self.time_horizon, self.time = time_horizon, 1
+        self.time_horizon, self.time = time_horizon.seconds, 1
         k_bar = np.sqrt(lamb * sigma**2 / (eta * (1 - rho * tau / (2 * eta))))
         self.kappa = (1/tau) * np.arccosh(tau**2 * k_bar**2 * 0.5 + 1)
 
