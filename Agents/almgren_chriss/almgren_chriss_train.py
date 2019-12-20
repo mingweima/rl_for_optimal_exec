@@ -6,7 +6,7 @@ import gym_trading
 from Agents.almgren_chriss.almgren_chriss_agent import AlmgrenChrissAgent
 from tools.plot_tool import plot_with_avg_std
 
-def AlmgrenChrissTrain(scenario_args, observation_space_args, action_space_args, reward_args):
+def AlmgrenChrissTrain(scenario_args, observation_space_args, action_space_args, reward_args, data_args):
 
     EPISODES = 1
 
@@ -14,7 +14,8 @@ def AlmgrenChrissTrain(scenario_args, observation_space_args, action_space_args,
                    scenario_args=scenario_args,
                    observation_space_args=observation_space_args,
                    action_space_args=action_space_args,
-                   reward_args=reward_args)
+                   reward_args=reward_args,
+                   data_args=data_args)
 
     agent = AlmgrenChrissAgent(env, time_horizon=env.time_horizon, eta=2.5e-6, rho=0, sigma=1e-3, tau=1, lamb=0)
     ob_dim = env.observation_space.shape[0]

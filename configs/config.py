@@ -10,10 +10,11 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument('agent', type=str)
     parser.add_argument('--reward', type=str, default='implementation shortfall')
-    parser.add_argument('--time', type=int, default=60)
+    parser.add_argument('--time', type=int, default=600)
     parser.add_argument('--inventory', type=int, default=5000)
     parser.add_argument('--seed', type=int, default=1)
-    parser.add_argument('--interval', type=int, default=5)
+    parser.add_argument('--interval', type=int, default=60)
+    parser.add_argument('--data', type=str, default='sample.csv')
     args = parser.parse_args()
 
     ac_dict = {0: 0, 1: 0.01, 2: 0.02,
@@ -49,6 +50,8 @@ if __name__ == "__main__":
         'Reward Function': args.reward
     }
 
+    data_args = args.data
+
     print("============================================================")
     print("Reinforcement Learning for Optimal Execution")
     print("============================================================")
@@ -59,14 +62,14 @@ if __name__ == "__main__":
     print("============================================================")
 
     if args.agent == 'dpg' or args.agent == 'DPG':
-        DPG_Train(scenario_args, observation_space_args, action_space_args, reward_args)
+        DPG_Train(scenario_args, observation_space_args, action_space_args, reward_args, data_args)
     elif args.agent == 'dqn' or args.agent == 'DQN':
-        DQNTrain(scenario_args, observation_space_args, action_space_args, reward_args)
+        DQNTrain(scenario_args, observation_space_args, action_space_args, reward_args, data_args)
     elif args.agent == 'drqn' or args.agent == 'DRQN':
-        DRQNTrain(scenario_args, observation_space_args, action_space_args, reward_args)
+        DRQNTrain(scenario_args, observation_space_args, action_space_args, reward_args, data_args)
     elif args.agent == 'almgren_chriss':
-        AlmgrenChrissTrain(scenario_args, observation_space_args, action_space_args, reward_args)
+        AlmgrenChrissTrain(scenario_args, observation_space_args, action_space_args, reward_args, data_args)
     elif args.agent == 'a2c' or args.agent == 'A2C':
-        A2CTrain(scenario_args, observation_space_args, action_space_args, reward_args)
+        A2CTrain(scenario_args, observation_space_args, action_space_args, reward_args, data_args)
     else:
         raise Exception("Unknown Agent!")

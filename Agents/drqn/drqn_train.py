@@ -6,15 +6,16 @@ from Agents.drqn.drqn_agent import DRQNAgent
 from tools.plot_tool import plot_with_avg_std
 
 
-def DRQNTrain(scenario_args, observation_space_args, action_space_args, reward_args):
+def DRQNTrain(scenario_args, observation_space_args, action_space_args, reward_args, data_args):
 
-    EPISODES = 10000
+    EPISODES = 1000
 
     env = gym.make('hwenv-v0',
                    scenario_args=scenario_args,
                    observation_space_args=observation_space_args,
                    action_space_args=action_space_args,
-                   reward_args=reward_args)
+                   reward_args=reward_args,
+                   data_args=data_args)
 
     # get size of state and action from environment
     ob_dim = env.observation_space.shape[0]
@@ -23,7 +24,7 @@ def DRQNTrain(scenario_args, observation_space_args, action_space_args, reward_a
     agent = DRQNAgent(ob_dim, ac_dim, lookback=1, batch_size=64, initial_exploration_steps=1000)
 
     scores = []
-    avg_step = 100
+    avg_step = 10
     for eps in range(EPISODES):
         eps_rew = agent.sample_trajectory(env)
         scores.append(eps_rew)

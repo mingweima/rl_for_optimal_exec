@@ -21,7 +21,8 @@ class Simulator(gym.Env):
                  scenario_args,
                  observation_space_args,
                  action_space_args,
-                 reward_args):
+                 reward_args,
+                 data_args):
         super(Simulator, self).__init__()
 
         self.trading_interval = scenario_args['Trading Interval']
@@ -48,7 +49,7 @@ class Simulator(gym.Env):
         self.ac_agent = AlmgrenChrissAgent(time_horizon=self.time_horizon, trading_interval=self.trading_interval)
 
         # Initialize the Oracle by inputing historical data files.
-        self.OrderBookOracle = OrderBookOracle()
+        self.OrderBookOracle = OrderBookOracle(data_args, self.trading_interval)
 
     def reset(self):
         """
@@ -141,8 +142,6 @@ class Simulator(gym.Env):
             self.ac_agent.reset()
         obs = self.observation()
         info = {'shortfall': implementation_shortfall}
-
-        print(self.inventory)
 
         return obs, reward, done, info
 
