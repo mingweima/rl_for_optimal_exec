@@ -10,6 +10,7 @@ from gym_trading.hw_sim.config import ORDER_BOOK_ORACLE, MKT_OPEN
 from gym_trading.hw_sim.AlmgrenChriss import AlmgrenChrissAgent
 from gym_trading.hw_sim.data_OMI.OMI_Data_Oracle import OrderBookOracle
 
+
 class Simulator(gym.Env):
     """
     The gym environment for optimal execution: managing a limit order book by taking in historical
@@ -19,17 +20,19 @@ class Simulator(gym.Env):
     def __init__(self,
                  scenario_args,
                  observation_space_args,
-                 action_space_args):
+                 action_space_args,
+                 reward_args):
         super(Simulator, self).__init__()
 
-        self.time_horizon = pd.Timedelta(seconds=scenario_args['Time Horizon'])
+        self.trading_interval = scenario_args['Trading Interval']
+        self.time_horizon = pd.Timedelta(seconds=(scenario_args['Time Horizon']))
         self.initial_inventory = scenario_args['Initial Inventory']
 
-        # Initializes the action space
+        # Initialize the action space
         self.ac_dict = action_space_args['Action Dictionary']
         self.action_space = spaces.Discrete(len(self.ac_dict))
 
-        # Initializes the observation space
+        # Initialize the observation space
         self.ob_dict = {k:v for k,v in observation_space_args['Observation Dictionary'].items() if v}
         self.observation_space = spaces.Box(
             low=observation_space_args['Lower Limit'],
@@ -38,10 +41,13 @@ class Simulator(gym.Env):
             dtype=np.float64
         )
 
-        # Initializes the baseline agent
-        self.ac_agent = AlmgrenChrissAgent(time_horizon=self.time_horizon, sigma=0)
+        # Initialize the reward function
+        self.reward_function = reward_args['Reward Function']
 
-        # Initializes the Oracle by inputing historical data files.
+        # Initialize the baseline agent
+        self.ac_agent = AlmgrenChrissAgent(time_horizon=self.time_horizon, trading_interval=self.trading_interval)
+
+        # Initialize the Oracle by inputing historical data files.
         self.OrderBookOracle = OrderBookOracle()
 
     def reset(self):
@@ -63,7 +69,7 @@ class Simulator(gym.Env):
         self.inventory = self.initial_inventory
         obs = self.observation()
         self.ac_agent.reset()
-        self.remaining_inventory_list = [self.initial_inventory]
+        self.remaining_inventory_list = []
         self.action_list = []
         # self.indx_in_orders_list = 0
 
@@ -83,6 +89,9 @@ class Simulator(gym.Env):
                 info: any additional info
         """
 
+        # Initialize the current time
+        self.current_time += pd.Timedelta(seconds=self.trading_interval)
+
         # Append the action taken to the action list
         self.action_list.append(action)
         # The action an Almgren Chriss Agent should take under the current condition
@@ -101,7 +110,7 @@ class Simulator(gym.Env):
         self.OrderBook.update(self.OrderBookOracle.getHistoricalOrderBook(self.current_time))
 
         # Place the agent's order to the limit order book
-        if self.current_time == self.initial_time + self.time_horizon:
+        if self.current_time + pd.Timedelta(seconds=self.trading_interval) > self.initial_time + self.time_horizon:
             order_size = -self.inventory
         else:
             action = self.ac_dict[action]
@@ -112,11 +121,17 @@ class Simulator(gym.Env):
             vwap, _ = self.OrderBook.handleMarketOrder(order_size)
         else:
             vwap = 0
-        print(self.inventory)
-        # Calculate the reward by adding the regularization term to the execution shortfall
-        ac_regularizor = - 0.1 * (- order_size - ac_action * self.inventory)**2
-        shortfall = (-order_size) * (vwap - self.initial_price)
-        reward = shortfall + 0 * ac_regularizor/ (1e4)
+
+        implementation_shortfall = - order_size * (vwap - self.initial_price)
+
+        # Calculate the reward
+        if self.reward_function == 'implementation shortfall':
+            reward = implementation_shortfall
+        elif self.reward_function == 'regularized implementation shortfall':
+            ac_regularizor = - (- order_size - ac_action * self.inventory) ** 2
+            reward = implementation_shortfall + ac_regularizor * 1e-5
+        else:
+            raise Exception("Unknown Reward Function!")
 
         # Update the environment and get new observation
         self.inventory += order_size
@@ -125,8 +140,10 @@ class Simulator(gym.Env):
         if done:
             self.ac_agent.reset()
         obs = self.observation()
-        self.current_time += pd.Timedelta(seconds=1)
-        info = {'shortfall': shortfall}
+        info = {'shortfall': implementation_shortfall}
+
+        print(self.inventory)
+
         return obs, reward, done, info
 
     def observation(self):

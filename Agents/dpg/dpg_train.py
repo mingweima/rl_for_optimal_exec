@@ -6,7 +6,7 @@ from Agents.dpg.dpg_agent import DPGAgent
 from tools.plot_tool import plot_with_avg_std
 
 
-def DPG_Train(scenario_args, observation_space_args, action_space_args):
+def DPG_Train(scenario_args, observation_space_args, action_space_args, reward_args):
     """
     Train the DPGAgent by sampling trajectories from the environment.
     """
@@ -16,7 +16,8 @@ def DPG_Train(scenario_args, observation_space_args, action_space_args):
     env = gym.make('hwenv-v0',
                    scenario_args=scenario_args,
                    observation_space_args=observation_space_args,
-                   action_space_args=action_space_args)
+                   action_space_args=action_space_args,
+                   reward_args=reward_args)
 
     # Initialize the DPGAgent.
     ob_dim = env.observation_space.shape[0]

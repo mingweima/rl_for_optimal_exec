@@ -9,9 +9,11 @@ from Agents.almgren_chriss.almgren_chriss_train import AlmgrenChrissTrain
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument('agent', type=str)
-    parser.add_argument('--time', type=int, default=20)
-    parser.add_argument('--inventory', type=int, default=1000)
+    parser.add_argument('--reward', type=str, default='implementation shortfall')
+    parser.add_argument('--time', type=int, default=60)
+    parser.add_argument('--inventory', type=int, default=5000)
     parser.add_argument('--seed', type=int, default=1)
+    parser.add_argument('--interval', type=int, default=5)
     args = parser.parse_args()
 
     ac_dict = {0: 0, 1: 0.01, 2: 0.02,
@@ -28,11 +30,12 @@ if __name__ == "__main__":
         'Bid Ask Spread': True,
         'Order Book Volume': True,
     }
-
     scenario_args = {
         'Time Horizon': args.time,
-        'Initial Inventory': args.inventory
+        'Initial Inventory': args.inventory,
+        'Trading Interval': args.interval
     }
+
     observation_space_args = {
         'Observation Dictionary': ob_dict,
         'Upper Limit': 1,
@@ -42,22 +45,28 @@ if __name__ == "__main__":
         'Action Dictionary': ac_dict
     }
 
+    reward_args = {
+        'Reward Function': args.reward
+    }
+
+    print("============================================================")
     print("Reinforcement Learning for Optimal Execution")
     print("============================================================")
-    print("Time Horizon: ", args.time)
-    print("Initial Inventory:", args.inventory)
-    print("Agent: ", args.agent)
+    print("Time Horizon (Seconds):     ", args.time)
+    print("Trading Interval (Seconds): ", args.interval)
+    print("Initial Inventory:          ", args.inventory)
+    print("Agent:                      ", args.agent)
     print("============================================================")
 
     if args.agent == 'dpg' or args.agent == 'DPG':
-        DPG_Train(scenario_args, observation_space_args, action_space_args)
+        DPG_Train(scenario_args, observation_space_args, action_space_args, reward_args)
     elif args.agent == 'dqn' or args.agent == 'DQN':
-        DQNTrain(scenario_args, observation_space_args, action_space_args)
+        DQNTrain(scenario_args, observation_space_args, action_space_args, reward_args)
     elif args.agent == 'drqn' or args.agent == 'DRQN':
-        DRQNTrain(scenario_args, observation_space_args, action_space_args)
+        DRQNTrain(scenario_args, observation_space_args, action_space_args, reward_args)
     elif args.agent == 'almgren_chriss':
-        AlmgrenChrissTrain(scenario_args, observation_space_args, action_space_args)
+        AlmgrenChrissTrain(scenario_args, observation_space_args, action_space_args, reward_args)
     elif args.agent == 'a2c' or args.agent == 'A2C':
-        A2CTrain(scenario_args, observation_space_args, action_space_args)
+        A2CTrain(scenario_args, observation_space_args, action_space_args, reward_args)
     else:
         raise Exception("Unknown Agent!")
