@@ -70,7 +70,7 @@ class A2CAgent(object):
                                    outputs=[],
                                    updates=updates)
 
-    def sample_trajectories(self, itr, env, info_name=None, render = False):
+    def sample_trajectories(self, itr, env, info_name=None, render=False):
         """
             Collect paths until we have enough time steps in the batch.
 

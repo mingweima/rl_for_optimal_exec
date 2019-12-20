@@ -48,8 +48,11 @@ class Simulator(gym.Env):
         # Initialize the baseline agent
         self.ac_agent = AlmgrenChrissAgent(time_horizon=self.time_horizon, trading_interval=self.trading_interval)
 
+        self.initial_time = pd.datetime(2013, 1, 2, 9, 0, 0)
+
         # Initialize the Oracle by inputing historical data files.
-        self.OrderBookOracle = OrderBookOracle(data_args, self.trading_interval)
+        self.OrderBookOracle = OrderBookOracle(data_args,
+                                               self.initial_time, self.trading_interval, self.time_horizon)
 
     def reset(self):
         """
@@ -60,7 +63,6 @@ class Simulator(gym.Env):
             Returns:
                 obs (ndarray): the current observation
         """
-        self.initial_time = pd.datetime(2013, 1, 2, 9, 0, 0)
 
         # Initialize the OrderBook
         self.OrderBook = OrderBook(self.OrderBookOracle.getHistoricalOrderBook(self.initial_time))

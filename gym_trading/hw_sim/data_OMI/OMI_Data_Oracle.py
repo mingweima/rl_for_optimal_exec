@@ -12,7 +12,7 @@ class OrderBookOracle:
     """
     Oracle for reading historical exchange orders stream
     """
-    def __init__(self, data_args, trading_interval):
+    def __init__(self, data_args, initial_time, trading_interval, time_horizon):
 
         done = False
 
@@ -42,6 +42,8 @@ class OrderBookOracle:
         lob_df['Date-Time'] = pd.to_datetime(lob_df['Date-Time'],
                                              format='%Y-%m-%dT%H:%M:%S.%fZ').dt.round('{}s'.format(trading_interval))
         lob_df = lob_df.groupby(['Date-Time']).first().reset_index()
+        lob_df = lob_df.loc[(lob_df['Date-Time'] >= initial_time) &
+                            (lob_df['Date-Time'] <= initial_time + time_horizon)]
         self.lob_df = lob_df
 
         done = True
