@@ -26,11 +26,13 @@ class Simulator(gym.Env):
                  almgren_chriss_args):
         super(Simulator, self).__init__()
 
+        self.hothead = scenario_args['Hothead']
         self.trading_interval = scenario_args['Trading Interval']
         self.time_horizon = pd.Timedelta(seconds=scenario_args['Time Horizon'])
         self.initial_inventory = scenario_args['Initial Inventory']
 
         # Initialize the action space
+        self.ac_type = action_space_args['Action Type']
         self.ac_dict = action_space_args['Action Dictionary']
         self.action_space = spaces.Discrete(len(self.ac_dict))
 
@@ -48,6 +50,7 @@ class Simulator(gym.Env):
 
         # Initialize the baseline agent
         self.ac_agent = AlmgrenChrissAgent(
+                               ac_type=self.ac_type,
                                ac_dict=self.ac_dict,
                                time_horizon=scenario_args['Time Horizon'],
                                eta=almgren_chriss_args['eta'],
@@ -69,7 +72,6 @@ class Simulator(gym.Env):
                 obs (ndarray): the current observation
         """
 
-        # Initialize the OrderBook
         def sample_initial_time():
             day = random.choice([2, 3, 4, 7])
             lower_limit = pd.to_datetime('2013/1/{} 09:00:00'.format(day))
@@ -78,20 +80,19 @@ class Simulator(gym.Env):
             time.round('{}s'.format(self.trading_interval))
             return time
 
+        # Initialize the OrderBook
         self.initial_time = sample_initial_time()
-
         self.OrderBook = OrderBook(self.OrderBookOracle.getHistoricalOrderBook(self.initial_time))
 
+        self.remaining_inventory_list = []
+        self.action_list = []
         self.current_time = self.initial_time
         self.initial_price = self.OrderBook.getMidPrice()
         self.inventory = self.initial_inventory
-        obs = self.observation()
+        self.last_market_price = self.OrderBook.getMidPrice()
         self.ac_agent.reset()
-        self.remaining_inventory_list = []
-        self.action_list = []
-        # self.indx_in_orders_list = 0
 
-        return obs
+        return self.observation()
 
     def step(self, action):
         """
@@ -106,40 +107,41 @@ class Simulator(gym.Env):
                 info: any additional info
         """
 
-        # Initialize the current time
-        self.current_time += pd.Timedelta(seconds=self.trading_interval)
+        # Set the last market price before taking any action and updating the LOB
+        self.last_market_price = self.OrderBook.getMidPrice()
 
         # Append the action taken to the action list
         self.action_list.append(action)
+
         # The action an Almgren Chriss Agent should take under the current condition
         ac_action = self.ac_agent.act(self.inventory / self.initial_inventory)
 
-        # Add the market replay orders to the limit order book. (for lobster data)
-        # while True:
-        #     order = self.OrderBookOracle.orders_list[self.indx_in_orders_list]
-        #     if order['TIME'] == self.current_time:
-        #         self.OrderBook.handleLimitOrder(order)
-        #     self.indx_in_orders_list += 1
-        #     if order['TIME'] > self.current_time:
-        #         break
-
-        # Input the historical LOB. (for OMI data)
-        self.OrderBook.update(self.OrderBookOracle.getHistoricalOrderBook(self.current_time))
-
         # Place the agent's order to the limit order book
-        if self.current_time + pd.Timedelta(seconds=self.trading_interval) > self.initial_time + self.time_horizon:
+        if self.hothead == 'True':
+            order_size = - self.inventory
+        elif self.current_time + pd.Timedelta(seconds=self.trading_interval) > self.initial_time + self.time_horizon:
             order_size = -self.inventory
         else:
-            action = self.ac_dict[action]
-            order_size = - round(self.inventory * action)
+            if self.ac_type == 'vanilla_action':
+                action = self.ac_dict[action]
+                order_size = - round(self.inventory * action)
+                if self.inventory + order_size < 0:
+                    order_size = - self.inventory
+            elif self.ac_type == 'prop_of_ac':
+                action = self.ac_dict[action]
+                order_size = - round(action * ac_action * self.inventory)
+            else:
+                raise Exception('Unknown Action Type')
             if self.inventory + order_size < 0:
                 order_size = - self.inventory
+
         if order_size != 0:
             vwap, _ = self.OrderBook.handleMarketOrder(order_size)
         else:
             vwap = 0
 
         implementation_shortfall = - order_size * (vwap - self.initial_price)
+
 
         # Calculate the reward
         if self.reward_function == 'implementation_shortfall':
@@ -152,14 +154,22 @@ class Simulator(gym.Env):
 
         # Update the environment and get new observation
         self.inventory += order_size
-
         self.remaining_inventory_list.append(self.inventory)
-        done = self.inventory <= 0
+
+        done = (self.inventory <= 0)
         if done:
             self.ac_agent.reset()
-        obs = self.observation()
+
         info = {'shortfall': implementation_shortfall}
 
+        # Update the time
+        self.current_time += pd.Timedelta(seconds=self.trading_interval)
+
+        # Update the LOB. (for OMI data)
+        self.OrderBook.update(self.OrderBookOracle.getHistoricalOrderBook(self.current_time))
+
+        # Take an observation of the current state
+        obs = self.observation()
         return obs, reward, done, info
 
     def observation(self):
@@ -177,9 +187,14 @@ class Simulator(gym.Env):
         if 'Remaining Inventory' in self.ob_dict.keys():
             obs.append(self.inventory/self.initial_inventory)
         if 'Bid Ask Spread' in self.ob_dict.keys():
-            obs.append(self.OrderBook.getBidAskSpread()/10000)
+            obs.append(self.OrderBook.getBidAskSpread())
         if 'Order Book Volume' in self.ob_dict.keys():
-            obs.append(self.OrderBook.getBidAskVolume()/1000)
+            obs.append(self.OrderBook.getBidAskVolume())
+        if 'Log Return' in self.ob_dict.keys():
+            obs.append(np.log(self.OrderBook.getMidPrice()/self.last_market_price))
+        if 'Market Price' in self.ob_dict.keys():
+            obs.append(np.log(self.OrderBook.getMidPrice()/self.initial_price))
+
         return np.asarray(obs)
 
     def render(self, mode='human', close=False):

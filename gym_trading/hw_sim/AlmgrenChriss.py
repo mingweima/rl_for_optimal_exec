@@ -13,7 +13,8 @@ class AlmgrenChrissAgent:
             tau (float64): length of discrete time period
             lamb (float64): level of risk aversion (zero if the trader is risk-neutral)
     """
-    def __init__(self, ac_dict, time_horizon, eta, rho, sigma, tau, lamb):
+    def __init__(self, ac_type, ac_dict, time_horizon, eta, rho, sigma, tau, lamb):
+        self.ac_type = ac_type
         self.ac_dict = ac_dict
         self.eta = eta
         self.rho = rho
@@ -36,25 +37,43 @@ class AlmgrenChrissAgent:
             Args:
                 inventory (float64): the ratio of the current position to the initial inventory.
             Returns:
-                nj (float64): the ratio of the position to sell at this time step to the current position
+                action (int64): the action to take
+                nj (float64): proportion of current position to sell
         """
-        def closest_action(nj):
-            action = 0
-            difference = abs(self.ac_dict[action] - nj)
-            for ac, proportion in self.ac_dict.items():
-                if (proportion - nj) < difference:
-                    action = ac
+        if self.ac_type == 'vanilla_action':
+            def closest_action(nj):
+                action = 0
+                difference = abs(self.ac_dict[action] - nj)
+                for ac, proportion in self.ac_dict.items():
+                    if (proportion - nj) < difference:
+                        action = ac
+                        difference = abs(self.ac_dict[action] - nj)
+                return action
+
+            if self.kappa == 0:
+                nj = self.tau / self.time_horizon * (1 / inventory)
+            else:
+                nj = 2 * np.sinh(0.5 * self.kappa * self.tau) * np.cosh(self.kappa * (
+                        self.time_horizon - (self.j - 0.5) * self.tau)) * (1 / inventory) / np.sinh(self.kappa
+                                                                                                    * self.time_horizon)
+            self.j += 1
+            if self.j == self.steps + 1:
+                nj = 1
+            action = closest_action(nj)
+
             return action
 
-        if self.kappa == 0:
-            nj = self.tau / self.time_horizon * (1 / inventory)
-        else:
-            nj = 2 * np.sinh(0.5 * self.kappa * self.tau) * np.cosh(self.kappa * (
-                self.time_horizon - (self.j - 0.5) * self.tau)) * (1 / inventory) / np.sinh(self.kappa
-                                                                                            * self.time_horizon)
-        self.j += 1
-        if self.j == self.steps + 1:
-            nj = 1
-        action = closest_action(nj)
+        elif self.ac_type == 'prop_of_ac':
+            if self.kappa == 0:
+                nj = self.tau / self.time_horizon * (1 / inventory)
+            else:
+                nj = 2 * np.sinh(0.5 * self.kappa * self.tau) * np.cosh(self.kappa * (
+                        self.time_horizon - (self.j - 0.5) * self.tau)) * (1 / inventory) / np.sinh(self.kappa
+                                                                                                    * self.time_horizon)
+            self.j += 1
+            if self.j == self.steps + 1:
+                nj = 1
+            return nj
 
-        return action
+        else:
+            raise Exception('Unknown Action Type')
