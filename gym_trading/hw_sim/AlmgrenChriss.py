@@ -13,20 +13,22 @@ class AlmgrenChrissAgent:
             tau (float64): length of discrete time period
             lamb (float64): level of risk aversion (zero if the trader is risk-neutral)
     """
-    def __init__(self, time_horizon, trading_interval, eta=2.5e-6, rho=0, sigma=5e-4, lamb=0.01):
+    def __init__(self, ac_dict, time_horizon, eta, rho, sigma, tau, lamb):
+        self.ac_dict = ac_dict
         self.eta = eta
         self.rho = rho
         self.sigma = sigma
-        self.tau = trading_interval
-        self.time_horizon, self.time = time_horizon.seconds, 1
-        k_bar = np.sqrt(lamb * sigma**2 / (eta * (1 - rho * self.tau / (2 * eta))))
-        self.kappa = (1 / self.tau) * np.arccosh(self.tau**2 * k_bar**2 * 0.5 + 1)
+        self.tau = tau
+        self.time_horizon = time_horizon
+        self.steps, self.j = time_horizon / self.tau, 1
+        k_bar = np.sqrt(abs(lamb * sigma**2 / (eta * (1 - rho * tau / (2 * eta)))))
+        self.kappa = (1/tau) * np.arccosh(tau**2 * k_bar**2 * 0.5 + 1)
 
     def reset(self):
         """
         Reset the current time to 1.
         """
-        self.time = 1
+        self.j = 1
 
     def act(self, inventory):
         """
@@ -36,12 +38,23 @@ class AlmgrenChrissAgent:
             Returns:
                 nj (float64): the ratio of the position to sell at this time step to the current position
         """
+        def closest_action(nj):
+            action = 0
+            difference = abs(self.ac_dict[action] - nj)
+            for ac, proportion in self.ac_dict.items():
+                if (proportion - nj) < difference:
+                    action = ac
+            return action
+
         if self.kappa == 0:
             nj = self.tau / self.time_horizon * (1 / inventory)
         else:
             nj = 2 * np.sinh(0.5 * self.kappa * self.tau) * np.cosh(self.kappa * (
-                    self.time_horizon - (self.time - 0.5) * self.tau)) / np.sinh(self.kappa * self.time_horizon)
-        self.time += 1
-        if self.time == self.time_horizon + 1:
+                self.time_horizon - (self.j - 0.5) * self.tau)) * (1 / inventory) / np.sinh(self.kappa
+                                                                                            * self.time_horizon)
+        self.j += 1
+        if self.j == self.steps + 1:
             nj = 1
-        return nj
+        action = closest_action(nj)
+
+        return action

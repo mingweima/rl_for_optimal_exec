@@ -5,7 +5,8 @@ import gym_trading
 from Agents.a2c.a2c_agent import A2CAgent
 from tools.plot_tool import plot_with_avg_std
 
-def A2CTrain(scenario_args, observation_space_args, action_space_args, reward_args, data_args):
+def A2CTrain(scenario_args, observation_space_args,
+             action_space_args, reward_args, data_args, almgren_chriss_args):
     """
     Train the A2CAgent by sampling trajectories from the environment.
     """
@@ -17,7 +18,8 @@ def A2CTrain(scenario_args, observation_space_args, action_space_args, reward_ar
                    observation_space_args=observation_space_args,
                    action_space_args=action_space_args,
                    reward_args=reward_args,
-                   data_args=data_args)
+                   data_args=data_args,
+                   almgren_chriss_args=almgren_chriss_args)
 
     # Initialize the A2CAgent.
     ob_dim = env.observation_space.shape[0]

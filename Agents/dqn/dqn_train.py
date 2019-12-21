@@ -6,7 +6,8 @@ import gym_trading
 from Agents.dqn.dqn_agent import DQNAgent
 from tools.plot_tool import plot_with_avg_std
 
-def DQNTrain(scenario_args, observation_space_args, action_space_args, reward_args, data_args):
+def DQNTrain(scenario_args, observation_space_args,
+             action_space_args, reward_args, data_args, almgren_chriss_args):
 
     EPISODES = 10000
 
@@ -15,7 +16,8 @@ def DQNTrain(scenario_args, observation_space_args, action_space_args, reward_ar
                    observation_space_args=observation_space_args,
                    action_space_args=action_space_args,
                    reward_args=reward_args,
-                   data_args=data_args)
+                   data_args=data_args,
+                   almgren_chriss_args=almgren_chriss_args)
 
     # get size of state and action from environment
     ob_dim = env.observation_space.shape[0]

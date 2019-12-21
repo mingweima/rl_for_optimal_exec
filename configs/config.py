@@ -9,12 +9,16 @@ from Agents.almgren_chriss.almgren_chriss_train import AlmgrenChrissTrain
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument('agent', type=str)
-    parser.add_argument('--reward', type=str, default='implementation shortfall')
+    parser.add_argument('--reward', type=str, default='implementation_shortfall')
     parser.add_argument('--time', type=int, default=600)
     parser.add_argument('--inventory', type=int, default=5000)
     parser.add_argument('--seed', type=int, default=1)
     parser.add_argument('--interval', type=int, default=60)
     parser.add_argument('--data', type=str, default='sample.csv')
+    parser.add_argument('--eta', type=int, default=1.2256)
+    parser.add_argument('--rho', type=int, default=0.1226)
+    parser.add_argument('--sigma', type=int, default=6.67e-4)
+    parser.add_argument('--lamb', type=int, default=1e-4)
     args = parser.parse_args()
 
     ac_dict = {0: 0, 1: 0.01, 2: 0.02,
@@ -52,6 +56,13 @@ if __name__ == "__main__":
 
     data_args = args.data
 
+    almgren_chriss_args = {
+        'eta': args.eta,
+        'rho': args.rho,
+        'sigma': args.sigma,
+        'lamb': args.lamb
+    }
+
     print("============================================================")
     print("Reinforcement Learning for Optimal Execution")
     print("============================================================")
@@ -62,14 +73,19 @@ if __name__ == "__main__":
     print("============================================================")
 
     if args.agent == 'dpg' or args.agent == 'DPG':
-        DPG_Train(scenario_args, observation_space_args, action_space_args, reward_args, data_args)
+        DPG_Train(scenario_args, observation_space_args,
+                  action_space_args, reward_args, data_args, almgren_chriss_args)
     elif args.agent == 'dqn' or args.agent == 'DQN':
-        DQNTrain(scenario_args, observation_space_args, action_space_args, reward_args, data_args)
+        DQNTrain(scenario_args, observation_space_args,
+                 action_space_args, reward_args, data_args, almgren_chriss_args)
     elif args.agent == 'drqn' or args.agent == 'DRQN':
-        DRQNTrain(scenario_args, observation_space_args, action_space_args, reward_args, data_args)
+        DRQNTrain(scenario_args, observation_space_args,
+                  action_space_args, reward_args, data_args, almgren_chriss_args)
     elif args.agent == 'almgren_chriss':
-        AlmgrenChrissTrain(scenario_args, observation_space_args, action_space_args, reward_args, data_args)
+        AlmgrenChrissTrain(scenario_args, observation_space_args,
+                           action_space_args, reward_args, data_args, almgren_chriss_args)
     elif args.agent == 'a2c' or args.agent == 'A2C':
-        A2CTrain(scenario_args, observation_space_args, action_space_args, reward_args, data_args)
+        A2CTrain(scenario_args, observation_space_args,
+                 action_space_args, reward_args, data_args, almgren_chriss_args)
     else:
         raise Exception("Unknown Agent!")

@@ -12,22 +12,17 @@ class OrderBookOracle:
     """
     Oracle for reading historical exchange orders stream
     """
-    def __init__(self, data_args, initial_time, trading_interval, time_horizon):
+    def __init__(self, data_args, trading_interval):
 
         done = False
 
         def animate():
-            interval = 0.5
-            decay = 0.98
             for c in itertools.cycle(['|', '/', '-', '\\']):
                 if done:
                     break
                 sys.stdout.write('\rLoading OMI Data ' + c)
                 sys.stdout.flush()
-                time.sleep(interval)
-                if interval >= 0.03:
-                    interval *= decay
-            sys.stdout.write('\rDone!     ')
+                time.sleep(0.1)
 
         t = threading.Thread(target=animate)
         t.start()
@@ -42,8 +37,7 @@ class OrderBookOracle:
         lob_df['Date-Time'] = pd.to_datetime(lob_df['Date-Time'],
                                              format='%Y-%m-%dT%H:%M:%S.%fZ').dt.round('{}s'.format(trading_interval))
         lob_df = lob_df.groupby(['Date-Time']).first().reset_index()
-        lob_df = lob_df.loc[(lob_df['Date-Time'] >= initial_time) &
-                            (lob_df['Date-Time'] <= initial_time + time_horizon)]
+
         self.lob_df = lob_df
 
         done = True
@@ -57,7 +51,6 @@ class OrderBookOracle:
                 a list of length two, the first being the bids dictionary, the second the asks dictionary
         """
         LOB = np.array(self.lob_df.loc[self.lob_df['Date-Time'] >= time].head(1))[0]
-
         bids = []
         for i in range(10):
             price = LOB[4 * i + 1]
@@ -68,5 +61,9 @@ class OrderBookOracle:
             price = LOB[4 * i + 3]
             size = LOB[4 * i + 4]
             asks.append({'TIME': time, 'TYPE': 1, 'ORDER_ID': -1, 'PRICE': price, 'SIZE': size, 'BUY_SELL_FLAG': 'SELL'})
+
+        # Add a very large order with bad price at the bottom of the order book to avoid order depletion
+        asks.append({'TIME': time, 'TYPE': 1, 'ORDER_ID': -1, 'PRICE': 10000, 'SIZE': 100000, 'BUY_SELL_FLAG': 'SELL'})
+        bids.append({'TIME': time, 'TYPE': 1, 'ORDER_ID': -1, 'PRICE': 0, 'SIZE': 100000, 'BUY_SELL_FLAG': 'BUY'})
 
         return [bids, asks]

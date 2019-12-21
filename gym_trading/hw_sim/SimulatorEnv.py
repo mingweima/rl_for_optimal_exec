@@ -22,11 +22,12 @@ class Simulator(gym.Env):
                  observation_space_args,
                  action_space_args,
                  reward_args,
-                 data_args):
+                 data_args,
+                 almgren_chriss_args):
         super(Simulator, self).__init__()
 
         self.trading_interval = scenario_args['Trading Interval']
-        self.time_horizon = pd.Timedelta(seconds=(scenario_args['Time Horizon']))
+        self.time_horizon = pd.Timedelta(seconds=scenario_args['Time Horizon'])
         self.initial_inventory = scenario_args['Initial Inventory']
 
         # Initialize the action space
@@ -46,13 +47,17 @@ class Simulator(gym.Env):
         self.reward_function = reward_args['Reward Function']
 
         # Initialize the baseline agent
-        self.ac_agent = AlmgrenChrissAgent(time_horizon=self.time_horizon, trading_interval=self.trading_interval)
-
-        self.initial_time = pd.datetime(2013, 1, 2, 9, 0, 0)
+        self.ac_agent = AlmgrenChrissAgent(
+                               ac_dict=self.ac_dict,
+                               time_horizon=scenario_args['Time Horizon'],
+                               eta=almgren_chriss_args['eta'],
+                               rho=almgren_chriss_args['rho'],
+                               sigma=almgren_chriss_args['sigma'],
+                               tau=scenario_args['Trading Interval'],
+                               lamb=almgren_chriss_args['lamb'])
 
         # Initialize the Oracle by inputing historical data files.
-        self.OrderBookOracle = OrderBookOracle(data_args,
-                                               self.initial_time, self.trading_interval, self.time_horizon)
+        self.OrderBookOracle = OrderBookOracle(data_args, self.trading_interval)
 
     def reset(self):
         """
@@ -65,6 +70,16 @@ class Simulator(gym.Env):
         """
 
         # Initialize the OrderBook
+        def sample_initial_time():
+            day = random.choice([2, 3, 4, 7])
+            lower_limit = pd.to_datetime('2013/1/{} 09:00:00'.format(day))
+            upper_limit = pd.to_datetime('2013/1/{} 16:00:00'.format(day))
+            time = lower_limit + random.random() * (upper_limit - lower_limit)
+            time.round('{}s'.format(self.trading_interval))
+            return time
+
+        self.initial_time = sample_initial_time()
+
         self.OrderBook = OrderBook(self.OrderBookOracle.getHistoricalOrderBook(self.initial_time))
 
         self.current_time = self.initial_time
@@ -83,8 +98,7 @@ class Simulator(gym.Env):
         Placing an order into the limit order book according to the action
 
             Args:
-                action (float64):
-                    the proportion of the inventory on hand to execute at this time step (from 0 to 1)
+                action (int64): from 0 to (ac_dim - 1)
             Returns:
                 obs (ndarray): an ndarray specifying the limit order book
                 reward (float64): the reward of this step
@@ -128,9 +142,9 @@ class Simulator(gym.Env):
         implementation_shortfall = - order_size * (vwap - self.initial_price)
 
         # Calculate the reward
-        if self.reward_function == 'implementation shortfall':
+        if self.reward_function == 'implementation_shortfall':
             reward = implementation_shortfall
-        elif self.reward_function == 'regularized implementation shortfall':
+        elif self.reward_function == 'regularized_implementation_shortfall':
             ac_regularizor = - (- order_size - ac_action * self.inventory) ** 2
             reward = implementation_shortfall + ac_regularizor * 1e-5
         else:
@@ -138,6 +152,7 @@ class Simulator(gym.Env):
 
         # Update the environment and get new observation
         self.inventory += order_size
+
         self.remaining_inventory_list.append(self.inventory)
         done = self.inventory <= 0
         if done:
