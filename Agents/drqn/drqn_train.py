@@ -38,4 +38,4 @@ def DRQNTrain(scenario_args, observation_space_args,
         if eps % 10 == 0:
             agent.update_target_model()
 
-    plot_with_avg_std(scores, 500, xlabel=f'Number of Episodes in {500}')
+    plot_with_avg_std(scores, 1, xlabel=f'Number of Episodes in {1}')

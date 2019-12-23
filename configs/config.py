@@ -38,8 +38,8 @@ if __name__ == "__main__":
         'Remaining Inventory': True,
         'Bid Ask Spread': False,
         'Order Book Volume': False,
-        'Market Price': True,
-        'Log Return': True
+        'Market Price': False,
+        'Log Return': False
     }
     scenario_args = {
         'Time Horizon': args.time,

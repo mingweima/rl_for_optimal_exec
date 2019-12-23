@@ -81,15 +81,18 @@ class Simulator(gym.Env):
             return time
 
         # Initialize the OrderBook
-        self.initial_time = sample_initial_time()
+        # self.initial_time = sample_initial_time()
+        self.initial_time = pd.to_datetime('2013/1/2 09:00:00')
         self.OrderBook = OrderBook(self.OrderBookOracle.getHistoricalOrderBook(self.initial_time))
+        self.initial_price = self.OrderBook.getMidPrice()
+
+        self.current_time = self.initial_time + pd.Timedelta(seconds=self.trading_interval)
+        self.OrderBook = OrderBook(self.OrderBookOracle.getHistoricalOrderBook(self.current_time))
 
         self.remaining_inventory_list = []
         self.action_list = []
-        self.current_time = self.initial_time
-        self.initial_price = self.OrderBook.getMidPrice()
         self.inventory = self.initial_inventory
-        self.last_market_price = self.OrderBook.getMidPrice()
+        self.last_market_price = self.initial_price
         self.ac_agent.reset()
 
         return self.observation()
@@ -125,8 +128,6 @@ class Simulator(gym.Env):
             if self.ac_type == 'vanilla_action':
                 action = self.ac_dict[action]
                 order_size = - round(self.inventory * action)
-                if self.inventory + order_size < 0:
-                    order_size = - self.inventory
             elif self.ac_type == 'prop_of_ac':
                 action = self.ac_dict[action]
                 order_size = - round(action * ac_action * self.inventory)
