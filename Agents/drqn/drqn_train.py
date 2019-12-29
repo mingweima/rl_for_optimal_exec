@@ -9,7 +9,7 @@ from tools.plot_tool import plot_with_avg_std
 def DRQNTrain(scenario_args, observation_space_args,
               action_space_args, reward_args, data_args, almgren_chriss_args):
 
-    EPISODES = 1000
+    EPISODES = 100000
 
     env = gym.make('hwenv-v0',
                    scenario_args=scenario_args,
@@ -23,7 +23,7 @@ def DRQNTrain(scenario_args, observation_space_args,
     ob_dim = env.observation_space.shape[0]
     ac_dim = env.action_space.n
 
-    agent = DRQNAgent(ob_dim, ac_dim, lookback=1, batch_size=64, initial_exploration_steps=1000)
+    agent = DRQNAgent(ob_dim, ac_dim, lookback=5, batch_size=64, initial_exploration_steps=10000)
 
     scores = []
     avg_step = 10
@@ -38,4 +38,4 @@ def DRQNTrain(scenario_args, observation_space_args,
         if eps % 10 == 0:
             agent.update_target_model()
 
-    plot_with_avg_std(scores, 1, xlabel=f'Number of Episodes in {1}')
+    plot_with_avg_std(scores, 10, xlabel=f'Number of Episodes in {10}')

@@ -13,7 +13,7 @@ class AlmgrenChrissAgent:
             tau (float64): length of discrete time period
             lamb (float64): level of risk aversion (zero if the trader is risk-neutral)
     """
-    def __init__(self, ac_type, ac_dict, time_horizon, eta, rho, sigma, tau, lamb):
+    def __init__(self, ac_type, ac_dict, time_horizon, eta, rho, sigma, tau, lamb, kappa):
         self.ac_type = ac_type
         self.ac_dict = ac_dict
         self.eta = eta
@@ -22,8 +22,10 @@ class AlmgrenChrissAgent:
         self.tau = tau
         self.time_horizon = time_horizon
         self.steps, self.j = time_horizon / self.tau, 1
-        k_bar = np.sqrt(abs(lamb * sigma**2 / (eta * (1 - rho * tau / (2 * eta)))))
-        self.kappa = (1/tau) * np.arccosh(tau**2 * k_bar**2 * 0.5 + 1)
+        self.lamb = lamb
+        # k_bar = np.sqrt(abs(lamb * sigma**2 / (eta * (1 - rho * tau / (2 * eta)))))
+        # self.kappa = (1/tau) * np.arccosh(tau**2 * k_bar**2 * 0.5 + 1)
+        self.kappa = kappa
 
     def reset(self):
         """

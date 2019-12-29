@@ -9,7 +9,7 @@ from tools.plot_tool import plot_with_avg_std
 def DQNTrain(scenario_args, observation_space_args,
              action_space_args, reward_args, data_args, almgren_chriss_args):
 
-    EPISODES = 10000
+    EPISODES = 100000
 
     env = gym.make('hwenv-v0',
                    scenario_args=scenario_args,
@@ -23,7 +23,7 @@ def DQNTrain(scenario_args, observation_space_args,
     ob_dim = env.observation_space.shape[0]
     ac_dim = env.action_space.n
 
-    agent = DQNAgent(ob_dim, ac_dim, batch_size=64, initial_exploration_steps=1000)
+    agent = DQNAgent(ob_dim, ac_dim, batch_size=64, initial_exploration_steps=10000)
 
     scores = []
     avg_step = 10

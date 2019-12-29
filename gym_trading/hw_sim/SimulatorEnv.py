@@ -57,10 +57,12 @@ class Simulator(gym.Env):
                                rho=almgren_chriss_args['rho'],
                                sigma=almgren_chriss_args['sigma'],
                                tau=scenario_args['Trading Interval'],
-                               lamb=almgren_chriss_args['lamb'])
+                               lamb=almgren_chriss_args['lamb'],
+                               kappa=almgren_chriss_args['kappa'])
 
         # Initialize the Oracle by inputing historical data files.
         self.OrderBookOracle = OrderBookOracle(data_args, self.trading_interval)
+        self.unique_date = self.OrderBookOracle.unique_date
 
     def reset(self):
         """
@@ -72,18 +74,14 @@ class Simulator(gym.Env):
                 obs (ndarray): the current observation
         """
 
-        def sample_initial_time():
-            day = random.choice([2, 3, 4, 7])
-            lower_limit = pd.to_datetime('2013/1/{} 09:00:00'.format(day))
-            upper_limit = pd.to_datetime('2013/1/{} 16:00:00'.format(day))
-            time = lower_limit + random.random() * (upper_limit - lower_limit)
-            time.round('{}s'.format(self.trading_interval))
-            return time
-
         # Initialize the OrderBook
-        # self.initial_time = sample_initial_time()
-        self.initial_time = pd.to_datetime('2013/1/2 09:00:00')
+        initial_date = random.choice(self.unique_date[-10:])
+        self.price_mean, self.price_std, self.volume_mean, self.volume_std = \
+            self.OrderBookOracle.get_past_price_volume(initial_date, 7)
+
+        self.initial_time = initial_date + pd.Timedelta('9hours')
         self.OrderBook = OrderBook(self.OrderBookOracle.getHistoricalOrderBook(self.initial_time))
+
         self.initial_price = self.OrderBook.getMidPrice()
 
         self.current_time = self.initial_time + pd.Timedelta(seconds=self.trading_interval)
@@ -109,7 +107,6 @@ class Simulator(gym.Env):
                 done (boolean): whether this trajectory has ended or not
                 info: any additional info
         """
-
         # Set the last market price before taking any action and updating the LOB
         self.last_market_price = self.OrderBook.getMidPrice()
 
@@ -141,7 +138,7 @@ class Simulator(gym.Env):
         else:
             vwap = 0
 
-        implementation_shortfall = - order_size * (vwap - self.initial_price)
+        implementation_shortfall = - (order_size / self.initial_inventory) * (vwap - self.price_mean) / self.price_std
 
 
         # Calculate the reward
@@ -161,7 +158,10 @@ class Simulator(gym.Env):
         if done:
             self.ac_agent.reset()
 
-        info = {'shortfall': implementation_shortfall}
+        info = {'time': self.current_time,
+                'shortfall': implementation_shortfall,
+                'size': - order_size,
+                'price_before_action': self.last_market_price}
 
         # Update the time
         self.current_time += pd.Timedelta(seconds=self.trading_interval)
@@ -184,17 +184,18 @@ class Simulator(gym.Env):
         """
         obs = []
         if 'Elapsed Time' in self.ob_dict.keys():
-            obs.append((self.current_time - self.initial_time)/self.time_horizon)
+            obs.append((self.current_time - self.initial_time) / self.time_horizon)
         if 'Remaining Inventory' in self.ob_dict.keys():
-            obs.append(self.inventory/self.initial_inventory)
-        if 'Bid Ask Spread' in self.ob_dict.keys():
-            obs.append(self.OrderBook.getBidAskSpread())
-        if 'Order Book Volume' in self.ob_dict.keys():
-            obs.append(self.OrderBook.getBidAskVolume())
-        if 'Log Return' in self.ob_dict.keys():
-            obs.append(np.log(self.OrderBook.getMidPrice()/self.last_market_price))
-        if 'Market Price' in self.ob_dict.keys():
-            obs.append(np.log(self.OrderBook.getMidPrice()/self.initial_price))
+            obs.append(self.inventory / self.initial_inventory)
+        for i in np.arange(1, 11):
+            if 'Bid Price {}'.format(i) in self.ob_dict.keys():
+                obs.append((self.OrderBook.getBidsPrice(i) - self.price_mean) / self.price_std)
+            if 'Ask Price {}'.format(i) in self.ob_dict.keys():
+                obs.append((self.OrderBook.getAsksPrice(i) - self.price_mean) / self.price_std)
+            if 'Bid Volume {}'.format(i) in self.ob_dict.keys():
+                obs.append((self.OrderBook.getBidsQuantity(i) - self.volume_mean) / self.volume_std)
+            if 'Ask Volume {}'.format(i) in self.ob_dict.keys():
+                obs.append((self.OrderBook.getAsksQuantity(i) - self.volume_mean) / self.volume_std)
 
         return np.asarray(obs)
 

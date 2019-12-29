@@ -37,10 +37,34 @@ class OrderBookOracle:
         lob_df['Date-Time'] = pd.to_datetime(lob_df['Date-Time'],
                                              format='%Y-%m-%dT%H:%M:%S.%fZ').dt.round('{}s'.format(trading_interval))
         lob_df = lob_df.groupby(['Date-Time']).first().reset_index()
-
+        lob_df['Day'] = lob_df['Date-Time'].dt.dayofweek
+        lob_df = lob_df.drop(lob_df.loc[(lob_df['Day'] == 5) | (lob_df['Day'] == 6)].index)
         self.lob_df = lob_df
 
+        date = pd.to_datetime(self.lob_df['Date-Time'].dt.strftime('%Y/%m/%d'))
+        self.unique_date = pd.unique(date)
         done = True
+
+    def get_past_price_volume(self, current_date, days):
+        """
+        This function is used for normalization.
+            Args:
+                current_date (Timestamp): the current date
+                days (int): number of days to trace back
+            Returns:
+                the mean and standard deviation of price and volume
+        """
+        mid_price_list = np.zeros(days)
+        volume_list = np.zeros(days)
+        idx = list(self.unique_date).index(current_date)
+        for i in range(days):
+            LOB = np.array(self.lob_df.loc[self.lob_df['Date-Time'] >=
+                                           self.unique_date[idx - i - 1] + pd.Timedelta('9hours')].head(1))[0]
+            mid_price = (LOB[1] + LOB[3]) / 2
+            mid_price_list[i] = mid_price
+            volume = sum(LOB[4 * j + 2] for j in range(10)) + sum(LOB[4 * j + 4] for j in range(10))
+            volume_list[i] = volume
+        return np.average(mid_price_list), np.std(mid_price_list), np.average(volume_list), np.std(volume_list)
 
     def getHistoricalOrderBook(self, time):
         """

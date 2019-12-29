@@ -11,7 +11,7 @@ def DPG_Train(scenario_args, observation_space_args,
     """
     Train the DPGAgent by sampling trajectories from the environment.
     """
-    N_ITERATION = 100
+    N_ITERATION = 10000
 
     # Initialize the gym environment.
     env = gym.make('hwenv-v0',

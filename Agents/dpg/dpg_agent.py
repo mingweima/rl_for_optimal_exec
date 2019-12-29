@@ -34,8 +34,8 @@ class DPGAgent(object):
         Build a feedforward neural network.
         """
         model = Sequential()
-        model.add(layers.Dense(48, input_dim=self.ob_dim, activation='relu'))
-        model.add(layers.Dense(24, activation='relu'))
+        model.add(layers.Dense(64, input_dim=self.ob_dim, activation='relu'))
+        model.add(layers.Dense(64, activation='relu'))
         model.add(layers.Dense(self.ac_dim, activation='softmax'))
         return model
 

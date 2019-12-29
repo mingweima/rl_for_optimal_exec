@@ -1,7 +1,7 @@
 import random
 
 import numpy as np
-from keras.layers import Dense, GRU, Masking
+from keras.layers import Dense, GRU, Masking, LeakyReLU
 from keras.models import Sequential
 from keras.optimizers import Adam
 
@@ -67,12 +67,11 @@ class DRQNAgent(object):
         """
         model = Sequential()
         model.add(Masking(mask_value=0., input_shape=(self.lookback, self.ob_dim)))
-        model.add(GRU(16, input_dim=(self.lookback, self.ob_dim), activation='relu',
-                       kernel_initializer='zeros'))
-        model.add(Dense(64, activation='relu',
-                        kernel_initializer='he_uniform'))
-        model.add(Dense(self.ac_dim, activation='linear',
-                        kernel_initializer='he_uniform'))
+        model.add(GRU(64, input_dim=(self.lookback, self.ob_dim), kernel_initializer='zeros'))
+        model.add(LeakyReLU(alpha=0.01))
+        model.add(Dense(32, kernel_initializer='he_uniform'))
+        model.add(LeakyReLU(alpha=0.01))
+        model.add(Dense(self.ac_dim, activation='linear', kernel_initializer='he_uniform'))
         model.compile(loss='mse', optimizer=Adam(lr=self.critic_lr))
         return model
 

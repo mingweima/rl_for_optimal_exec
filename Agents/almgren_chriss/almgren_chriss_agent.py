@@ -3,7 +3,7 @@ import numpy as np
 
 
 class AlmgrenChrissAgent:
-    def __init__(self, env, time_horizon, eta, rho, sigma, tau, lamb):
+    def __init__(self, env, time_horizon, eta, rho, sigma, tau, lamb, kappa):
         self.ac_dict = deepcopy(env.ac_dict)
         self.ac_type = deepcopy(env.ac_type)
         self.eta = eta
@@ -12,8 +12,9 @@ class AlmgrenChrissAgent:
         self.tau = tau
         self.time_horizon = time_horizon
         self.steps, self.j = time_horizon / self.tau, 1
-        k_bar = np.sqrt(abs(lamb * sigma**2 / (eta * (1 - rho * tau / (2 * eta)))))
-        self.kappa = (1/tau) * np.arccosh(tau**2 * k_bar**2 * 0.5 + 1)
+        # k_bar = np.sqrt(abs(lamb * sigma**2 / (eta * (1 - rho * tau / (2 * eta)))))
+        # self.kappa = (1/tau) * np.arccosh(tau**2 * k_bar**2 * 0.5 + 1)
+        self.kappa = kappa
 
     def reset(self):
         self.j = 1

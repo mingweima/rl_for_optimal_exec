@@ -252,19 +252,23 @@ class OrderBook:
             book.append([price, qty])
         return book
 
-    def getAsksQuantity(self):
+    def getAsksQuantity(self, level):
         qty = 0
-        for i in range(len(self.asks)):
-            for o in self.asks[i]:
-                qty += o['SIZE']
+        for o in self.asks[level - 1]:
+            qty += o['SIZE']
         return qty
 
-    def getBidsQuantity(self):
+    def getBidsQuantity(self, level):
         qty = 0
-        for i in range(len(self.bids)):
-            for o in self.bids[i]:
-                qty += o['SIZE']
+        for o in self.bids[level - 1]:
+            qty += o['SIZE']
         return qty
+
+    def getAsksPrice(self, level):
+        return self.asks[level - 1][0]['PRICE']
+
+    def getBidsPrice(self, level):
+        return self.bids[level - 1][0]['PRICE']
 
     def isBetterPrice(self, order, o):
         """
