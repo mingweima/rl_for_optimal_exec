@@ -42,7 +42,7 @@ class AlmgrenChrissAgent:
                 action (int64): the action to take
                 nj (float64): proportion of current position to sell
         """
-        if self.ac_type == 'vanilla_action':
+        if (self.ac_type == 'vanilla6') | (self.ac_type == 'vanilla20'):
             def closest_action(nj):
                 action = 0
                 difference = abs(self.ac_dict[action] - nj)

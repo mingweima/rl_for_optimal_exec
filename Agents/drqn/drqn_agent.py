@@ -39,10 +39,10 @@ class DRQNAgent(object):
                  lookback,
                  batch_size,
                  initial_exploration_steps,
-                 exploration=LinearSchedule(10000, 0.001),
+                 exploration=LinearSchedule(100, 0.1),
                  double='True'):
         self.batch_size = batch_size
-        self.replay_buffer = ReplayBuffer(buffer_size=int(1e5), replay_batch_size=batch_size, seed=0)
+        self.replay_buffer = ReplayBuffer(buffer_size=int(2e3), replay_batch_size=batch_size, seed=0)
         self.ob_dim = ob_dim
         self.ac_dim = ac_dim
         self.lookback = lookback
@@ -50,7 +50,7 @@ class DRQNAgent(object):
         self.double = double
 
         # These are hyper parameters
-        self.discount_factor = 1.0
+        self.discount_factor = 0.9
         self.critic_lr = 1e-4
         self.initial_exploration_steps = initial_exploration_steps
 

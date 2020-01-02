@@ -22,7 +22,7 @@ if __name__ == "__main__":
     parser.add_argument('--sigma', type=float, default=0.257)
     parser.add_argument('--lamb', type=float, default=1e-4)
     parser.add_argument('--kappa', type=float, default=1e-3)
-    parser.add_argument('--action_type', type=str, default='prop_of_ac')
+    parser.add_argument('--action_type', type=str, default='vanilla6')
     parser.add_argument('--hothead', type=str, default='False')
     parser.add_argument('--double', type=str, default='True')
 
@@ -30,10 +30,13 @@ if __name__ == "__main__":
 
     if args.action_type == 'prop_of_ac':
         ac_dict = {k: 0.1*k for k in range(21)}
-    elif args.action_type == 'vanilla_action':
+    elif args.action_type == 'vanilla20':
         ac_dict = {0: 0, 1: 0.02, 2: 0.04, 3: 0.06, 4: 0.08, 5: 0.1,
                    6: 0.12, 7: 0.14, 8: 0.18, 9: 0.22, 10: 0.26, 11: 0.3,
                    12: 0.35, 13: 0.4, 14: 0.45, 15: 0.5, 16: 0.6, 17: 0.7, 18: 0.8, 19: 0.9, 20: 1}
+    elif args.action_type == 'vanilla6':
+        ac_dict = {0: 1, 1: 0.5, 2: 0.2, 3: 0.1, 4: 0.05, 5: 0}
+            # 0: 0, 1: 0.05, 2: 0.1, 3: 0.2, 4: 0.5, 5: 1}
     else:
         raise Exception('Unknown Action Type')
 

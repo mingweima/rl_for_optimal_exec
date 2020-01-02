@@ -9,7 +9,7 @@ from tools.plot_tool import plot_with_avg_std
 def AlmgrenChrissTrain(scenario_args, observation_space_args,
                        action_space_args, reward_args, data_args, almgren_chriss_args):
 
-    EPISODES = 1
+    EPISODES = 100
 
     env = gym.make('hwenv-v0',
                    scenario_args=scenario_args,

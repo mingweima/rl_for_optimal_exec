@@ -66,14 +66,6 @@ class Simulator(gym.Env):
         self.unique_date = self.OrderBookOracle.unique_date
         self.date = self.unique_date[-10:]
 
-        # Only in use for env.render()
-        self.normalized_price_list = []
-        self.mid_price_list = []
-        self.normalized_volume_list = []
-        self.volume_list = []
-        self.size_list = []
-        self.reward_list = []
-
         # Only in use for fixed normalization
         self.price_mean, self.price_std, self.volume_mean, self.volume_std = \
             self.OrderBookOracle.get_past_price_volume(1)
@@ -94,6 +86,15 @@ class Simulator(gym.Env):
 
         # self.price_mean, self.price_std, self.volume_mean, self.volume_std = \
         #     self.OrderBookOracle.get_past_price_volume(7, 5, initial_date)
+
+        # Only in use for env.render()
+        self.normalized_price_list = []
+        self.mid_price_list = []
+        self.normalized_volume_list = []
+        self.volume_list = []
+        self.size_list = []
+        self.reward_list = []
+
 
         self.initial_time = initial_date + pd.Timedelta('11hours')
         self.current_time = self.initial_time
@@ -140,7 +141,10 @@ class Simulator(gym.Env):
         elif self.current_time + pd.Timedelta(seconds=self.trading_interval) > self.initial_time + self.time_horizon:
             order_size = -self.inventory
         else:
-            if self.ac_type == 'vanilla_action':
+            if self.ac_type == 'vanilla6':
+                action = self.ac_dict[action]
+                order_size = - round(self.inventory * action)
+            elif self.ac_type == 'vanilla20':
                 action = self.ac_dict[action]
                 order_size = - round(self.inventory * action)
             elif self.ac_type == 'prop_of_ac':
@@ -220,6 +224,7 @@ class Simulator(gym.Env):
 
     def render(self, mode='human', close=False):
 
+
         fig = plt.figure()
         volume1 = fig.add_subplot(221)
         volume1.plot(range(len(self.normalized_volume_list)), self.normalized_volume_list)
@@ -244,6 +249,4 @@ class Simulator(gym.Env):
         re2 = re1.twinx()
         re2.plot(range(len(self.size_list)), self.reward_list, self.reward_list, color='r', linestyle='dashed')
         re2.set_ylim([-1, 1])
-        plt.show()
-
         plt.show()
