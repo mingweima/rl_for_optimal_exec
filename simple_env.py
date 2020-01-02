@@ -391,7 +391,7 @@ class Simulator:
         while self.current_time > initial_date + pd.Timedelta('8hours'):
             self.OrderBook.update(self.get_historical_order())
             self.observation_sequence.append(self.observation())
-            self.current_time = self.initial_time - pd.Timedelta(seconds=self.trading_interval)
+            self.current_time = self.current_time - pd.Timedelta(seconds=self.trading_interval)
 
 
         self.current_time = self.initial_time
@@ -401,7 +401,6 @@ class Simulator:
         self.remaining_inventory_list = []
         self.action_list = []
 
-        print(self.observation_sequence[-self.look_back:])
         return self.observation_sequence[-self.look_back:]
 
     def get_historical_order(self):
