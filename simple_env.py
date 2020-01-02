@@ -392,7 +392,7 @@ class Simulator:
             self.OrderBook.update(self.get_historical_order())
             self.observation_sequence.append(self.observation())
             self.current_time = self.current_time - pd.Timedelta(seconds=self.trading_interval)
-
+        self.observation_sequence.reverse()
 
         self.current_time = self.initial_time
         self.OrderBook = OrderBook(self.get_historical_order())
@@ -555,7 +555,7 @@ class Simulator:
         plt.show()
 
 
-data_path = '/Users/gongqili/Documents/GitHub/rl_for_optimal_exec/gym_trading/hw_sim/data_OMI/sample.csv'
+data_path = '/Users/gongqili/Documents/GitHub/rl_for_optimal_exec/gym_trading/hw_sim/data_OMI/sample_v1.csv'
 data = pd.read_csv(data_path)
 data = data.drop(['#RIC', 'Domain', 'GMT Offset', 'Type', 'L1-BuyNo', 'L1-SellNo', 'L2-BuyNo', 'L2-SellNo',
                               'L3-BuyNo', 'L3-SellNo', 'L4-BuyNo', 'L4-SellNo', 'L5-BuyNo', 'L5-SellNo',
