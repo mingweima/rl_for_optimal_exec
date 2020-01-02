@@ -39,10 +39,10 @@ class DRQNAgent(object):
                  lookback,
                  batch_size,
                  initial_exploration_steps,
-                 exploration=LinearSchedule(100, 0.1),
+                 exploration=LinearSchedule(1000, 0.1),
                  double='True'):
         self.batch_size = batch_size
-        self.replay_buffer = ReplayBuffer(buffer_size=int(2e3), replay_batch_size=batch_size, seed=0)
+        self.replay_buffer = ReplayBuffer(buffer_size=int(1e4), replay_batch_size=batch_size, seed=0)
         self.ob_dim = ob_dim
         self.ac_dim = ac_dim
         self.lookback = lookback
