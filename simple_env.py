@@ -78,6 +78,9 @@ class OrderBook:
                     self.enterOrder(deepcopy(order))
                     matching = False
 
+        if order['TYPE'] == 0:
+            self.enterOrder(deepcopy(order))
+
         return execution_price, executed_size
 
     def handleMarketOrder(self, action):
@@ -301,6 +304,7 @@ class Simulator:
         self.trading_interval = 600
         self.time_horizon = pd.Timedelta(seconds=18000)
         self.initial_inventory = 30000
+        self.look_back = 5
 
         # Initialize the action space
         self.ac_type = 'vanilla6'
@@ -337,7 +341,7 @@ class Simulator:
         self.unique_date = pd.unique(date)
 
 
-    def reset(self):
+    def reset(self, num_days):
         """
         Reset the environment before the start of the experiment or after finishing one trial.
 
@@ -346,7 +350,8 @@ class Simulator:
         """
 
         # Initialize the OrderBook
-        initial_date = random.choice(self.unique_date[-10:])
+        # initial_date = random.choice(self.unique_date[-10:])
+        initial_date = self.unique_date[-10:][num_days]
 
         mid_price_list = []
         volume_list = []
@@ -375,8 +380,20 @@ class Simulator:
         self.size_list = []
         self.reward_list = []
 
+        self.inventory = self.initial_inventory
 
         self.initial_time = initial_date + pd.Timedelta('11hours')
+
+        # Initialize the observation sequence
+        self.observation_sequence = []
+        self.current_time = self.initial_time - pd.Timedelta(seconds=self.trading_interval)
+        self.OrderBook = OrderBook(self.get_historical_order())
+        while self.current_time > initial_date + pd.Timedelta('8hours'):
+            self.OrderBook.update(self.get_historical_order())
+            self.observation_sequence.append(self.observation())
+            self.current_time = self.initial_time - pd.Timedelta(seconds=self.trading_interval)
+
+
         self.current_time = self.initial_time
         self.OrderBook = OrderBook(self.get_historical_order())
 
@@ -384,9 +401,8 @@ class Simulator:
         self.remaining_inventory_list = []
         self.action_list = []
 
-        self.inventory = self.initial_inventory
-
-        return self.observation()
+        print(self.observation_sequence[-self.look_back:])
+        return self.observation_sequence[-self.look_back:]
 
     def get_historical_order(self):
         LOB = np.array(self.data.loc[self.data['Date-Time'] >= self.current_time].head(1))[0]
@@ -396,13 +412,13 @@ class Simulator:
             price = LOB[4 * i + 1]
             size = LOB[4 * i + 2]
             bids.append({'TIME': self.current_time,
-                         'TYPE': 1, 'ORDER_ID': -1, 'PRICE': price, 'SIZE': size, 'BUY_SELL_FLAG': 'BUY'})
+                         'TYPE': 0, 'ORDER_ID': -1, 'PRICE': price, 'SIZE': size, 'BUY_SELL_FLAG': 'BUY'})
         asks = []
         for i in range(10):
             price = LOB[4 * i + 3]
             size = LOB[4 * i + 4]
             asks.append({'TIME': self.current_time,
-                         'TYPE': 1, 'ORDER_ID': -1, 'PRICE': price, 'SIZE': size, 'BUY_SELL_FLAG': 'SELL'})
+                         'TYPE': 0, 'ORDER_ID': -1, 'PRICE': price, 'SIZE': size, 'BUY_SELL_FLAG': 'SELL'})
 
         return [bids, asks]
 
@@ -418,6 +434,16 @@ class Simulator:
                 done (boolean): whether this trajectory has ended or not
                 info: any additional info
         """
+        # Update the time
+        self.current_time += pd.Timedelta(seconds=self.trading_interval)
+
+        # Update the LOB. (for OMI data)
+        self.OrderBook.update(self.get_historical_order())
+
+        # Take an observation of the current state
+        obs = self.observation()
+        self.observation_sequence.append(obs)
+
         # Set the last market price before taking any action and updating the LOB
         self.last_market_price = self.OrderBook.getMidPrice()
 
@@ -437,10 +463,10 @@ class Simulator:
         else:
             if self.ac_type == 'vanilla6':
                 action = self.ac_dict[action]
-                order_size = - round(self.inventory * action)
+                order_size = - round(self.initial_inventory * action)
             elif self.ac_type == 'vanilla20':
                 action = self.ac_dict[action]
-                order_size = - round(self.inventory * action)
+                order_size = - round(self.initial_inventory * action)
             else:
                 raise Exception('Unknown Action Type')
             if self.inventory + order_size < 0:
@@ -474,15 +500,7 @@ class Simulator:
                 'size': - order_size,
                 'price_before_action': self.last_market_price}
 
-        # Update the time
-        self.current_time += pd.Timedelta(seconds=self.trading_interval)
-
-        # Update the LOB. (for OMI data)
-        self.OrderBook.update(self.get_historical_order())
-
-        # Take an observation of the current state
-        obs = self.observation()
-        return obs, reward, done, info
+        return self.observation_sequence[-self.look_back:], reward, done, info
 
     def observation(self):
         """
@@ -552,9 +570,9 @@ data['Day'] = data['Date-Time'].dt.dayofweek
 data = data.drop(data.loc[(data['Day'] == 5) | (data['Day'] == 6)].index)
 data['Hour'] = data['Date-Time'].dt.hour
 data['Minute'] = data['Date-Time'].dt.minute
-data = data.drop(data.loc[(data['Hour'] <= 10) | (data['Hour'] > 16)].index)
+data = data.drop(data.loc[(data['Hour'] < 8) | (data['Hour'] > 16)].index)
 data = data.drop(['Hour', 'Minute', 'Day'], axis=1)
 
 env = Simulator(data)
-env.reset()
+env.reset(0)
 
