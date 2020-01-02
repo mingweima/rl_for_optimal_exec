@@ -25,6 +25,7 @@ class OrderBook:
     def update(self, historical_orders):
         self.bids = []
         self.asks = []
+
         for bid_order in historical_orders[0]:
             self.handleLimitOrder(bid_order)
         for ask_order in historical_orders[1]:

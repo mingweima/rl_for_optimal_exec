@@ -1,5 +1,6 @@
 import random
 
+import tensorflow as tf
 import numpy as np
 from keras.layers import Dense, GRU, Masking, LeakyReLU
 from keras.models import Sequential
@@ -32,6 +33,45 @@ class LinearSchedule(object):
         fraction = min(float(t) / self.schedule_timesteps, 1.0)
         return self.initial_p + fraction * (self.final_p - self.initial_p)
 
+
+class DuelingDQNNet:
+    def __init__(self, lookback, ob_dim, ac_dim, initial_learning_rate, name):
+
+        self.learning_rate = initial_learning_rate
+        self.ob_dim = ob_dim
+        self.ac_dim = ac_dim
+        self.lookback = lookback
+        self.name = name
+
+        with tf.variable_scope(self.name):
+            self.ob_seqs = tf.placeholder(tf.float32, [None, self.lookback, self.ob_dim], name="ob")
+            self.target_Q = tf.placeholder(tf.float32, [None, self.ac_dim], name="target")
+
+            self.output = Masking(mask_value=0., input_shape=(self.lookback, self.ob_dim))(self.ob_seqs)
+            self.output = GRU(64, input_dim=(self.lookback, self.ob_dim), kernel_initializer='zeros')(self.output)
+            self.output = LeakyReLU(alpha=0.01)(self.output)
+            self.output = Dense(64, activation='Linear')(self.output)
+
+            self.value = Dense(1)(self.output)
+            self.adv = Dense(self.ac_dim)(self.output)
+
+            self.Q = self.value + tf.subtract(self.adv, tf.reduce_mean(self.adv, axis=1, keepdims=True))
+
+            self.loss = tf.reduce_mean(tf.squared_difference(self.target_Q, self.Q))
+            self.optimizer = tf.train.AdamOptimizer(self.learning_rate).minimize(self.loss)
+
+    def record_tensorboard(self):
+        tf.summary.scalar("learning_rate", self.learning_rate)
+        tf.summary.histogram("target_Q", self.target_Q)
+        tf.summary.histogram("value", self.value)
+        tf.summary.scalar("loss", self.loss)
+        self.merge_opt = tf.summary.merge_all()
+
+        return self.merge_opt
+
+    def get_graph(self):
+        return tf.get_default_graph()
+
 class DRQNAgent(object):
     def __init__(self,
                  ob_dim,
@@ -40,7 +80,8 @@ class DRQNAgent(object):
                  batch_size,
                  initial_exploration_steps,
                  exploration=LinearSchedule(10000, 0.001),
-                 double='True'):
+                 double='True',
+                 dueling='True'):
         self.batch_size = batch_size
         self.replay_buffer = ReplayBuffer(buffer_size=int(1e5), replay_batch_size=batch_size, seed=0)
         self.ob_dim = ob_dim
@@ -48,6 +89,7 @@ class DRQNAgent(object):
         self.lookback = lookback
         self.exploration = exploration
         self.double = double
+        self.dueling = dueling
 
         # These are hyper parameters
         self.discount_factor = 1.0
@@ -67,14 +109,17 @@ class DRQNAgent(object):
         Approximate Q function using Neural Network:
         obs_seq is input and Q Value of each action is output the of network
         """
-        model = Sequential()
-        model.add(Masking(mask_value=0., input_shape=(self.lookback, self.ob_dim)))
-        model.add(GRU(64, input_dim=(self.lookback, self.ob_dim), kernel_initializer='zeros'))
-        model.add(LeakyReLU(alpha=0.01))
-        model.add(Dense(64, kernel_initializer='he_uniform'))
-        model.add(LeakyReLU(alpha=0.01))
-        model.add(Dense(self.ac_dim, activation='linear', kernel_initializer='he_uniform'))
-        model.compile(loss='mse', optimizer=Adam(lr=self.critic_lr))
+        if self.dueling == 'True':
+            return DuelingDQNNet(self.lookback, self.ob_dim, self.ac_dim, self.critic_lr, name)
+        else:
+            model = Sequential()
+            model.add(Masking(mask_value=0., input_shape=(self.lookback, self.ob_dim)))
+            model.add(GRU(64, input_dim=(self.lookback, self.ob_dim), kernel_initializer='zeros'))
+            model.add(LeakyReLU(alpha=0.01))
+            model.add(Dense(64, kernel_initializer='he_uniform'))
+            model.add(LeakyReLU(alpha=0.01))
+            model.add(Dense(self.ac_dim, activation='linear', kernel_initializer='he_uniform'))
+            model.compile(loss='mse', optimizer=Adam(lr=self.critic_lr))
         return model
 
     def update_target_model(self):

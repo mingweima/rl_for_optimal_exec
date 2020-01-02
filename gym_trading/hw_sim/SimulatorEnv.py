@@ -2,6 +2,7 @@ import random
 
 import pandas as pd
 import numpy as np
+import matplotlib.pyplot as plt
 import gym
 from gym import spaces
 
@@ -60,37 +61,49 @@ class Simulator(gym.Env):
                                lamb=almgren_chriss_args['lamb'],
                                kappa=almgren_chriss_args['kappa'])
 
-        # Initialize the Oracle by inputing historical data files.
+        # Initialize the Oracle by imputing historical data files.
         self.OrderBookOracle = OrderBookOracle(data_args, self.trading_interval)
         self.unique_date = self.OrderBookOracle.unique_date
+        self.date = self.unique_date[-10:]
+
+        # Only in use for env.render()
+        self.normalized_price_list = []
+        self.mid_price_list = []
+        self.normalized_volume_list = []
+        self.volume_list = []
+        self.size_list = []
+        self.reward_list = []
+
+        # Only in use for fixed normalization
+        self.price_mean, self.price_std, self.volume_mean, self.volume_std = \
+            self.OrderBookOracle.get_past_price_volume(1)
 
     def reset(self):
         """
-        Reset the environment before the start of the experient or after finishing one trial.
+        Reset the environment before the start of the experiment or after finishing one trial.
 
-            Args:
-                nothing
             Returns:
-                obs (ndarray): the current observation
+                obs (nd array): the current observation
         """
 
         # Initialize the OrderBook
         initial_date = random.choice(self.unique_date[-10:])
-        self.price_mean, self.price_std, self.volume_mean, self.volume_std = \
-            self.OrderBookOracle.get_past_price_volume(initial_date, 7)
 
-        self.initial_time = initial_date + pd.Timedelta('9hours')
-        self.OrderBook = OrderBook(self.OrderBookOracle.getHistoricalOrderBook(self.initial_time))
+        # initial_date = self.date[0]
+        # self.date = self.date[1:]
 
-        self.initial_price = self.OrderBook.getMidPrice()
+        # self.price_mean, self.price_std, self.volume_mean, self.volume_std = \
+        #     self.OrderBookOracle.get_past_price_volume(7, 5, initial_date)
 
-        self.current_time = self.initial_time + pd.Timedelta(seconds=self.trading_interval)
+        self.initial_time = initial_date + pd.Timedelta('11hours')
+        self.current_time = self.initial_time
         self.OrderBook = OrderBook(self.OrderBookOracle.getHistoricalOrderBook(self.current_time))
 
+        self.arrival_price = self.OrderBook.getMidPrice()
         self.remaining_inventory_list = []
         self.action_list = []
+
         self.inventory = self.initial_inventory
-        self.last_market_price = self.initial_price
         self.ac_agent.reset()
 
         return self.observation()
@@ -112,6 +125,11 @@ class Simulator(gym.Env):
 
         # Append the action taken to the action list
         self.action_list.append(action)
+
+        self.normalized_price_list.append((self.OrderBook.getMidPrice() - self.price_mean) / self.price_std)
+        self.normalized_volume_list.append((self.OrderBook.getBidsQuantity(1) - self.volume_mean) / self.volume_std)
+        self.mid_price_list.append(self.OrderBook.getMidPrice())
+        self.volume_list.append(self.OrderBook.getBidsQuantity(1))
 
         # The action an Almgren Chriss Agent should take under the current condition
         ac_action = self.ac_agent.act(self.inventory / self.initial_inventory)
@@ -138,8 +156,9 @@ class Simulator(gym.Env):
         else:
             vwap = 0
 
-        implementation_shortfall = - (order_size / self.initial_inventory) * (vwap - self.price_mean) / self.price_std
+        self.size_list.append(-order_size)
 
+        implementation_shortfall = - (order_size / self.initial_inventory) * (vwap - self.arrival_price)
 
         # Calculate the reward
         if self.reward_function == 'implementation_shortfall':
@@ -149,6 +168,8 @@ class Simulator(gym.Env):
             reward = implementation_shortfall + ac_regularizor * 1e-5
         else:
             raise Exception("Unknown Reward Function!")
+
+        self.reward_list.append(reward)
 
         # Update the environment and get new observation
         self.inventory += order_size
@@ -177,8 +198,6 @@ class Simulator(gym.Env):
         """
         Take an observation of the current environment
 
-            Args:
-                 none
             Returns:
                 a vector reflecting the current market condition
         """
@@ -200,14 +219,31 @@ class Simulator(gym.Env):
         return np.asarray(obs)
 
     def render(self, mode='human', close=False):
-        """
-        Print the agent's current holdings and some key market parameters
-        """
-        print('Inventory: {}'.format(self.inventory))
-        print('Time: ', self.current_time, 'Price: ', self.OrderBook.getMidPrice(),
-              'Asks: ', self.OrderBook.getAsksQuantity(),
-              'Bids: ', self.OrderBook.getBidsQuantity())
-        print('Asks: ', self.OrderBook.getInsideAsks())
-        print('Bids: ', self.OrderBook.getInsideBids(), '\n')
-        print("Remaining Inventory List: ", self.remaining_inventory_list)
-        print("Action List: ", self.action_list)
+
+        fig = plt.figure()
+        volume1 = fig.add_subplot(221)
+        volume1.plot(range(len(self.normalized_volume_list)), self.normalized_volume_list)
+        volume1.set_ylim([-10, 10])
+        volume1.set_title('Bids Level 1 volume for 10 days')
+        volume2 = volume1.twinx()
+        volume2.plot(range(len(self.normalized_volume_list)), self.volume_list, color='r', linestyle='dashed')
+        volume2.set_ylim([0, 10000])
+
+        price1 = fig.add_subplot(222)
+        price1.plot(range(len(self.normalized_price_list)), self.normalized_price_list)
+        price1.set_ylim([-2, 3])
+        price1.set_title('Price for 10 days')
+        price2 = price1.twinx()
+        price2.plot(range(len(self.normalized_price_list)), self.mid_price_list, color='r', linestyle='dashed')
+        price2.set_ylim([1840, 1940])
+
+        re1 = fig.add_subplot(223)
+        re1.bar(range(len(self.size_list)), self.size_list)
+        re1.set_ylim([0, 10000])
+        re1.set_title('Reward for 10 days')
+        re2 = re1.twinx()
+        re2.plot(range(len(self.size_list)), self.reward_list, self.reward_list, color='r', linestyle='dashed')
+        re2.set_ylim([-1, 1])
+        plt.show()
+
+        plt.show()

@@ -9,7 +9,7 @@ from tools.plot_tool import plot_with_avg_std
 
 
 def DRQNTrain(scenario_args, observation_space_args,
-              action_space_args, reward_args, data_args, almgren_chriss_args, double):
+              action_space_args, reward_args, data_args, almgren_chriss_args, double, dueling):
 
     EPISODES = 30000
 
@@ -30,7 +30,8 @@ def DRQNTrain(scenario_args, observation_space_args,
                       lookback=7,
                       batch_size=256,
                       initial_exploration_steps=10000,
-                      double=double)
+                      double=double,
+                      dueling=dueling)
 
     scores = []
     avgs = []
