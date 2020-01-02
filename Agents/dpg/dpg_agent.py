@@ -7,7 +7,7 @@ from keras.models import Sequential
 
 class DPGAgent(object):
     """
-    The agent that apply the deep policy gradient learning algorithm.
+    The agent that applies the deep policy gradient learning algorithm.
 
         Attributes:
             ob_dim (int32): the dimension of the observation space
