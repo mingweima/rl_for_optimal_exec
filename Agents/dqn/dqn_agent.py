@@ -141,7 +141,7 @@ class DQNAgent(object):
             if dones[i]:
                 target[i][acs[i]] = res[i]  # TODO: Action dict!
             else:
-                    target[i][acs[i]] = res[i] + self.discount_factor * (np.amax(target_val[i]))
+                target[i][acs[i]] = res[i] + self.discount_factor * (np.amax(target_val[i]))
 
         self.model.fit(update_input, target, batch_size=self.batch_size,
                        epochs=1, verbose=0)

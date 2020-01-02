@@ -9,7 +9,7 @@ from tools.plot_tool import plot_with_avg_std
 def AlmgrenChrissTrain(scenario_args, observation_space_args,
                        action_space_args, reward_args, data_args, almgren_chriss_args):
 
-    EPISODES = 10
+    EPISODES = 100
 
     env = gym.make('hwenv-v0',
                    scenario_args=scenario_args,
@@ -64,15 +64,8 @@ def AlmgrenChrissTrain(scenario_args, observation_space_args,
                 break
         rewards_list.append(total_shortfall)
 
-    # fig = plt.figure()
-    # ax1 = fig.add_subplot(111)
-    # ax1.bar(range(len(size)), size)
-    # ax1.set_ylim([0, 3000])
-    # ax1.set_title('Linear: kappa = 0')
-    # ax2 = ax1.twinx()
-    # ax2.plot(range(len(size)), price)
-    # ax2.set_ylim([1860, 1920])
-    # plt.show()
-    plot_with_avg_std(rewards_list, 1, xlabel=f'Number of Episodes in {1}')
+    env.render()
+
+    # plot_with_avg_std(rewards_list, 1, xlabel=f'Number of Episodes in {1}')
 
     return rewards_list

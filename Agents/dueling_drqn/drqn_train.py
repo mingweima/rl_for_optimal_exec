@@ -9,7 +9,7 @@ from tools.plot_tool import plot_with_avg_std
 
 
 def DRQNTrain(scenario_args, observation_space_args,
-              action_space_args, reward_args, data_args, almgren_chriss_args, double):
+              action_space_args, reward_args, data_args, almgren_chriss_args, double, dueling):
 
     EPISODES = 30000
 
@@ -27,10 +27,11 @@ def DRQNTrain(scenario_args, observation_space_args,
 
     agent = DRQNAgent(ob_dim,
                       ac_dim,
-                      lookback=30,
+                      lookback=7,
                       batch_size=256,
-                      initial_exploration_steps=1000,
-                      double=double)
+                      initial_exploration_steps=10000,
+                      double=double,
+                      dueling=dueling)
 
     scores = []
     avgs = []
@@ -43,9 +44,8 @@ def DRQNTrain(scenario_args, observation_space_args,
             avgs.append(avg)
             print('{} episode: {}/{}, average reward: {}'.
                   format(datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"), eps, EPISODES, avg))
-            # env.render()
         agent.train_model()
-        if eps % 5 == 0:
+        if eps % 10 == 0:
             agent.update_target_model()
 
     agent.target_model.save('model.h5')

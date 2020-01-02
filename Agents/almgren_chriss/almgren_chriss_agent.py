@@ -30,7 +30,7 @@ class AlmgrenChrissAgent:
                     difference = abs(self.ac_dict[action] - nj)
             return action
 
-        if self.ac_type == 'vanilla_action':
+        if (self.ac_type == 'vanilla6') | (self.ac_type == 'vanilla20'):
             inventory = state[0][1]
             if self.kappa == 0:
                 nj = self.tau / self.time_horizon * (1 / inventory)

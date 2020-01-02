@@ -1,5 +1,6 @@
 import random
 
+import tensorflow as tf
 import numpy as np
 from keras.layers import Dense, GRU, Masking, LeakyReLU
 from keras.models import Sequential
@@ -30,58 +31,52 @@ class LinearSchedule(object):
     def value(self, t):
         """See Schedule.value"""
         fraction = min(float(t) / self.schedule_timesteps, 1.0)
-        return self.initial_p + fraction * (self.final_p - self.initial_p)
+        return self.initial_p + fraction * (self.final_p - self.initial_p
 
-class DRQNAgent(object):
+class DuelingDQNNet:
     def __init__(self,
                  ob_dim,
                  ac_dim,
                  lookback,
                  batch_size,
                  initial_exploration_steps,
-                 exploration=LinearSchedule(1000, 0.1),
-                 double='True'):
+                 exploration=LinearSchedule(10000, 0.001),):
         self.batch_size = batch_size
-        self.replay_buffer = ReplayBuffer(buffer_size=int(1e4), replay_batch_size=batch_size, seed=0)
+        self.replay_buffer = ReplayBuffer(buffer_size=int(1e5), replay_batch_size=batch_size, seed=0)
         self.ob_dim = ob_dim
         self.ac_dim = ac_dim
         self.lookback = lookback
         self.exploration = exploration
-        self.double = double
 
         # These are hyper parameters
-        self.discount_factor = 0.9
+        self.discount_factor = 1.0
         self.critic_lr = 1e-4
         self.initial_exploration_steps = initial_exploration_steps
-
-        # create model for Q network
-        self.model = self.initialize_model('Model')
-        self.target_model = self.initialize_model('Target Model')
-        self.update_target_model()
 
         # Number of finished episodes
         self.t = 0
 
-    def initialize_model(self, name=None):
-        """
-        Approximate Q function using Neural Network:
-        obs_seq is input and Q Value of each action is output the of network
-        """
-        model = Sequential()
-        model.add(Masking(mask_value=0., input_shape=(self.lookback, self.ob_dim)))
-        model.add(GRU(64, input_dim=(self.lookback, self.ob_dim), kernel_initializer='zeros'))
-        model.add(LeakyReLU(alpha=0.01))
-        model.add(Dense(64, kernel_initializer='he_uniform'))
-        model.add(LeakyReLU(alpha=0.01))
-        model.add(Dense(self.ac_dim, activation='linear', kernel_initializer='he_uniform'))
-        model.compile(loss='mse', optimizer=Adam(lr=self.critic_lr))
-        return model
+    def init_tf_sess(self):
+        self.sess = tf.Session()
+        self.sess.__enter__()
+        tf.global_variables_initializer().run()
 
-    def update_target_model(self):
-        """
-        After some time interval update the target model to be same with model
-        """
-        self.target_model.set_weights(self.model.get_weights())
+    def build_computation_graph(self, name):
+        with tf.variable_scope(name):
+            self.ob_seqs = tf.placeholder(tf.float32, [None, self.lookback, self.ob_dim], name="ob")
+            self.target_Q = tf.placeholder(tf.float32, [None, self.ac_dim], name="target")
+            self.output = Masking(mask_value=0., input_shape=(self.lookback, self.ob_dim))(self.ob_seqs)
+            self.output = GRU(64, input_dim=(self.lookback, self.ob_dim), kernel_initializer='zeros')(self.output)
+            self.output = LeakyReLU(alpha=0.01)(self.output)
+            self.output = Dense(64, activation='Linear')(self.output)
+
+            self.value = Dense(1)(self.output)
+            self.adv = Dense(self.ac_dim)(self.output)
+
+            self.Q = self.value + tf.subtract(self.adv, tf.reduce_mean(self.adv, axis=1, keepdims=True))
+
+            self.loss = tf.reduce_mean(tf.squared_difference(self.target_Q, self.Q))
+            self.optimizer = tf.train.AdamOptimizer(self.critic_lr).minimize(self.loss)
 
     def get_action(self, obs_seq):
         """
@@ -94,13 +89,13 @@ class DRQNAgent(object):
             return np.random.choice(self.ac_dim, 1)[0]
         elif random.random() < self.exploration.value(self.t):
             obs_seq = obs_seq.reshape((1, self.lookback, self.ob_dim))
-            q_value = self.model.predict(obs_seq, batch_size=1).flatten()
+            q_value = self.sess.run(self.Q, feed_dict={self.ob_seqs: obs_seq}).flatten()
             s = np.exp(q_value)
             probability_list = s / np.sum(s)
             ac = np.random.choice(self.ac_dim, 1, p=probability_list)[0]
         else:
             obs_seq = obs_seq.reshape((1, self.lookback, self.ob_dim))
-            q_value = self.model.predict(obs_seq, batch_size=1).flatten()
+            q_value = self.sess.run(self.Q, feed_dict={self.ob_seqs: obs_seq}).flatten()
             ac = np.argmax(q_value)
         return ac
 
@@ -153,7 +148,10 @@ class DRQNAgent(object):
             update_target[i] = mini_batch[i][3]
             dones.append(mini_batch[i][4])
 
-        target = self.model.predict(update_input)
+        self.sess.run(self.Q, feed_dict={self.ob_seqs: obs_seq}).flatten()
+
+        q_next_state = self.sess.run(self.DQNNetwork.Q, feed_dict={DQNetwork.inputs_: next_states_mb})
+        target = self.sess.run(self.Q, feed_dict={self.ob_seqs: update_input}).flatten()
         target_val = self.target_model.predict(update_target)
 
         for i in range(batch_size):
@@ -170,3 +168,14 @@ class DRQNAgent(object):
 
         self.model.fit(update_input, target, batch_size=self.batch_size,
                        epochs=1, verbose=0)
+
+class DRQNAgent(object):
+
+
+
+    def update_target_model(self):
+        """
+        After some time interval update the target model to be same with model
+        """
+        self.target_model.set_weights(self.model.get_weights())
+
