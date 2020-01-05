@@ -236,6 +236,13 @@ class OrderBook:
             qty += o['SIZE']
         return qty
 
+    def getTotalBidsQuantity(self):
+        qty = 0
+        for level in self.bids:
+            for o in level:
+                qty += o['SIZE']
+        return qty
+
     def getAsksPrice(self, level):
         return self.asks[level - 1][0]['PRICE']
 
@@ -297,18 +304,18 @@ class Simulator:
     orders and reacting to the actions of the agent.
     """
 
-    def __init__(self, data):
+    def __init__(self, data, ac_dict):
         self.data = data
 
         self.hothead = 'False'
         self.trading_interval = 600
         self.time_horizon = pd.Timedelta(seconds=18000)
-        self.initial_inventory = 30000
-        self.look_back = 5
+        self.initial_inventory = 3000
+        self.look_back = 12
 
         # Initialize the action space
         self.ac_type = 'vanilla6'
-        self.ac_dict = {0: 1, 1: 0.5, 2: 0.2, 3: 0.1, 4: 0.05, 5: 0}
+        self.ac_dict = ac_dict
 
         # Initialize the observation space
         ob_dict = {
@@ -351,7 +358,7 @@ class Simulator:
 
         # Initialize the OrderBook
         # initial_date = random.choice(self.unique_date[-10:])
-        initial_date = self.unique_date[-10:][num_days]
+        initial_date = self.unique_date[num_days]
 
         mid_price_list = []
         volume_list = []
@@ -400,7 +407,8 @@ class Simulator:
         self.arrival_price = self.OrderBook.getMidPrice()
         self.remaining_inventory_list = []
         self.action_list = []
-
+        
+        
         return self.observation_sequence[-self.look_back:]
 
     def get_historical_order(self):
@@ -435,10 +443,10 @@ class Simulator:
         """
         # Update the time
         self.current_time += pd.Timedelta(seconds=self.trading_interval)
-
+        
         # Update the LOB. (for OMI data)
         self.OrderBook.update(self.get_historical_order())
-
+    
         # Take an observation of the current state
         obs = self.observation()
         self.observation_sequence.append(obs)
@@ -470,7 +478,7 @@ class Simulator:
                 raise Exception('Unknown Action Type')
             if self.inventory + order_size < 0:
                 order_size = - self.inventory
-
+        
         if order_size != 0:
             vwap, _ = self.OrderBook.handleMarketOrder(order_size)
         else:
@@ -555,23 +563,23 @@ class Simulator:
         plt.show()
 
 
-data_path = '/Users/gongqili/Documents/GitHub/rl_for_optimal_exec/gym_trading/hw_sim/data_OMI/sample_v1.csv'
-data = pd.read_csv(data_path)
-data = data.drop(['#RIC', 'Domain', 'GMT Offset', 'Type', 'L1-BuyNo', 'L1-SellNo', 'L2-BuyNo', 'L2-SellNo',
-                              'L3-BuyNo', 'L3-SellNo', 'L4-BuyNo', 'L4-SellNo', 'L5-BuyNo', 'L5-SellNo',
-                              'L6-BuyNo', 'L6-SellNo', 'L7-BuyNo',  'L7-SellNo', 'L8-BuyNo', 'L8-SellNo',
-                              'L9-BuyNo', 'L9-SellNo', 'L10-BuyNo', 'L10-SellNo'], axis=1)
-data['Date-Time'] = pd.to_datetime(data['Date-Time'],
-                                             format='%Y-%m-%dT%H:%M:%S.%fZ').dt.round('{}s'.format(600))
+# data_path = '/Users/gongqili/Documents/GitHub/rl_for_optimal_exec/gym_trading/hw_sim/data_OMI/sample_v1.csv'
+# data = pd.read_csv(data_path)
+# data = data.drop(['#RIC', 'Domain', 'GMT Offset', 'Type', 'L1-BuyNo', 'L1-SellNo', 'L2-BuyNo', 'L2-SellNo',
+#                               'L3-BuyNo', 'L3-SellNo', 'L4-BuyNo', 'L4-SellNo', 'L5-BuyNo', 'L5-SellNo',
+#                               'L6-BuyNo', 'L6-SellNo', 'L7-BuyNo',  'L7-SellNo', 'L8-BuyNo', 'L8-SellNo',
+#                               'L9-BuyNo', 'L9-SellNo', 'L10-BuyNo', 'L10-SellNo'], axis=1)
+# data['Date-Time'] = pd.to_datetime(data['Date-Time'],
+#                                              format='%Y-%m-%dT%H:%M:%S.%fZ').dt.round('{}s'.format(600))
 
-data = data.groupby(['Date-Time']).first().reset_index()
-data['Day'] = data['Date-Time'].dt.dayofweek
-data = data.drop(data.loc[(data['Day'] == 5) | (data['Day'] == 6)].index)
-data['Hour'] = data['Date-Time'].dt.hour
-data['Minute'] = data['Date-Time'].dt.minute
-data = data.drop(data.loc[(data['Hour'] < 8) | (data['Hour'] > 16)].index)
-data = data.drop(['Hour', 'Minute', 'Day'], axis=1)
+# data = data.groupby(['Date-Time']).first().reset_index()
+# data['Day'] = data['Date-Time'].dt.dayofweek
+# data = data.drop(data.loc[(data['Day'] == 5) | (data['Day'] == 6)].index)
+# data['Hour'] = data['Date-Time'].dt.hour
+# data['Minute'] = data['Date-Time'].dt.minute
+# data = data.drop(data.loc[(data['Hour'] < 8) | (data['Hour'] > 16)].index)
+# data = data.drop(['Hour', 'Minute', 'Day'], axis=1)
 
-env = Simulator(data)
-env.reset(0)
+# env = Simulator(data)
+# env.reset(0)
 
