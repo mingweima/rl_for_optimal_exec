@@ -16,6 +16,7 @@ from simple_test.simple_env import Simulator
 
 train_data_path = '/nfs/home/mingweim/lob/hsbc/L2_HSBA.L_2018-09-01_2018-09-30.csv.gz'
 test_data_path = '/nfs/home/mingweim/lob/hsbc/L2_HSBA.L_2018-10-01_2018-10-31.csv.gz'
+
 train_raw_data = pd.read_csv(train_data_path, compression='gzip', error_bad_lines=False)
 test_raw_data = pd.read_csv(test_data_path, compression='gzip', error_bad_lines=False)
 
@@ -85,7 +86,7 @@ ac_dict = {0: 0, 1: 0.25, 2: 0.5, 3: 0.75, 4: 1, 5: 1.25,
 # ac_dict = {0: 1}
 
 ### TRAINING HYPERPARAMETERS
-total_loop = 1
+total_loop = 200
 total_episodes = 20
 max_steps = 100000              # Max possible steps in an episode
 batch_size = 128                # Batch size
