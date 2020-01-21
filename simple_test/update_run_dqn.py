@@ -85,17 +85,11 @@ ac_dict = {0: 0, 1: 0.25, 2: 0.5, 3: 0.75, 4: 1, 5: 1.25,
 # ac_dict = {0: 1}
 
 ### TRAINING HYPERPARAMETERS
-<<<<<<< HEAD
-total_loop = 300
-total_episodes = 22
+total_loop = 1
+total_episodes = 20
 max_steps = 100000              # Max possible steps in an episode
 batch_size = 128                # Batch size
-=======
-total_loop = 500
-total_episodes = 20
-max_steps = 5000              # Max possible steps in an episode
-batch_size = 256                # Batch size
->>>>>>> a13dcb2ca53f0f077bda05ffe73226b178814832
+
 
 env_train = Simulator(train_data, ac_dict)
 rewards = []
@@ -553,60 +547,18 @@ loss_plot.set_title('Loss')
 plt.savefig('plot1.png')
 plt.show()
 
-<<<<<<< HEAD
-# print('========================================')
-# reward_list = []
-# for day in range(22):
-#     check_reward = te_performance(which_day=day)
-#     print('Day {}'.format(day+1), check_reward)
-#     reward_list.append(check_reward)
-# print('Train Average Reward: ', np.average(reward_list))
-# print('========================================')
-#
-# reward_list = []
-# for day in range(20):
-#     check_reward = te_performance(which_day=day)
-#     print('Test Day {}'.format(day+1), check_reward)
-#     reward_list.append(check_reward)
-# print('Test Average Reward: ', np.average(reward_list))
-=======
-def te_performance(which_day):
-    
-    state = env.reset(which_day)
-    state = np.array(state)
-    all_reward = []
-    
-    for step in range(5000):
-
-        Qs = sess.run(DQNetwork.output_softmax, feed_dict={DQNetwork.inputs_: state.reshape((1, *state.shape))})
-        choice = np.argmax(Qs)
-        action = possible_actions[int(choice)]
-        next_state, reward, done, _ = env.step(np.argmax(action))
-        all_reward.append(reward)
-
-        if done:
-            break
-        else:
-            # If not done, the next_state become the current state
-            next_state = np.array(next_state)
-            state = next_state
-
-    return np.sum(all_reward)
-
-
 print('========================================')
 reward_list = []
-for day in range(20):
+for day in range(22):
     check_reward = te_performance(which_day=day)
     print('Day {}'.format(day+1), check_reward)
+    reward_list.append(check_reward)
 print('Train Average Reward: ', np.average(reward_list))
 print('========================================')
 
-
-env = Simulator(test_data, ac_dict)
+reward_list = []
 for day in range(20):
     check_reward = te_performance(which_day=day)
     print('Test Day {}'.format(day+1), check_reward)
+    reward_list.append(check_reward)
 print('Test Average Reward: ', np.average(reward_list))
->>>>>>> a13dcb2ca53f0f077bda05ffe73226b178814832
-
