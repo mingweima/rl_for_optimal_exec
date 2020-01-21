@@ -17,11 +17,11 @@ from simple_test.simple_env import Simulator
 # train_raw_data = pd.read_csv(train_data_path, compression='gzip', error_bad_lines=False)
 # test_raw_data = pd.read_csv(test_data_path, compression='gzip', error_bad_lines=False)
 
-train_paths = [f'/nfs/home/mingweim/lob/hsbc/L2_HSBA.L_2018-0{month}-01_2018-0{month}-30.csv.gz'
-                for month in range(1, 7)]
+train_paths = [f'/nfs/home/mingweim/lob/hsbc/L2_HSBA.L_2018-0{month}-01_2018-0{month}-31.csv.gz'
+                for month in [1, 3, 5, 7, 8] ]
 
 test_paths = [f'/nfs/home/mingweim/lob/hsbc/L2_HSBA.L_2018-0{month}-01_2018-0{month}-30.csv.gz'
-                for month in range(7, 10)]
+                for month in [4, 6] ]
 
 train_raw_data_list = [pd.read_csv(path_name, compression='gzip', error_bad_lines=False) for path_name in train_paths]
 test_raw_data_list = [pd.read_csv(path_name, compression='gzip', error_bad_lines=False) for path_name in test_paths]
