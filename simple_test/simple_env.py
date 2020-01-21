@@ -36,6 +36,7 @@ class OrderBook:
             self.handleLimitOrder(bid_order)
         for ask_order in historical_orders[1]:
             self.handleLimitOrder(ask_order)
+        self.handleLimitOrder({'TYPE': 0, 'ORDER_ID': -1, 'PRICE': 0, 'SIZE': 10000, 'BUY_SELL_FLAG': 'BUY'})
 
     def handleLimitOrder(self, input_order):
         """
@@ -278,23 +279,12 @@ class OrderBook:
         else:
             return -1
 
-    def getBidAskVolume(self):
-        qty = 0
-        for order in self.asks[0]:
-            qty += order['SIZE']
-        for order in self.bids[0]:
-            qty += order['SIZE']
-        return qty
-
-    def getBidAskSpread(self):
+    def getBidAskSpread(self, level):
         """
         Returns the current bid-ask spread.
         """
+        return self.asks[level - 1][0]['PRICE'] - self.bids[level - 1][0]['PRICE']
 
-        if self.asks and self.bids:
-            return self.asks[0][0]['PRICE'] - self.bids[0][0]['PRICE']
-        else:
-            return -1
 
 
 
@@ -310,33 +300,68 @@ class Simulator:
         self.hothead = 'False'
         self.trading_interval = 600
         self.time_horizon = pd.Timedelta(seconds=18000)
+        self.trading_steps = int(self.time_horizon.seconds / self.trading_interval)
         self.initial_inventory = 3000
         self.look_back = 12
 
         # Initialize the action space
-        self.ac_type = 'vanilla6'
         self.ac_dict = ac_dict
+        self.ac_type = 'prop of linear'
 
         # Initialize the observation space
         ob_dict = {
             'Elapsed Time': True,
             'Remaining Inventory': True,
+            'Bid Ask Spread 1': True,
+            'Bid Ask Spread 2': True,
+            'Bid Ask Spread 3': True,
+            # 'Bid Ask Spread 4': True,
+            # 'Bid Ask Spread 5': True,
+            # 'Bid Ask Spread 6': True,
+            # 'Bid Ask Spread 7': True,
+            # 'Bid Ask Spread 8': True,
+            # 'Bid Ask Spread 9': True,
+            # 'Bid Ask Spread 10': True,
             'Bid Price 1': True,
             'Bid Price 2': True,
             'Bid Price 3': True,
-            'Bid Price 4': True,
+            # 'Bid Price 4': True,
+            # 'Bid Price 5': True,
+            # 'Bid Price 6': True,
+            # 'Bid Price 7': True,
+            # 'Bid Price 8': True,
+            # 'Bid Price 9': True,
+            # 'Bid Price 10': True,
             'Bid Volume 1': True,
             'Bid Volume 2': True,
             'Bid Volume 3': True,
-            'Bid Volume 4': True,
+            # 'Bid Volume 4': True,
+            # 'Bid Volume 5': True,
+            # 'Bid Volume 6': True,
+            # 'Bid Volume 7': True,
+            # 'Bid Volume 8': True,
+            # 'Bid Volume 9': True,
+            # 'Bid Volume 10': True,
             'Ask Price 1': True,
             'Ask Price 2': True,
             'Ask Price 3': True,
-            'Ask Price 4': True,
+            # 'Ask Price 4': True,
+            # 'Ask Price 5': True,
+            # 'Ask Price 6': True,
+            # 'Ask Price 7': True,
+            # 'Ask Price 8': True,
+            # 'Ask Price 9': True,
+            # 'Ask Price 10': True,
             'Ask Volume 1': True,
             'Ask Volume 2': True,
             'Ask Volume 3': True,
-            'Ask Volume 4': True,
+            # 'Ask Volume 4': True,
+            # 'Ask Volume 5': True,
+            # 'Ask Volume 6': True,
+            # 'Ask Volume 7': True,
+            # 'Ask Volume 8': True,
+            # 'Ask Volume 9': True,
+            # 'Ask Volume 10': True,
         }
         self.ob_dict = {k: v for k, v in ob_dict.items() if v}
 
@@ -468,12 +493,12 @@ class Simulator:
         elif self.current_time + pd.Timedelta(seconds=self.trading_interval) > self.initial_time + self.time_horizon:
             order_size = -self.inventory
         else:
-            if self.ac_type == 'vanilla6':
+            if self.ac_type == 'vanilla':
                 action = self.ac_dict[action]
                 order_size = - round(self.initial_inventory * action)
-            elif self.ac_type == 'vanilla20':
+            elif self.ac_type == 'prop of linear':
                 action = self.ac_dict[action]
-                order_size = - round(self.initial_inventory * action)
+                order_size = - round(self.initial_inventory * action / self.trading_steps)
             else:
                 raise Exception('Unknown Action Type')
             if self.inventory + order_size < 0:
@@ -521,6 +546,9 @@ class Simulator:
             obs.append((self.current_time - self.initial_time) / self.time_horizon)
         if 'Remaining Inventory' in self.ob_dict.keys():
             obs.append(self.inventory / self.initial_inventory)
+        for i in np.arange(1, 11):
+            if 'Bid Ask Spread {}'.format(i) in self.ob_dict.keys():
+                obs.append(self.OrderBook.getBidAskSpread(i))
         for i in np.arange(1, 11):
             if 'Bid Price {}'.format(i) in self.ob_dict.keys():
                 obs.append((self.OrderBook.getBidsPrice(i) - self.price_mean) / self.price_std)
