@@ -1,3 +1,5 @@
+# -*- coding: utf-8 -*-
+
 import tensorflow as tf             # Deep Learning library
 import numpy as np                  # Handle matrices
 from collections import deque       # Ordered collection with ends
@@ -12,10 +14,10 @@ from sklearn.preprocessing import OneHotEncoder
 from simple_test.simple_env import Simulator
 
 
-train_data_path = '/Users/gongqili/Desktop/data/sample_v1.csv'
-test_data_path = '/Users/gongqili/Desktop/data/sample_v2.csv'
-train_raw_data = pd.read_csv(train_data_path)
-test_raw_data = pd.read_csv(test_data_path)
+train_data_path = '/nfs/home/mingweim/lob/hsbc/L2_HSBA.L_2018-09-01_2018-09-30.csv.gz'
+test_data_path = '/nfs/home/mingweim/lob/hsbc/L2_HSBA.L_2018-10-01_2018-10-31.csv.gz'
+train_raw_data = pd.read_csv(train_data_path, compression='gzip', error_bad_lines=False)
+test_raw_data = pd.read_csv(test_data_path, compression='gzip', error_bad_lines=False)
 
 data_list = []
 
@@ -83,10 +85,17 @@ ac_dict = {0: 0, 1: 0.25, 2: 0.5, 3: 0.75, 4: 1, 5: 1.25,
 # ac_dict = {0: 1}
 
 ### TRAINING HYPERPARAMETERS
+<<<<<<< HEAD
 total_loop = 300
 total_episodes = 22
 max_steps = 100000              # Max possible steps in an episode
 batch_size = 128                # Batch size
+=======
+total_loop = 500
+total_episodes = 20
+max_steps = 5000              # Max possible steps in an episode
+batch_size = 256                # Batch size
+>>>>>>> a13dcb2ca53f0f077bda05ffe73226b178814832
 
 env_train = Simulator(train_data, ac_dict)
 rewards = []
@@ -541,9 +550,10 @@ test_plot.plot(test_avg_reward, color='r', linestyle='dashed')
 loss_plot = fig.add_subplot(122)
 loss_plot.plot(loss_per_loop)
 loss_plot.set_title('Loss')
-
+plt.savefig('plot1.png')
 plt.show()
 
+<<<<<<< HEAD
 # print('========================================')
 # reward_list = []
 # for day in range(22):
@@ -559,4 +569,44 @@ plt.show()
 #     print('Test Day {}'.format(day+1), check_reward)
 #     reward_list.append(check_reward)
 # print('Test Average Reward: ', np.average(reward_list))
+=======
+def te_performance(which_day):
+    
+    state = env.reset(which_day)
+    state = np.array(state)
+    all_reward = []
+    
+    for step in range(5000):
+
+        Qs = sess.run(DQNetwork.output_softmax, feed_dict={DQNetwork.inputs_: state.reshape((1, *state.shape))})
+        choice = np.argmax(Qs)
+        action = possible_actions[int(choice)]
+        next_state, reward, done, _ = env.step(np.argmax(action))
+        all_reward.append(reward)
+
+        if done:
+            break
+        else:
+            # If not done, the next_state become the current state
+            next_state = np.array(next_state)
+            state = next_state
+
+    return np.sum(all_reward)
+
+
+print('========================================')
+reward_list = []
+for day in range(20):
+    check_reward = te_performance(which_day=day)
+    print('Day {}'.format(day+1), check_reward)
+print('Train Average Reward: ', np.average(reward_list))
+print('========================================')
+
+
+env = Simulator(test_data, ac_dict)
+for day in range(20):
+    check_reward = te_performance(which_day=day)
+    print('Test Day {}'.format(day+1), check_reward)
+print('Test Average Reward: ', np.average(reward_list))
+>>>>>>> a13dcb2ca53f0f077bda05ffe73226b178814832
 
