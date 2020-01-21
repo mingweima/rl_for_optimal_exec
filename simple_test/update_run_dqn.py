@@ -11,7 +11,7 @@ from keras.backend.tensorflow_backend import set_session
 from sklearn.preprocessing import OneHotEncoder
 
 
-from .simple_test.simple_env import Simulator
+from simple_test.simple_env import Simulator
 
 
 train_data_path = '/nfs/home/mingweim/lob/hsbc/L2_HSBA.L_2018-09-01_2018-09-30.csv.gz'
