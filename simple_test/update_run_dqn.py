@@ -17,20 +17,14 @@ from simple_test.simple_env import Simulator
 # train_raw_data = pd.read_csv(train_data_path, compression='gzip', error_bad_lines=False)
 # test_raw_data = pd.read_csv(test_data_path, compression='gzip', error_bad_lines=False)
 
-train_data_path1 = '/Users/gongqili/Desktop/data/sample_v1.csv'
-train_data_path2 = '/Users/gongqili/Desktop/data/sample_v2.csv'
-train_raw_data1 = pd.read_csv(train_data_path1)
-train_raw_data2 = pd.read_csv(train_data_path2)
+train_paths = [f'/nfs/home/mingweim/lob/hsbc/L2_HSBA.L_2018-0{month}-01_2018-0{month}-30.csv.gz'
+                for month in range(1, 7)]
 
-test_data_path = '/Users/gongqili/Desktop/data/sample_v2.csv'
-test_raw_data = pd.read_csv(test_data_path)
+test_paths = [f'/nfs/home/mingweim/lob/hsbc/L2_HSBA.L_2018-0{month}-01_2018-0{month}-30.csv.gz'
+                for month in range(7, 10)]
 
-train_raw_data_list = []
-train_raw_data_list.append(train_raw_data1)
-train_raw_data_list.append(train_raw_data2)
-
-test_raw_data_list = []
-test_raw_data_list.append(test_raw_data)
+train_raw_data_list = [pd.read_csv(path_name, compression='gzip', error_bad_lines=False) for path_name in train_paths]
+test_raw_data_list = [pd.read_csv(path_name, compression='gzip', error_bad_lines=False) for path_name in test_paths]
 
 train_data_list = []
 test_data_list = []
