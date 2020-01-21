@@ -125,7 +125,7 @@ ac_dict = {0: 0, 1: 0.25, 2: 0.5, 3: 0.75, 4: 1, 5: 1.25,
 # ac_dict = {0: 1}
 
 ### TRAINING HYPERPARAMETERS
-total_loop = 10
+total_loop = 200
 total_episodes = num_of_training_days
 max_steps = 100000              # Max possible steps in an episode
 batch_size = 128                # Batch size
@@ -586,5 +586,4 @@ for day in range(num_of_test_days):
     print('Test Day {}'.format(day+1), check_reward)
     reward_list.append(check_reward)
 print('Test Average Reward: ', np.average(reward_list))
-
 
