@@ -10,18 +10,32 @@ import matplotlib.pyplot as plt
 from keras.backend.tensorflow_backend import set_session
 from sklearn.preprocessing import OneHotEncoder
 
-
 from simple_test.simple_env import Simulator
 
+# train_data_path = '/nfs/home/mingweim/lob/hsbc/L2_HSBA.L_2018-09-01_2018-09-30.csv.gz'
+# test_data_path = '/nfs/home/mingweim/lob/hsbc/L2_HSBA.L_2018-10-01_2018-10-31.csv.gz'
+# train_raw_data = pd.read_csv(train_data_path, compression='gzip', error_bad_lines=False)
+# test_raw_data = pd.read_csv(test_data_path, compression='gzip', error_bad_lines=False)
 
-train_data_path = '/nfs/home/mingweim/lob/hsbc/L2_HSBA.L_2018-09-01_2018-09-30.csv.gz'
-test_data_path = '/nfs/home/mingweim/lob/hsbc/L2_HSBA.L_2018-10-01_2018-10-31.csv.gz'
-train_raw_data = pd.read_csv(train_data_path, compression='gzip', error_bad_lines=False)
-test_raw_data = pd.read_csv(test_data_path, compression='gzip', error_bad_lines=False)
+train_data_path1 = '/Users/gongqili/Desktop/data/sample_v1.csv'
+train_data_path2 = '/Users/gongqili/Desktop/data/sample_v2.csv'
+train_raw_data1 = pd.read_csv(train_data_path1)
+train_raw_data2 = pd.read_csv(train_data_path2)
 
-data_list = []
+test_data_path = '/Users/gongqili/Desktop/data/sample_v2.csv'
+test_raw_data = pd.read_csv(test_data_path)
 
-for raw_data in [train_raw_data, test_raw_data]:
+train_raw_data_list = []
+train_raw_data_list.append(train_raw_data1)
+train_raw_data_list.append(train_raw_data2)
+
+test_raw_data_list = []
+test_raw_data_list.append(test_raw_data)
+
+train_data_list = []
+test_data_list = []
+
+for raw_data in train_raw_data_list:
     data = raw_data.drop(['#RIC', 'Domain', 'GMT Offset', 'Type', 'L1-BuyNo', 'L1-SellNo', 'L2-BuyNo', 'L2-SellNo',
                           'L3-BuyNo', 'L3-SellNo', 'L4-BuyNo', 'L4-SellNo', 'L5-BuyNo', 'L5-SellNo',
                           'L6-BuyNo', 'L6-SellNo', 'L7-BuyNo', 'L7-SellNo', 'L8-BuyNo', 'L8-SellNo',
@@ -37,13 +51,39 @@ for raw_data in [train_raw_data, test_raw_data]:
         data.loc[(data['Hour'] < 8) | (data['Hour'] > 16) | ((data['Hour'] == 16) & (data['Minute'] > 0))].index)
     data = data.drop(['Hour', 'Minute', 'Day'], axis=1)
     data = data.iloc[1:]
-    data_list.append(data)
-    date = pd.to_datetime(data['Date-Time'].dt.strftime('%Y/%m/%d'))
-    unique_date = pd.unique(date)
-    print(unique_date)
+    train_data_list.append(data)
 
-train_data = data_list[0]
-test_data = data_list[1]
+train_data = pd.concat(train_data_list, ignore_index=True)
+date = pd.to_datetime(train_data['Date-Time'].dt.strftime('%Y/%m/%d'))
+unique_date = pd.unique(date)
+num_of_training_days = len(unique_date)
+print('Training Set Num of Days: ', num_of_training_days)
+print('Train Data Unique Date: ', unique_date)
+
+for raw_data in test_raw_data_list:
+    data = raw_data.drop(['#RIC', 'Domain', 'GMT Offset', 'Type', 'L1-BuyNo', 'L1-SellNo', 'L2-BuyNo', 'L2-SellNo',
+                          'L3-BuyNo', 'L3-SellNo', 'L4-BuyNo', 'L4-SellNo', 'L5-BuyNo', 'L5-SellNo',
+                          'L6-BuyNo', 'L6-SellNo', 'L7-BuyNo', 'L7-SellNo', 'L8-BuyNo', 'L8-SellNo',
+                          'L9-BuyNo', 'L9-SellNo', 'L10-BuyNo', 'L10-SellNo'], axis=1)
+    data['Date-Time'] = pd.to_datetime(data['Date-Time'],
+                                       format='%Y-%m-%dT%H:%M:%S.%fZ').dt.round('{}s'.format(600))
+    data = data.groupby(['Date-Time']).first().reset_index()
+    data['Day'] = data['Date-Time'].dt.dayofweek
+    data = data.drop(data.loc[(data['Day'] == 5) | (data['Day'] == 6)].index)
+    data['Hour'] = data['Date-Time'].dt.hour
+    data['Minute'] = data['Date-Time'].dt.minute
+    data = data.drop(
+        data.loc[(data['Hour'] < 8) | (data['Hour'] > 16) | ((data['Hour'] == 16) & (data['Minute'] > 0))].index)
+    data = data.drop(['Hour', 'Minute', 'Day'], axis=1)
+    data = data.iloc[1:]
+    test_data_list.append(data)
+
+test_data = pd.concat(test_data_list, ignore_index=True)
+date = pd.to_datetime(test_data['Date-Time'].dt.strftime('%Y/%m/%d'))
+unique_date = pd.unique(date)
+num_of_test_days = len(unique_date)
+print('Test Set Num of Days: ', num_of_test_days)
+print('Test Data Unique Date: ', unique_date)
 
 def Almgren_Chriss(kappa, ac_dict, step, num_of_steps):
         def closest_action(nj):
@@ -85,21 +125,15 @@ ac_dict = {0: 0, 1: 0.25, 2: 0.5, 3: 0.75, 4: 1, 5: 1.25,
 # ac_dict = {0: 1}
 
 ### TRAINING HYPERPARAMETERS
-<<<<<<< HEAD
-total_loop = 300
-total_episodes = 22
+total_loop = 10
+total_episodes = num_of_training_days
 max_steps = 100000              # Max possible steps in an episode
 batch_size = 128                # Batch size
-=======
-total_loop = 500
-total_episodes = 20
-max_steps = 5000              # Max possible steps in an episode
-batch_size = 256                # Batch size
->>>>>>> a13dcb2ca53f0f077bda05ffe73226b178814832
+
 
 env_train = Simulator(train_data, ac_dict)
 rewards = []
-for num_days in range(total_episodes):
+for num_days in range(num_of_training_days):
     env_train.reset(num_days=num_days)
     total_reward = 0
     for step in np.arange(1, 31):
@@ -113,7 +147,7 @@ print('========================================')
 
 env_test = Simulator(test_data, ac_dict)
 rewards = []
-for num_days in range(20):
+for num_days in range(num_of_test_days):
     env_test.reset(num_days=num_days)
     total_reward = 0
     for step in np.arange(1, 31):
@@ -391,8 +425,6 @@ avg_re_per_loop = []
 loss_per_loop = []
 test_avg_reward = []
 
-avg_re_matrix = [[] for _ in range(20)]
-
 for loop in range(total_loop):
     loop_indx += 1
     total_reward_list = []
@@ -416,12 +448,12 @@ for loop in range(total_loop):
         state = env_train.reset(num_days=episode)
         state = np.array(state)
 #         state = state.reshape(state.shape + (1,))
- 
+
+        # Increase decay_step
+        decay_step += 1
+
         while step < max_steps:
             step += 1
-
-            # Increase decay_step
-            decay_step += 1
 
             # With ϵ select a random action atat, otherwise select a = argmaxQ(st,a)
             action, explore_probability = predict_action(explore_start, explore_stop, decay_rate, decay_step, state,
@@ -516,11 +548,9 @@ for loop in range(total_loop):
         print("Model updated")
 
         reward_list = []
-        for day in range(20):
+        for day in range(num_of_test_days):
             check_reward = te_performance(which_day=day)
             reward_list.append(check_reward)
-            avg_re_matrix[day].append(check_reward)
-
 
         avg_re = np.average(reward_list)
         print('Test Average Reward: ', avg_re)
@@ -543,70 +573,18 @@ reward_plot.set_title('Reward')
 test_plot = reward_plot.twinx()
 test_plot.plot(test_avg_reward, color='r', linestyle='dashed')
 
-# for i in range(20):
-#     mat = reward_plot.twinx()
-#     mat.plot(avg_re_matrix[i])
-
 loss_plot = fig.add_subplot(122)
 loss_plot.plot(loss_per_loop)
 loss_plot.set_title('Loss')
 plt.savefig('plot1.png')
 plt.show()
 
-<<<<<<< HEAD
-# print('========================================')
-# reward_list = []
-# for day in range(22):
-#     check_reward = te_performance(which_day=day)
-#     print('Day {}'.format(day+1), check_reward)
-#     reward_list.append(check_reward)
-# print('Train Average Reward: ', np.average(reward_list))
-# print('========================================')
-#
-# reward_list = []
-# for day in range(20):
-#     check_reward = te_performance(which_day=day)
-#     print('Test Day {}'.format(day+1), check_reward)
-#     reward_list.append(check_reward)
-# print('Test Average Reward: ', np.average(reward_list))
-=======
-def te_performance(which_day):
-    
-    state = env.reset(which_day)
-    state = np.array(state)
-    all_reward = []
-    
-    for step in range(5000):
-
-        Qs = sess.run(DQNetwork.output_softmax, feed_dict={DQNetwork.inputs_: state.reshape((1, *state.shape))})
-        choice = np.argmax(Qs)
-        action = possible_actions[int(choice)]
-        next_state, reward, done, _ = env.step(np.argmax(action))
-        all_reward.append(reward)
-
-        if done:
-            break
-        else:
-            # If not done, the next_state become the current state
-            next_state = np.array(next_state)
-            state = next_state
-
-    return np.sum(all_reward)
-
-
 print('========================================')
 reward_list = []
-for day in range(20):
-    check_reward = te_performance(which_day=day)
-    print('Day {}'.format(day+1), check_reward)
-print('Train Average Reward: ', np.average(reward_list))
-print('========================================')
-
-
-env = Simulator(test_data, ac_dict)
-for day in range(20):
+for day in range(num_of_test_days):
     check_reward = te_performance(which_day=day)
     print('Test Day {}'.format(day+1), check_reward)
+    reward_list.append(check_reward)
 print('Test Average Reward: ', np.average(reward_list))
->>>>>>> a13dcb2ca53f0f077bda05ffe73226b178814832
+
 
