@@ -79,7 +79,7 @@ ac_dict = {0: 0, 1: 0.02, 2: 0.04, 3: 0.06, 4: 0.08, 5: 0.1,
            6: 0.15, 7: 0.2, 8: 0.25, 9: 0.5, 10: 1}
 
 ### TRAINING HYPERPARAMETERS
-total_loop = 500
+total_loop = 100
 total_episodes = 20
 max_steps = 5000              # Max possible steps in an episode
 batch_size = 256                # Batch size
@@ -504,7 +504,7 @@ reward_plot.set_title('Reward')
 loss_plot = fig.add_subplot(122)
 loss_plot.plot(loss_per_loop)
 loss_plot.set_title('Loss')
-
+plt.savefig('plot1.png')
 plt.show()
 
 def te_performance(which_day):
@@ -533,7 +533,7 @@ def te_performance(which_day):
 
 print('========================================')
 reward_list = []
-for day in range(22):
+for day in range(20):
     check_reward = te_performance(which_day=day)
     print('Day {}'.format(day+1), check_reward)
 print('Train Average Reward: ', np.average(reward_list))
