@@ -79,7 +79,7 @@ ac_dict = {0: 0, 1: 0.02, 2: 0.04, 3: 0.06, 4: 0.08, 5: 0.1,
            6: 0.15, 7: 0.2, 8: 0.25, 9: 0.5, 10: 1}
 
 ### TRAINING HYPERPARAMETERS
-total_loop = 100
+total_loop = 500
 total_episodes = 20
 max_steps = 5000              # Max possible steps in an episode
 batch_size = 256                # Batch size
