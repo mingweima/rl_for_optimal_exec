@@ -1,3 +1,5 @@
+# -*- coding: utf-8 -*-
+
 import tensorflow as tf             # Deep Learning library
 import numpy as np                  # Handle matrices
 from collections import deque       # Ordered collection with ends
@@ -12,10 +14,10 @@ from sklearn.preprocessing import OneHotEncoder
 from simple_test.simple_env import Simulator
 
 
-train_data_path = '/Users/gongqili/Desktop/data/sample_v1.csv'
-test_data_path = '/Users/gongqili/Desktop/data/sample_v2.csv'
-train_raw_data = pd.read_csv(train_data_path)
-test_raw_data = pd.read_csv(test_data_path)
+train_data_path = '/nfs/home/mingweim/lob/hsbc/L2_HSBA.L_2018-09-01_2018-09-30.csv.gz'
+test_data_path = '/nfs/home/mingweim/lob/hsbc/L2_HSBA.L_2018-10-01_2018-10-31.csv.gz'
+train_raw_data = pd.read_csv(train_data_path, compression='gzip', error_bad_lines=False)
+test_raw_data = pd.read_csv(test_data_path, compression='gzip', error_bad_lines=False)
 
 data_list = []
 
