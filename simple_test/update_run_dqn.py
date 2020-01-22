@@ -19,7 +19,7 @@ from simple_test.simple_env import Simulator
 
 train_paths = [f'/nfs/home/mingweim/lob/hsbc/L2_HSBA.L_2018-0{month}-01_2018-0{month}-31.csv.gz'
                 for month in [1, 3, 5, 7, 8] ] + \
-              [f'/nfs/home/mingweim/lob/hsbc/L2_HSBA.L_2018-0{month}-01_2018-{month}-30.csv.gz'
+              [f'/nfs/home/mingweim/lob/hsbc/L2_HSBA.L_2018-0{month}-01_2018-0{month}-30.csv.gz'
                 for month in [4, 6, 9] ]
 
 test_paths = [f'/nfs/home/mingweim/lob/hsbc/L2_HSBA.L_2018-{month}-01_2018-{month}-31.csv.gz'
