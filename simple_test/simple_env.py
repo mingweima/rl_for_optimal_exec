@@ -404,13 +404,13 @@ class Simulator:
             hour = 0
             while True:
                 LOB = np.array(self.data.loc[self.data['Date-Time'] >=
-                                             self.unique_date[idx] + pd.Timedelta('{}hours'.format(11 + hour)) +
+                                             self.unique_date[idx] + pd.Timedelta('{}hours'.format(11 - hour)) +
                                              pd.Timedelta('{}hours'.format(interval))].head(1))
                 try:
                     LOB = LOB[0]
                     break
                 except:
-                    print('Cannot find LOB for ', self.unique_date[idx] + pd.Timedelta('11hours')
+                    print('Cannot find LOB for ', self.unique_date[idx] + pd.Timedelta('{}hours'.format(11 - hour))
                           + pd.Timedelta('{}hours'.format(interval)))
                     hour += 1
 
