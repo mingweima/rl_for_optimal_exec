@@ -404,6 +404,10 @@ class Simulator:
             LOB = np.array(self.data.loc[self.data['Date-Time'] >=
                                          self.unique_date[idx] + pd.Timedelta('11hours') +
                                          pd.Timedelta('{}hours'.format(interval))].head(1))[0]
+            if np.array(LOB).ndim == 1:
+                print('Cannot find LOB for ',self.unique_date[idx] + pd.Timedelta('11hours')
+                      + pd.Timedelta('{}hours'.format(interval)))
+                raise Exception('Error')
             mid_price = (LOB[1] + LOB[3]) / 2
             if mid_price:
                 mid_price_list.append(mid_price)
