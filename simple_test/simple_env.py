@@ -412,6 +412,8 @@ class Simulator:
                 except:
                     print('Cannot find LOB for ', self.unique_date[idx] + pd.Timedelta('{}hours'.format(11 - hour))
                           + pd.Timedelta('{}hours'.format(interval)))
+                    print('Use instead LOB for ', self.unique_date[idx] + pd.Timedelta('{}hours'.format(11 - hour - 1))
+                          + pd.Timedelta('{}hours'.format(interval)))
                     hour += 1
 
             mid_price = (LOB[1] + LOB[3]) / 2
@@ -457,7 +459,16 @@ class Simulator:
         return self.observation_sequence[-self.look_back:]
 
     def get_historical_order(self):
-        LOB = np.array(self.data.loc[self.data['Date-Time'] >= self.current_time].head(1))[0]
+        hour = 0
+        while True:
+            LOB = np.array(self.data.loc[self.data['Date-Time'] >= self.current_time - hour].head(1))
+            try:
+                LOB = LOB[0]
+                break
+            except:
+                print('Cannot find LOB for ', self.current_time - pd.Timedelta('{}hours'.format(hour)))
+                print('Use instead LOB for ', self.current_time - pd.Timedelta('{}hours'.format(hour + 1)))
+                hour += 1
 
         bids = []
         for i in range(10):
