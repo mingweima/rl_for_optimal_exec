@@ -315,8 +315,8 @@ class Simulator:
             'Bid Ask Spread 1': True,
             'Bid Ask Spread 2': True,
             'Bid Ask Spread 3': True,
-            # 'Bid Ask Spread 4': True,
-            # 'Bid Ask Spread 5': True,
+            'Bid Ask Spread 4': True,
+            'Bid Ask Spread 5': True,
             # 'Bid Ask Spread 6': True,
             # 'Bid Ask Spread 7': True,
             # 'Bid Ask Spread 8': True,
@@ -325,8 +325,8 @@ class Simulator:
             'Bid Price 1': True,
             'Bid Price 2': True,
             'Bid Price 3': True,
-            # 'Bid Price 4': True,
-            # 'Bid Price 5': True,
+            'Bid Price 4': True,
+            'Bid Price 5': True,
             # 'Bid Price 6': True,
             # 'Bid Price 7': True,
             # 'Bid Price 8': True,
@@ -335,8 +335,8 @@ class Simulator:
             'Bid Volume 1': True,
             'Bid Volume 2': True,
             'Bid Volume 3': True,
-            # 'Bid Volume 4': True,
-            # 'Bid Volume 5': True,
+            'Bid Volume 4': True,
+            'Bid Volume 5': True,
             # 'Bid Volume 6': True,
             # 'Bid Volume 7': True,
             # 'Bid Volume 8': True,
@@ -345,8 +345,8 @@ class Simulator:
             'Ask Price 1': True,
             'Ask Price 2': True,
             'Ask Price 3': True,
-            # 'Ask Price 4': True,
-            # 'Ask Price 5': True,
+            'Ask Price 4': True,
+            'Ask Price 5': True,
             # 'Ask Price 6': True,
             # 'Ask Price 7': True,
             # 'Ask Price 8': True,
@@ -355,8 +355,8 @@ class Simulator:
             'Ask Volume 1': True,
             'Ask Volume 2': True,
             'Ask Volume 3': True,
-            # 'Ask Volume 4': True,
-            # 'Ask Volume 5': True,
+            'Ask Volume 4': True,
+            'Ask Volume 5': True,
             # 'Ask Volume 6': True,
             # 'Ask Volume 7': True,
             # 'Ask Volume 8': True,
@@ -403,11 +403,12 @@ class Simulator:
         for interval in range(5):
             LOB = np.array(self.data.loc[self.data['Date-Time'] >=
                                          self.unique_date[idx] + pd.Timedelta('11hours') +
-                                         pd.Timedelta('{}hours'.format(interval))].head(1))[0]
+                                         pd.Timedelta('{}hours'.format(interval))].head(1))
             if np.array(LOB).ndim == 1:
                 print('Cannot find LOB for ',self.unique_date[idx] + pd.Timedelta('11hours')
                       + pd.Timedelta('{}hours'.format(interval)))
                 raise Exception('Error')
+            LOB = LOB[0]
             mid_price = (LOB[1] + LOB[3]) / 2
             if mid_price:
                 mid_price_list.append(mid_price)
