@@ -20,7 +20,7 @@ from simple_test.simple_env import Simulator
 train_paths = [f'/nfs/home/mingweim/lob/hsbc/L2_HSBA.L_2018-0{month}-01_2018-0{month}-31.csv.gz'
                 for month in [1, 3, 5, 7, 8] ] + \
               [f'/nfs/home/mingweim/lob/hsbc/L2_HSBA.L_2018-{month}-01_2018-{month}-30.csv.gz'
-                for month in [4, 6, 9] ] 
+                for month in [4, 6, 9] ]
 
 test_paths = [f'/nfs/home/mingweim/lob/hsbc/L2_HSBA.L_2018-{month}-01_2018-{month}-31.csv.gz'
                 for month in [10, 12] ]
@@ -572,7 +572,7 @@ test_plot.plot(test_avg_reward, color='r', linestyle='dashed')
 loss_plot = fig.add_subplot(122)
 loss_plot.plot(loss_per_loop)
 loss_plot.set_title('Loss')
-plt.savefig('plot1.png')
+plt.savefig('plot1moremonth.png')
 plt.show()
 
 print('========================================')
