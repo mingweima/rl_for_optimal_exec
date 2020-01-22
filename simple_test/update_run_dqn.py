@@ -22,10 +22,12 @@ from simple_test.simple_env import Simulator
 #                ['2018-01-01_2018-01-31', '2018-02-01_2018-02-28', '2018-03-01_2018-03-31', '2018-04-01_2018-04-30',
 #                 '2018-05-01_2018-05-31', '2018-06-01_2018-06-30', '2018-07-01_2018-07-31', '2018-08-01_2018-08-31',]]
 
-train_paths = []
 # test_paths =  [f'/nfs/home/mingweim/lob/hsbc/L2_HSBA.L_{month}.csv.gz'
 #                 for month in
 #                ['2018-09-01_2018-09-30', '2018-10-01_2018-10-31', '2018-11-01_2018-11-30', '2018-12-01_2018-12-31',]]
+train_paths =  [f'/nfs/home/mingweim/lob/hsbc/L2_HSBA.L_{month}.csv.gz'
+                for month in
+               ['2018-11-01_2018-11-30', '2018-12-01_2018-12-31',]]
 
 test_paths =  [f'/nfs/home/mingweim/lob/hsbc/L2_HSBA.L_{month}.csv.gz'
                 for month in
