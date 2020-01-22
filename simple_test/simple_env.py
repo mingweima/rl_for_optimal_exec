@@ -389,17 +389,27 @@ class Simulator:
         volume_list = []
 
         idx = list(self.unique_date).index(initial_date)
-        for i in range(7):
-            for interval in range(5):
-                LOB = np.array(self.data.loc[self.data['Date-Time'] >=
-                                             self.unique_date[idx - i - 1] + pd.Timedelta('11hours') +
-                                             pd.Timedelta('{}hours'.format(interval))].head(1))[0]
-                mid_price = (LOB[1] + LOB[3]) / 2
-                if mid_price:
-                    mid_price_list.append(mid_price)
-                volume = (sum(LOB[4 * j + 2] for j in range(10)) + sum(LOB[4 * j + 4] for j in range(10))) / 20
-                if volume:
-                    volume_list.append(volume)
+        # for i in range(7):
+        #     for interval in range(5):
+        #         LOB = np.array(self.data.loc[self.data['Date-Time'] >=
+        #                                      self.unique_date[idx - i - 1] + pd.Timedelta('11hours') +
+        #                                      pd.Timedelta('{}hours'.format(interval))].head(1))[0]
+        #         mid_price = (LOB[1] + LOB[3]) / 2
+        #         if mid_price:
+        #             mid_price_list.append(mid_price)
+        #         volume = (sum(LOB[4 * j + 2] for j in range(10)) + sum(LOB[4 * j + 4] for j in range(10))) / 20
+        #         if volume:
+        #             volume_list.append(volume)
+        for interval in range(5):
+            LOB = np.array(self.data.loc[self.data['Date-Time'] >=
+                                         self.unique_date[idx] + pd.Timedelta('11hours') +
+                                         pd.Timedelta('{}hours'.format(interval))].head(1))[0]
+            mid_price = (LOB[1] + LOB[3]) / 2
+            if mid_price:
+                mid_price_list.append(mid_price)
+            volume = (sum(LOB[4 * j + 2] for j in range(10)) + sum(LOB[4 * j + 4] for j in range(10))) / 20
+            if volume:
+                volume_list.append(volume)
 
         self.price_mean, self.price_std, self.volume_mean, self.volume_std = \
             np.average(mid_price_list), np.std(mid_price_list), np.average(volume_list), np.std(volume_list)
