@@ -7,7 +7,7 @@ import random
 from numpy.random import seed
 import pandas as pd
 import matplotlib.pyplot as plt
-from keras.backend.tensorflow_backend import set_session
+from tensorflow.keras.backend.tensorflow_backend import set_session
 from sklearn.preprocessing import OneHotEncoder
 
 from simple_test.simple_env import Simulator
