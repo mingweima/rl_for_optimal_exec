@@ -21,9 +21,6 @@ test_paths =  [f'/nfs/home/mingweim/lob/hsbc/L2_HSBA.L_{month}.csv.gz'
                 for month in
                ['2018-09-01_2018-09-30', '2018-10-01_2018-10-31', '2018-11-01_2018-11-30', '2018-12-01_2018-12-31',]]
 
-train_paths = [f'/nfs/home/mingweim/lob/hsbc/L2_HSBA.L_{month}.csv.gz'
-                for month in
-               ['2018-09-01_2018-09-30', '2018-10-01_2018-10-31', '2018-11-01_2018-11-30', '2018-12-01_2018-12-31',]]
 
 train_raw_data_list = [pd.read_csv(path_name, compression='gzip', error_bad_lines=False) for path_name in train_paths]
 test_raw_data_list = [pd.read_csv(path_name, compression='gzip', error_bad_lines=False) for path_name in test_paths]
