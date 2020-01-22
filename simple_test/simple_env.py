@@ -461,7 +461,7 @@ class Simulator:
     def get_historical_order(self):
         hour = 0
         while True:
-            LOB = np.array(self.data.loc[self.data['Date-Time'] >= self.current_time - hour].head(1))
+            LOB = np.array(self.data.loc[self.data['Date-Time'] >= self.current_time - pd.Timedelta('{}hours'.format(hour))].head(1))
             try:
                 LOB = LOB[0]
                 break
