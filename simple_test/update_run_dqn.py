@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-
+import datetime.datetime.now as now
 import tensorflow as tf             # Deep Learning library
 import numpy as np                  # Handle matrices
 from collections import deque       # Ordered collection with ends
@@ -538,7 +538,7 @@ for loop in range(total_loop):
         update_target = update_target_graph()
         sess.run(update_target)
         tau = 0
-        print("Model updated")
+        print(f"Model updated at time {now()}")
 
         reward_list = []
         for day in range(num_of_test_days):
@@ -551,7 +551,8 @@ for loop in range(total_loop):
         avg_re_per_loop.append(np.mean(total_reward_list))
         loss_per_loop.append(np.average(losses))
 
-    print(f'Loop = {loop}, '
+    print(f'{now()}'
+          f'Loop = {loop}, '
         f'Avg R = {np.mean(total_reward_list)}, '
         f'Max R = {np.max(total_reward_list)}, '
         f'Min R = {np.min(total_reward_list)}, '
@@ -569,7 +570,7 @@ test_plot.plot(test_avg_reward, color='r', linestyle='dashed')
 loss_plot = fig.add_subplot(122)
 loss_plot.plot(loss_per_loop)
 loss_plot.set_title('Loss')
-plt.savefig('plot1moremonth.png')
+plt.savefig('plot.png')
 plt.show()
 
 print('========================================')
