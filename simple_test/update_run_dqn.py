@@ -3,6 +3,12 @@
 import tensorflow as tf             # Deep Learning library
 import numpy as np                  # Handle matrices
 from collections import deque       # Ordered collection with ends
+
+import itertools
+import threading
+import time
+import sys
+
 import random
 from numpy.random import seed
 import pandas as pd
@@ -12,14 +18,29 @@ from sklearn.preprocessing import OneHotEncoder
 
 from simple_test.simple_env import Simulator
 
+done = False
+
+
+def animate():
+    for c in itertools.cycle(['|', '/', '-', '\\']):
+        if done:
+            break
+        sys.stdout.write('\rLoading OMI Data ' + c)
+        sys.stdout.flush()
+        time.sleep(0.1)
+
+
+t = threading.Thread(target=animate)
+t.start()
+
 train_paths = [f'/nfs/home/mingweim/lob/hsbc/L2_HSBA.L_{month}.csv.gz'
                 for month in
                ['2018-01-01_2018-01-31', '2018-02-01_2018-02-28', '2018-03-01_2018-03-31', '2018-04-01_2018-04-30',
-                '2018-05-01_2018-05-31', '2018-06-01_2018-06-30', '2018-07-01_2018-07-31', '2018-08-01_2018-08-31',]]
+                '2018-05-01_2018-05-31', '2018-06-01_2018-06-30', '2018-07-01_2018-07-31', '2018-08-01_2018-08-31']]
 
 test_paths =  [f'/nfs/home/mingweim/lob/hsbc/L2_HSBA.L_{month}.csv.gz'
                 for month in
-               ['2018-09-01_2018-09-30', '2018-10-01_2018-10-31', '2018-11-01_2018-11-30', '2018-12-01_2018-12-31',]]
+               ['2018-09-01_2018-09-30', '2018-10-01_2018-10-31', '2018-11-01_2018-11-30', '2018-12-01_2018-12-31']]
 
 
 train_raw_data_list = [pd.read_csv(path_name, compression='gzip', error_bad_lines=False) for path_name in train_paths]
@@ -75,8 +96,13 @@ test_data = pd.concat(test_data_list, ignore_index=True)
 date = pd.to_datetime(test_data['Date-Time'].dt.strftime('%Y/%m/%d'))
 unique_date = pd.unique(date)
 num_of_test_days = len(unique_date)
+
+done = True
+
 print('Test Set Num of Days: ', num_of_test_days)
 print('Test Data Unique Date: ', unique_date)
+
+
 
 def Almgren_Chriss(kappa, ac_dict, step, num_of_steps):
         def closest_action(nj):
