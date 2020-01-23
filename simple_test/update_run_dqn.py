@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-import datetime.datetime.now as now
+import datetime
 import tensorflow as tf             # Deep Learning library
 import numpy as np                  # Handle matrices
 from collections import deque       # Ordered collection with ends
@@ -564,7 +564,7 @@ for loop in range(total_loop):
         update_target = update_target_graph()
         sess.run(update_target)
         tau = 0
-        print(f"Model updated at time {now()}")
+        print(f"Model updated at time {datetime.datetime.now()}")
 
         reward_list = []
         for day in range(num_of_test_days):
@@ -577,7 +577,7 @@ for loop in range(total_loop):
         avg_re_per_loop.append(np.mean(total_reward_list))
         loss_per_loop.append(np.average(losses))
 
-    print(f'{now()}'
+    print(f'{datetime.datetime.now()}'
           f'Loop = {loop}, '
         f'Avg R = {np.mean(total_reward_list)}, '
         f'Max R = {np.max(total_reward_list)}, '
