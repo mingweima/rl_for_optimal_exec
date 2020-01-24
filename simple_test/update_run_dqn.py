@@ -107,7 +107,7 @@ with open('train_data.txt', 'rb') as df_train:
     train_data = pickle.load(df_train)
 
 with open('test_data.txt', 'rb') as df_test:
-    test_data = pickle.load(df_train)
+    test_data = pickle.load(df_test)
 
 def Almgren_Chriss(kappa, ac_dict, step, num_of_steps):
         def closest_action(nj):
