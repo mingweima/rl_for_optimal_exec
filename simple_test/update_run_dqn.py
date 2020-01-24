@@ -105,9 +105,20 @@ from simple_test.simple_env import Simulator
 
 with open('train_data.txt', 'rb') as df_train:
     train_data = pickle.load(df_train)
+date = pd.to_datetime(train_data['Date-Time'].dt.strftime('%Y/%m/%d'))
+unique_date = pd.unique(date)
+num_of_training_days = len(unique_date)
+print('Training Set Num of Days: ', num_of_training_days)
+print('Train Data Unique Date: ', unique_date)
 
 with open('test_data.txt', 'rb') as df_test:
     test_data = pickle.load(df_test)
+date = pd.to_datetime(test_data['Date-Time'].dt.strftime('%Y/%m/%d'))
+unique_date = pd.unique(date)
+num_of_test_days = len(unique_date)
+
+print('Test Set Num of Days: ', num_of_test_days)
+print('Test Data Unique Date: ', unique_date)
 
 def Almgren_Chriss(kappa, ac_dict, step, num_of_steps):
         def closest_action(nj):
