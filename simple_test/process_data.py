@@ -62,6 +62,10 @@ train_data = pd.concat(train_data_list, ignore_index=True)
 date = pd.to_datetime(train_data['Date-Time'].dt.strftime('%Y/%m/%d'))
 unique_date = pd.unique(date)
 num_of_training_days = len(unique_date)
+
+df_train = open('train_data.txt', 'wb')
+pickle.dump(train_data, df_train)
+df_train.close()
 done = True
 
 print('Training Set Num of Days: ', num_of_training_days)
@@ -69,10 +73,6 @@ print('Train Data Unique Date: ', unique_date)
 print('Finished Processing Training Data')
 
 done = False
-
-df_train = open('train_data.txt', 'wb')
-pickle.dump(train_data, df_train)
-df_train.close()
 
 t = threading.Thread(target=animate('Test'))
 t.start()
@@ -100,11 +100,11 @@ date = pd.to_datetime(test_data['Date-Time'].dt.strftime('%Y/%m/%d'))
 unique_date = pd.unique(date)
 num_of_test_days = len(unique_date)
 
-done = True
-
 df_test = open('test_data.txt', 'wb')
 pickle.dump(test_data, df_test)
 df_test.close()
+
+done = True
 
 print('Test Set Num of Days: ', num_of_test_days)
 print('Test Data Unique Date: ', unique_date)
