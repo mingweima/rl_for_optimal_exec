@@ -67,6 +67,7 @@ df_train = open('train_data.txt', 'wb')
 pickle.dump(train_data, df_train)
 df_train.close()
 done = True
+time.sleep(0.5)
 
 print('Training Set Num of Days: ', num_of_training_days)
 print('Train Data Unique Date: ', unique_date)
