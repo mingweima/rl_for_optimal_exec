@@ -10,15 +10,15 @@ import pandas as pd
 
 done = False
 
-def animate():
+def animate(name):
     for c in itertools.cycle(['|', '/', '-', '\\']):
         if done:
             break
-        sys.stdout.write('\rLoading OMI Data ' + c)
+        sys.stdout.write('\rProcessing {} Data '.format(name) + c)
         sys.stdout.flush()
         time.sleep(0.1)
 
-t = threading.Thread(target=animate)
+t = threading.Thread(target=animate('Training'))
 t.start()
 
 # train_paths = [f'/nfs/home/mingweim/lob/hsbc/L2_HSBA.L_{month}.csv.gz'
@@ -62,12 +62,19 @@ train_data = pd.concat(train_data_list, ignore_index=True)
 date = pd.to_datetime(train_data['Date-Time'].dt.strftime('%Y/%m/%d'))
 unique_date = pd.unique(date)
 num_of_training_days = len(unique_date)
+done = True
+
 print('Training Set Num of Days: ', num_of_training_days)
 print('Train Data Unique Date: ', unique_date)
+
+done = False
 
 df_train = open('train_data.txt', 'wb')
 pickle.dump(train_data, df_train)
 df_train.close()
+
+t = threading.Thread(target=animate('Test'))
+t.start()
 
 for raw_data in test_raw_data_list:
     data = raw_data.drop(['#RIC', 'Domain', 'GMT Offset', 'Type', 'L1-BuyNo', 'L1-SellNo', 'L2-BuyNo', 'L2-SellNo',
