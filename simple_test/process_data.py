@@ -66,6 +66,7 @@ done = True
 
 print('Training Set Num of Days: ', num_of_training_days)
 print('Train Data Unique Date: ', unique_date)
+print('Finished Processing Training Data')
 
 done = False
 
@@ -101,9 +102,10 @@ num_of_test_days = len(unique_date)
 
 done = True
 
-print('Test Set Num of Days: ', num_of_test_days)
-print('Test Data Unique Date: ', unique_date)
-
 df_test = open('test_data.txt', 'wb')
 pickle.dump(test_data, df_test)
 df_test.close()
+
+print('Test Set Num of Days: ', num_of_test_days)
+print('Test Data Unique Date: ', unique_date)
+print('Finished Processing Test Data')
