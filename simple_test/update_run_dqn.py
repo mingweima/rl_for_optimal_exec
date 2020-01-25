@@ -114,32 +114,27 @@ for month in test_date.keys():
 print('AC Average: ', np.average(rewards))
 print('========================================')
 
-def te_performance(which_day):
-
-    state = env_test.reset(which_day)
+def te_performance(month, day):
+    state = env_test.reset(month, day)
     state = np.array(state)
     all_reward = []
-
     while True:
         Qs = sess.run(DQNetwork.output_softmax, feed_dict={DQNetwork.inputs_: state.reshape((1, *state.shape))})
         choice = np.argmax(Qs)
         action = possible_actions[int(choice)]
         next_state, reward, done, _ = env_test.step(np.argmax(action))
         all_reward.append(reward)
-
         if done:
             break
         else:
             # If not done, the next_state become the current state
             next_state = np.array(next_state)
             state = next_state
-
     return np.sum(all_reward)
 
 print('Training Network!')
 
-env_train = Simulator(train_data, ac_dict)
-state = env_train.reset(num_days=0)
+state = env_train.reset(list(train_date.keys())[0], train_date[list(train_date.keys())[0]][0])
 state = np.array(state)
 #state = state.reshape(state.shape + (1,))
 
@@ -177,7 +172,6 @@ print('Explore Decay', decay_rate)
 
 ### MODIFY THIS TO FALSE IF YOU JUST WANT TO SEE THE TRAINED AGENT
 training = True
-
 
 config = tf.ConfigProto()
 config.gpu_options.allow_growth = True
@@ -300,17 +294,18 @@ memory = Memory(max_size=memory_size)
 
 num_of_steps = 0
 while num_of_steps < pretrain_length:
-    for episode in np.arange(total_episodes):
-        state = np.array(env_train.reset(episode))
-        while True:
-            choice = random.randint(1, len(possible_actions)) - 1
-            action = possible_actions[choice]
-            next_state, reward, done, _ = env_train.step(np.argmax(action))
-            memory.add((state, action, reward, next_state, done))
-            state = next_state
-            num_of_steps += 1
-            if done:
-                break
+    for month in train_date.keys():
+        for day in train_date[month]:
+            state = np.array(env_train.reset(month, day))
+            while True:
+                choice = random.randint(1, len(possible_actions)) - 1
+                action = possible_actions[choice]
+                next_state, reward, done, _ = env_train.step(np.argmax(action))
+                memory.add((state, action, reward, next_state, done))
+                state = next_state
+                num_of_steps += 1
+                if done:
+                    break
 
 writer = tf.summary.FileWriter('./tensorboard', DQNetwork.get_graph())
 
@@ -369,8 +364,6 @@ total_step = 0
 decay_step = 0
 loop_indx = 0
 
-rewards_list = []
-
 sess = tf.Session()
 sess.run(tf.global_variables_initializer())
 update_target = update_target_graph()
@@ -384,116 +377,96 @@ for loop in range(total_loop):
     loop_indx += 1
     total_reward_list = []
     losses = []
-
     total_epi = np.arange(total_episodes)
     np.random.shuffle(total_epi)
 
-    total_reward_dict = {}
-
-
-    for episode in total_epi:
-
-        # Set step to 0
-        step = 0
-
-        # Initialize the rewards of the episode
-        episode_rewards = []
-
-        # Make a new episode and observe the first state
-        state = env_train.reset(num_days=episode)
-        state = np.array(state)
-#         state = state.reshape(state.shape + (1,))
-
-        # Increase decay_step
-        decay_step += 1
-
-        while step < max_steps:
-            step += 1
-
-            # With ϵ select a random action atat, otherwise select a = argmaxQ(st,a)
-            action, explore_probability = predict_action(explore_start, explore_stop, decay_rate, decay_step, state,
-                                                         possible_actions)
-
-            # Do the action
-            next_state, reward, done, _ = env_train.step(np.argmax(action))
-            next_state = np.array(next_state)
-#             next_state = next_state.reshape(next_state.shape + (1,))
-
-            episode_rewards.append(reward)
-
-            # If the game is finished
-            if done:
-                # Set step = max_steps to end the episode
-                step = max_steps
-                memory.add((state, action, reward, next_state, done))
-                total_reward = np.sum(episode_rewards)
-                total_reward_list.append(total_reward)
-                
-#                 print(f'Loop = {loop},'
-#                         f'Episode = {episode},'
-#                         f'total reward = {total_reward},'
-#                         f'Training loss = {loss},'
-#                         f'Explore P = {explore_probability}')
-
-                rewards_list.append((loop, episode, total_reward))
-
-            else:
-                memory.add((state, action, reward, next_state, done))
-                state = next_state
-
-            ### LEARNING PART
-            # Obtain random mini-batch from memory
-            batch = memory.sample(batch_size)
-            states_mb = np.array([each[0] for each in batch], ndmin=3)
-            actions_mb = np.array([each[1] for each in batch])
-            rewards_mb = np.array([each[2] for each in batch])
-            next_states_mb = np.array([each[3] for each in batch], ndmin=3)
-            dones_mb = np.array([each[4] for each in batch])
-
-            target_Qs_batch = []
-
-            ### DOUBLE DQN Logic
-            # Use DQNNetwork to select the action to take at next_state (a') (action with the highest Q-value)
-            # Use TargetNetwork to calculate the Q_val of Q(s',a')
-
-            # Get Q values for next_state
-            q_next_state = sess.run(DQNetwork.output, feed_dict={DQNetwork.inputs_: next_states_mb})
-
-            # Calculate Qtarget for all actions that state
-            q_target_next_state = sess.run(TargetNetwork.output, feed_dict={TargetNetwork.inputs_: next_states_mb})
-
-            # Set Q_target = r if the episode ends at s+1, otherwise set Q_target = r + gamma * Qtarget(s',a')
-            for i in range(0, len(batch)):
-                terminal = dones_mb[i]
-
-                # We got a'
-                action = np.argmax(q_next_state[i])
-
-                # If we are in a terminal state, only equals reward
-                if terminal:
-                    target_Qs_batch.append(rewards_mb[i])
+    months = list(train_date.keys())
+    np.random.shuffle(months)
+    for month in months:
+        days = train_date[month]
+        np.random.shuffle(days)
+        for day in days:
+            step = 0
+            episode_rewards = []
+            state = env_train.reset(month, day)
+            state = np.array(state)
+            decay_step += 1
+            while step < max_steps:
+                step += 1
+                # With ϵ select a random action atat, otherwise select a = argmaxQ(st,a)
+                action, explore_probability = predict_action(explore_start,
+                                                             explore_stop,
+                                                             decay_rate,
+                                                             decay_step,
+                                                             state,
+                                                             possible_actions)
+                # Do the action
+                next_state, reward, done, _ = env_train.step(np.argmax(action))
+                next_state = np.array(next_state)
+                episode_rewards.append(reward)
+                # If the game is finished
+                if done:
+                    # Set step = max_steps to end the episode
+                    step = max_steps
+                    memory.add((state, action, reward, next_state, done))
+                    total_reward = np.sum(episode_rewards)
+                    total_reward_list.append(total_reward)
 
                 else:
-                    # Take the Qtarget for action a'
-                    target = rewards_mb[i] + gamma * q_target_next_state[i][action]
-                    target_Qs_batch.append(target)
+                    memory.add((state, action, reward, next_state, done))
+                    state = next_state
 
-            targets_mb = np.array([each for each in target_Qs_batch])
+                # Obtain random mini-batch from memory
+                batch = memory.sample(batch_size)
+                states_mb = np.array([each[0] for each in batch], ndmin=3)
+                actions_mb = np.array([each[1] for each in batch])
+                rewards_mb = np.array([each[2] for each in batch])
+                next_states_mb = np.array([each[3] for each in batch], ndmin=3)
+                dones_mb = np.array([each[4] for each in batch])
 
-            _, loss = sess.run([DQNetwork.optimizer, DQNetwork.loss],
-                               feed_dict={DQNetwork.inputs_: states_mb,
-                                          DQNetwork.target_Q: targets_mb,
-                                          DQNetwork.actions_: actions_mb})
+                target_Qs_batch = []
 
-            losses.append(loss)
+                ### DOUBLE DQN Logic
+                # Use DQNNetwork to select the action to take at next_state (a') (action with the highest Q-value)
+                # Use TargetNetwork to calculate the Q_val of Q(s',a')
 
-            # Write TF Summaries
-            summary = sess.run(write_op, feed_dict={DQNetwork.inputs_: states_mb,
-                                                    DQNetwork.target_Q: targets_mb,
-                                                    DQNetwork.actions_: actions_mb})
+                # Get Q values for next_state
+                q_next_state = sess.run(DQNetwork.output, feed_dict={DQNetwork.inputs_: next_states_mb})
 
-            writer.add_summary(summary, total_step)
-            total_step += 1
+                # Calculate Qtarget for all actions that state
+                q_target_next_state = sess.run(TargetNetwork.output, feed_dict={TargetNetwork.inputs_: next_states_mb})
+                # Set Q_target = r if the episode ends at s+1, otherwise set Q_target = r + gamma * Qtarget(s',a')
+                for i in range(0, len(batch)):
+                    terminal = dones_mb[i]
+
+                    # We got a'
+                    action = np.argmax(q_next_state[i])
+
+                    # If we are in a terminal state, only equals reward
+                    if terminal:
+                        target_Qs_batch.append(rewards_mb[i])
+
+                    else:
+                        # Take the Qtarget for action a'
+                        target = rewards_mb[i] + gamma * q_target_next_state[i][action]
+                        target_Qs_batch.append(target)
+
+                targets_mb = np.array([each for each in target_Qs_batch])
+
+                _, loss = sess.run([DQNetwork.optimizer, DQNetwork.loss],
+                                   feed_dict={DQNetwork.inputs_: states_mb,
+                                              DQNetwork.target_Q: targets_mb,
+                                              DQNetwork.actions_: actions_mb})
+
+                losses.append(loss)
+
+                # Write TF Summaries
+                summary = sess.run(write_op, feed_dict={DQNetwork.inputs_: states_mb,
+                                                        DQNetwork.target_Q: targets_mb,
+                                                        DQNetwork.actions_: actions_mb})
+
+                writer.add_summary(summary, total_step)
+                total_step += 1
 
     if loop_indx % loop_update == 0:
         # Update the parameters of our TargetNetwork with DQN_weights
@@ -503,9 +476,10 @@ for loop in range(total_loop):
         print(f"Model updated at time {datetime.datetime.now()}")
 
         reward_list = []
-        for day in range(num_of_test_days):
-            check_reward = te_performance(which_day=day)
-            reward_list.append(check_reward)
+        for month in test_date.keys():
+            for day in test_date[month]:
+                check_reward = te_performance(month, day)
+                reward_list.append(check_reward)
 
         avg_re = np.average(reward_list)
         print('Test Average Reward: ', avg_re)
@@ -537,9 +511,10 @@ plt.show()
 
 print('========================================')
 reward_list = []
-for day in range(num_of_test_days):
-    check_reward = te_performance(which_day=day)
-    print('Test Day {}'.format(day+1), check_reward)
-    reward_list.append(check_reward)
+for month in test_date.keys():
+    for day in test_date[month]:
+        check_reward = te_performance(month, day)
+        print('{} Total Reward: '.format(day), check_reward)
+        reward_list.append(check_reward)
 print('Test Average Reward: ', np.average(reward_list))
 
