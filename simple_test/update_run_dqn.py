@@ -109,7 +109,7 @@ print('AC Average: ', np.average(rewards))
 print('========================================')
 
 print('Test Set')
-env_test = Simulator(train_dict, train_date, ac_dict)
+env_test = Simulator(test_dict, test_date, ac_dict)
 rewards = []
 for month in test_date.keys():
     for day in test_date[month]:
