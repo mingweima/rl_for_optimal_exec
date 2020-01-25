@@ -73,19 +73,8 @@ def Almgren_Chriss(kappa, ac_dict, step, num_of_steps):
     action = closest_action(nj)
     return action
 
-# ac_dict = {0: 0, 1: 0.005, 2: 0.01, 3: 0.015, 4: 0.02, 5: 0.025,
-#            6: 0.03, 7: 0.035, 8: 0.04, 9: 0.05, 10: 0.06, 11: 0.07,
-#            12: 0.08, 13: 0.09, 14: 0.10, 15: 0.12, 16: 0.14, 17: 0.2, 18: 0.3, 19: 0.5, 20: 1}
-
-# ac_dict = {0: 0, 1: 0.02, 2: 0.04, 3: 0.06, 4: 0.08, 5: 0.1,
-#            6: 0.15, 7: 0.2, 8: 0.25, 9: 0.5, 10: 1}
-
 ac_dict = {0: 0, 1: 0.25, 2: 0.5, 3: 0.75, 4: 1, 5: 1.25,
            6: 1.5, 7: 1.75, 8: 2}
-
-# ac_dict = {0: 0, 1: 0.2, 2: 0.5, 3: 1, 4: 1.5, 5: 2, 6: 2.5, 7: 3, 8: 3.5, 9: 4, 10: 6, 11: 8, 12: 10}
-
-# ac_dict = {0: 1}
 
 ### TRAINING HYPERPARAMETERS
 total_loop = 200
@@ -94,33 +83,32 @@ max_steps = 100000              # Max possible steps in an episode
 batch_size = 128                # Batch size
 
 print('Training Set')
-env_train = Simulator(train_dict, ac_dict)
+env_train = Simulator(train_dict, train_date, ac_dict)
 rewards = []
-
-for num_days in range(num_of_training_days):
-    env_train.reset(num_days=num_days)
+for month, day in train_date.items():
+    env_train.reset(month, day)
     total_reward = 0
     for step in np.arange(1, 31):
         action = Almgren_Chriss(0, ac_dict, step, 30)
         state, reward, done, _ = env_train.step(4)
         total_reward += reward
     rewards.append(total_reward)
-    print('AC day {}:'.format(num_days + 1), total_reward)
+    print('{} Total Reward: '.format(day), total_reward)
 print('AC Average: ', np.average(rewards))
 print('========================================')
 
 print('Test Set')
-env_test = Simulator(test_dict, ac_dict)
+env_test = Simulator(train_dict, train_date, ac_dict)
 rewards = []
-for num_days in range(num_of_test_days):
-    env_test.reset(num_days=num_days)
+for month, day in test_date.items():
+    env_test.reset(month, day)
     total_reward = 0
     for step in np.arange(1, 31):
         action = Almgren_Chriss(0, ac_dict, step, 30)
         state, reward, done, _ = env_test.step(4)
         total_reward += reward
     rewards.append(total_reward)
-    print('AC day {}:'.format(num_days + 1), total_reward)
+    print('{} Total Reward: '.format(day), total_reward)
 print('AC Average: ', np.average(rewards))
 print('========================================')
 

@@ -293,9 +293,9 @@ class Simulator:
     orders and reacting to the actions of the agent.
     """
 
-    def __init__(self, data_dict, ac_dict):
+    def __init__(self, data_dict, date_dict, ac_dict):
         self.data_dict = data_dict
-        self.months = list(self.data_dict.keys())
+        self.date_dict = date_dict
 
         self.hothead = 'False'
         self.trading_interval = 600
@@ -369,11 +369,11 @@ class Simulator:
         self.reward_function = 'implementation_shortfall'
 
         # Initialize the Oracle by imputing historical data files.
-        date = pd.to_datetime(self.data['Date-Time'].dt.strftime('%Y/%m/%d'))
-        self.unique_date = pd.unique(date)
+        # date = pd.to_datetime(self.data['Date-Time'].dt.strftime('%Y/%m/%d'))
+        # self.unique_date = pd.unique(date)
 
 
-    def reset(self, num_days):
+    def reset(self, month, day):
         """
         Reset the environment before the start of the experiment or after finishing one trial.
 
@@ -383,36 +383,26 @@ class Simulator:
 
         # Initialize the OrderBook
         # initial_date = random.choice(self.unique_date[-10:])
-        initial_date = self.unique_date[num_days]
+        # initial_date = self.unique_date[num_days]
+        self.data = self.data_dict[month]
+        initial_date = day
 
         mid_price_list = []
         volume_list = []
 
-        idx = list(self.unique_date).index(initial_date)
-        # for i in range(7):
-        #     for interval in range(5):
-        #         LOB = np.array(self.data.loc[self.data['Date-Time'] >=
-        #                                      self.unique_date[idx - i - 1] + pd.Timedelta('11hours') +
-        #                                      pd.Timedelta('{}hours'.format(interval))].head(1))[0]
-        #         mid_price = (LOB[1] + LOB[3]) / 2
-        #         if mid_price:
-        #             mid_price_list.append(mid_price)
-        #         volume = (sum(LOB[4 * j + 2] for j in range(10)) + sum(LOB[4 * j + 4] for j in range(10))) / 20
-        #         if volume:
-        #             volume_list.append(volume)
         for interval in range(5):
             hour = 0
             while True:
                 LOB = np.array(self.data.loc[self.data['Date-Time'] >=
-                                             self.unique_date[idx] + pd.Timedelta('{}hours'.format(11 - hour)) +
+                                             day + pd.Timedelta('{}hours'.format(11 - hour)) +
                                              pd.Timedelta('{}hours'.format(interval))].head(1))
                 try:
                     LOB = LOB[0]
                     break
                 except:
-                    print('Cannot find LOB for ', self.unique_date[idx] + pd.Timedelta('{}hours'.format(11 - hour))
+                    print('Cannot find LOB for ', day + pd.Timedelta('{}hours'.format(11 - hour))
                           + pd.Timedelta('{}hours'.format(interval)))
-                    print('Use instead LOB for ', self.unique_date[idx] + pd.Timedelta('{}hours'.format(11 - hour - 1))
+                    print('Use instead LOB for ', day + pd.Timedelta('{}hours'.format(11 - hour - 1))
                           + pd.Timedelta('{}hours'.format(interval)))
                     hour += 1
 
@@ -620,25 +610,3 @@ class Simulator:
         re2.plot(range(len(self.size_list)), self.reward_list, self.reward_list, color='r', linestyle='dashed')
         re2.set_ylim([-1, 1])
         plt.show()
-
-
-# data_path = '/Users/gongqili/Documents/GitHub/rl_for_optimal_exec/gym_trading/hw_sim/data_OMI/sample_v1.csv'
-# data = pd.read_csv(data_path)
-# data = data.drop(['#RIC', 'Domain', 'GMT Offset', 'Type', 'L1-BuyNo', 'L1-SellNo', 'L2-BuyNo', 'L2-SellNo',
-#                               'L3-BuyNo', 'L3-SellNo', 'L4-BuyNo', 'L4-SellNo', 'L5-BuyNo', 'L5-SellNo',
-#                               'L6-BuyNo', 'L6-SellNo', 'L7-BuyNo',  'L7-SellNo', 'L8-BuyNo', 'L8-SellNo',
-#                               'L9-BuyNo', 'L9-SellNo', 'L10-BuyNo', 'L10-SellNo'], axis=1)
-# data['Date-Time'] = pd.to_datetime(data['Date-Time'],
-#                                              format='%Y-%m-%dT%H:%M:%S.%fZ').dt.round('{}s'.format(600))
-
-# data = data.groupby(['Date-Time']).first().reset_index()
-# data['Day'] = data['Date-Time'].dt.dayofweek
-# data = data.drop(data.loc[(data['Day'] == 5) | (data['Day'] == 6)].index)
-# data['Hour'] = data['Date-Time'].dt.hour
-# data['Minute'] = data['Date-Time'].dt.minute
-# data = data.drop(data.loc[(data['Hour'] < 8) | (data['Hour'] > 16)].index)
-# data = data.drop(['Hour', 'Minute', 'Day'], axis=1)
-
-# env = Simulator(data)
-# env.reset(0)
-
