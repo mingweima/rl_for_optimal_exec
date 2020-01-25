@@ -1,9 +1,4 @@
 import datetime
-from collections import deque       # Ordered collection with end
-import itertools
-import threading
-import time
-import sys
 import pickle
 import random
 
@@ -16,17 +11,11 @@ import matplotlib.pyplot as plt
 from keras.backend.tensorflow_backend import set_session
 from sklearn.preprocessing import OneHotEncoder
 
-from simple_test.simple_env import Simulator
+from trading_environment.trading_env import Simulator
+from agents.dddqn.dddqnnet import DDDQNNet
+from agents.dddqn.memory import Memory
 
 train_months = ['2018-01-01_2018-01-31',
-                '2018-02-01_2018-02-28',
-                '2018-03-01_2018-03-31',
-                '2018-04-01_2018-04-30',
-                '2018-05-01_2018-05-31',
-                '2018-06-01_2018-06-30',
-                '2018-07-01_2018-07-31',
-                '2018-08-01_2018-08-31']
-                '2018-01-01_2018-01-31',
                 '2018-02-01_2018-02-28',
                 '2018-03-01_2018-03-31',
                 '2018-04-01_2018-04-30',
@@ -44,17 +33,19 @@ train_dict = {}
 train_date = {}
 for month in train_months:
     train_dict[month] = {}
-    with open('/nfs/home/mingweim/rl_for_optimal_exec/simple_test/data/HSBA/{}.txt'.format(month), 'rb') as df_train:
+    with open('/nfs/home/mingweim/rl_for_optimal_exec'
+              '/trading_environment/data/HSBA/{}.txt'.format(month), 'rb') as df_train:
         data = pickle.load(df_train, encoding='iso-8859-1')
     date = pd.to_datetime(data['Date-Time'].dt.strftime('%Y/%m/%d'))
     unique_date = pd.unique(date)
     train_date[month] = unique_date
     for day in unique_date:
-        with open('/nfs/home/mingweim'
-                  '/rl_for_optimal_exec/simple_test/data/HSBA/{}_{}.txt'.format(month, day), 'rb') as df:
+        with open('/nfs/home/mingweim/rl_for_optimal_exec'
+                  '/trading_environment/data/HSBA/{}_{}.txt'.format(month, day), 'rb') as df:
             data = pickle.load(df, encoding='iso-8859-1')
         train_dict[month][day] = data
 num_of_training_days = sum(len(v) for _, v in train_date.items())
+
 print('========================================')
 print('Training Set Num of Days: ', num_of_training_days)
 print('Train Data Unique Date: ', train_date)
@@ -64,14 +55,15 @@ test_dict = {}
 test_date = {}
 for month in test_months:
     test_dict[month] = {}
-    with open('/nfs/home/mingweim/rl_for_optimal_exec/simple_test/data/HSBA/{}.txt'.format(month), 'rb') as df_test:
+    with open('/nfs/home/mingweim/rl_for_optimal_exec'
+              '/trading_environment/data/HSBA/{}.txt'.format(month), 'rb') as df_test:
         data = pickle.load(df_test, encoding='iso-8859-1')
     date = pd.to_datetime(data['Date-Time'].dt.strftime('%Y/%m/%d'))
     unique_date = pd.unique(date)
     test_date[month] = unique_date
     for day in unique_date:
-        with open('/nfs/home/mingweim'
-                  '/rl_for_optimal_exec/simple_test/data/HSBA/{}_{}.txt'.format(month, day), 'rb') as df:
+        with open('/nfs/home/mingweim/rl_for_optimal_exec'
+                  '/trading_environment/data/HSBA/{}_{}.txt'.format(month, day), 'rb') as df:
             data = pickle.load(df, encoding='iso-8859-1')
         test_dict[month][day] = data
 num_of_test_days = sum(len(v) for _, v in test_date.items())
@@ -82,7 +74,7 @@ print('========================================')
 print('Running Almgren Chriss!')
 print('========================================')
 
-def Almgren_Chriss(kappa, ac_dict, step, num_of_steps):
+def almgren_chriss(kappa, ac_dict, step, num_of_steps):
     def closest_action(nj):
         action = 0
         difference = abs(ac_dict[action] - nj)
@@ -120,7 +112,7 @@ for month in train_date.keys():
         env_train.reset(month, day)
         total_reward = 0
         for step in np.arange(1, 31):
-            action = Almgren_Chriss(0, ac_dict, step, 30)
+            action = almgren_chriss(0, ac_dict, step, 30)
             state, reward, done, _ = env_train.step(4)
             total_reward += reward
         rewards.append(total_reward)
@@ -136,7 +128,7 @@ for month in test_date.keys():
         env_test.reset(month, day)
         total_reward = 0
         for step in np.arange(1, 31):
-            action = Almgren_Chriss(0, ac_dict, step, 30)
+            action = almgren_chriss(0, ac_dict, step, 30)
             state, reward, done, _ = env_test.step(4)
             total_reward += reward
         rewards.append(total_reward)
@@ -206,94 +198,6 @@ config = tf.ConfigProto()
 config.gpu_options.allow_growth = True
 set_session(tf.Session(config=config))
 
-class DDDQNNet:
-    def __init__(self, state_size, action_size, initial_learning_rate, name):
-        # define learning rate
-        #         self.global_step = tf.Variable(0, trainable=False)
-        #         self.initial_learning_rate = initial_learning_rate  # 初始学习率
-        #         self.learning_rate = tf.train.exponential_decay(initial_learning_rate, global_step=self.global_step, decay_steps=200, decay_rate=0.99, staircase=False)
-        #         self.add_global = self.global_step.assign_add(1)
-
-        # define input shapes
-        self.learning_rate = initial_learning_rate
-        self.state_size = state_size
-        self.action_size = action_size
-        self.name = name
-
-        # We use tf.variable_scope here to know which network we're using (DQN or target_net)
-        # it will be useful when we will update our w- parameters (by copy the DQN parameters)
-        with tf.variable_scope(self.name):
-            # We create the placeholders
-            # *state_size means that we take each elements of state_size in tuple hence is like if we wrote
-            # [None, 100, 120, 4]
-            # Remember that target_Q is the R(s,a) + ymax Qhat(s', a')
-            self.inputs_ = tf.placeholder(tf.float32, [None, *state_size], name="inputs")
-            self.actions_ = tf.placeholder(tf.float32, [None, action_size], name="actions_")
-            self.target_Q = tf.placeholder(tf.float32, [None], name="target")
-
-            # define network
-            # Input is 100x120x4
-            self.conv_first1 = tf.keras.layers.LSTM(64, return_sequences=True)(self.inputs_)
-            self.conv_first1 = tf.keras.layers.LeakyReLU(alpha=0.01)(self.conv_first1)
-            self.conv_first1 = tf.keras.layers.Dropout(0.2)(self.conv_first1)
-            self.conv_first1 = tf.keras.layers.Dense(16)(self.conv_first1)
-            self.conv_first1 = tf.keras.layers.Dropout(0.2)(self.conv_first1)
-
-            ## Here we separate into two streams
-            # The one that calculate V(s)
-            self.value_fc = tf.keras.layers.LSTM(32)(self.conv_first1)
-            self.value_fc = tf.keras.layers.Dense(8)(self.value_fc)
-            self.value_fc = tf.keras.layers.LeakyReLU(alpha=0.01)(self.value_fc)
-            self.value_fc = tf.keras.layers.Dropout(0.2)(self.value_fc)
-            self.value = tf.keras.layers.Dense(1)(self.value_fc)
-
-            #             The one that calculate A(s,a)
-            self.advantage_fc = tf.keras.layers.LSTM(32)(self.conv_first1)
-            self.advantage_fc = tf.keras.layers.Dense(16)(self.advantage_fc)
-            self.advantage_fc = tf.keras.layers.LeakyReLU(alpha=0.01)(self.advantage_fc)
-            self.advantage_fc = tf.keras.layers.Dropout(0.2)(self.advantage_fc)
-            self.advantage = tf.keras.layers.Dense(self.action_size)(self.advantage_fc)
-
-            # Agregating layer
-            # Q(s,a) = V(s) + (A(s,a) - 1/|A| * sum A(s,a'))
-            self.output = self.value + tf.subtract(self.advantage,
-                                                   tf.reduce_mean(self.advantage, axis=1, keepdims=True))
-
-            self.output_softmax = tf.keras.activations.softmax(self.output)
-
-            # Q is our predicted Q value.
-            self.Q = tf.reduce_sum(tf.multiply(self.output, self.actions_), axis=1)
-
-            # The loss is modified because of PER
-            self.absolute_errors = tf.abs(self.target_Q - self.Q)  # for updating Sumtree
-
-            self.loss = tf.reduce_mean(tf.squared_difference(self.target_Q, self.Q))
-
-            self.optimizer = tf.train.AdamOptimizer(self.learning_rate, beta1=0.9, beta2=0.999, epsilon=1e-8).minimize(
-                self.loss)
-            # self.optimizer = tf.train.RMSPropOptimizer(self.learning_rate, epsilon=0.1).minimize(self.loss)
-
-            # record my values
-            self.display_action = tf.argmax(self.actions_, axis=1)
-
-    def record_tensorboard(self):
-        tf.summary.scalar("learning_rate", self.learning_rate)
-        tf.summary.histogram("inputs_", self.inputs_)
-        tf.summary.histogram("actions_", self.display_action)
-        tf.summary.histogram("target_Q", self.target_Q)
-        tf.summary.histogram("conv_first1", self.conv_first1)
-        tf.summary.histogram("value_fc", self.value_fc)
-        tf.summary.histogram("value", self.value)
-        tf.summary.histogram("adv_fc", self.advantage_fc)
-        tf.summary.histogram("adv", self.advantage)
-        tf.summary.scalar("loss", self.loss)
-        self.merge_opt = tf.summary.merge_all()
-
-        return self.merge_opt
-
-    def get_graph(self):
-        return tf.get_default_graph()
-
 # Reset the graph
 tf.reset_default_graph()
 
@@ -302,21 +206,6 @@ DQNetwork = DDDQNNet(state_size, action_size, initial_learning_rate, name="DQNet
 
 # Instantiate the target network
 TargetNetwork = DDDQNNet(state_size, action_size, initial_learning_rate, name="TargetNetwork")
-
-class Memory():
-    def __init__(self, max_size):
-        self.buffer = deque(maxlen=max_size)
-
-    def add(self, experience):
-        self.buffer.append(experience)
-
-    def sample(self, batch_size):
-        buffer_size = len(self.buffer)
-        index = np.random.choice(np.arange(buffer_size),
-                                 size=batch_size,
-                                 replace=False)
-
-        return [self.buffer[i] for i in index]
 
 memory = Memory(max_size=memory_size)
 
@@ -388,7 +277,6 @@ def update_target_graph():
         op_holder.append(to_var.assign(from_var))
 
     return op_holder
-
 
 saver = tf.train.Saver(max_to_keep=total_loop)
 
