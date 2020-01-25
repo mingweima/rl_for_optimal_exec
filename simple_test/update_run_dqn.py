@@ -475,7 +475,7 @@ for loop in range(total_loop):
             _, loss = sess.run([DQNetwork.optimizer, DQNetwork.loss],
                                 feed_dict={DQNetwork.inputs_: states_mb,
                                            DQNetwork.target_Q: targets_mb,
-                                           QNetwork.actions_: actions_mb})
+                                           DQNetwork.actions_: actions_mb})
 
             losses.append(loss)
 
