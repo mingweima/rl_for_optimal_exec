@@ -301,7 +301,7 @@ class Memory():
 
 memory = Memory(max_size=memory_size)
 
-bar = tqdm(range(num_of_training_days))
+bar = tqdm(range(num_of_training_days), leave=False)
 bar.set_description('Pretraining')
 
 for month in train_date.keys():
