@@ -31,9 +31,9 @@ test_months = ['2018-09-01_2018-09-30',
 train_data_list = []
 test_data_list = []
 
-bar = tqdm(train_months + test_months)
+bar = tqdm(train_months)
 
-for month in train_months:
+for month in bar:
     bar.set_description('Processing Training Data -- {}'.format(month))
     path_name = '/nfs/home/mingweim/lob/hsbc/L2_HSBA.L_{}.csv.gz'.format(month)
     raw_data = pd.read_csv(path_name, compression='gzip', error_bad_lines=False)
@@ -65,7 +65,9 @@ df_train = open('train_data.txt', 'wb')
 pickle.dump(train_data, df_train)
 df_train.close()
 
-for month in test_months:
+bar = tqdm(test_months)
+
+for month in bar:
     bar.set_description('Processing Test Data -- {}'.format(month))
     path_name = '/nfs/home/mingweim/lob/hsbc/L2_HSBA.L_{}.csv.gz'.format(month)
     raw_data = pd.read_csv(path_name, compression='gzip', error_bad_lines=False)
