@@ -95,8 +95,7 @@ batch_size = 128                # Batch size
 print('Training Set')
 env_train = Simulator(train_dict, ac_dict)
 rewards = []
-for months in train_dict.keys():
-    for day_number in len(train_dict[months])
+
 for num_days in range(num_of_training_days):
     env_train.reset(num_days=num_days)
     total_reward = 0
