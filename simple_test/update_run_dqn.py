@@ -174,8 +174,8 @@ initial_learning_rate = 0.005    # Alpha (aka learning rate)
 # Exploration parameters for epsilon greedy strategy
 initial_exploration_steps = 0
 explore_start = 1.0            # exploration probability at start
-explore_stop = 0           # minimum exploration probability
-decay_rate = 0.0005           # exponential decay rate for exploration prob
+explore_stop = 0.05          # minimum exploration probability
+decay_rate = 0.01           # exponential decay rate for exploration prob
 
 # Q learning hyperparameters
 gamma = 0.99                    # Discounting rate
@@ -343,7 +343,9 @@ def predict_action(explore_start, explore_stop, decay_rate, decay_step, state, a
     exp_exp_tradeoff = np.random.rand()
 
     # Here we'll use an improved version of our epsilon greedy strategy used in Q-learning notebook
-    explore_probability = explore_stop + (explore_start - explore_stop) * np.exp(-decay_rate * decay_step)
+    explore_probability = explore_start - decay_rate * decay_step
+    if explore_probability < explore_stop:
+        explore_probability = explore_stop
 
     # if explore_probability > exp_exp_tradeoff:
     #     # Make a random action (exploration)
@@ -397,6 +399,7 @@ test_avg_reward = []
 
 for loop in range(total_loop):
     loop_indx += 1
+    decay_step += 1
     total_reward_list = []
     losses = []
     total_epi = np.arange(total_episodes)
@@ -418,7 +421,6 @@ for loop in range(total_loop):
             episode_rewards = []
             state = env_train.reset(month, day)
             state = np.array(state)
-            decay_step += 1
             while step < max_steps:
                 step += 1
                 # With ϵ select a random action atat, otherwise select a = argmaxQ(st,a)
