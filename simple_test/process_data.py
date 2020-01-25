@@ -70,7 +70,7 @@ for month in months:
     unique_date = pd.unique(date)
     for day in unique_date:
         df_train = \
-            open('/nfs/home/mingweim/rl_for_optimal_exec/simple_test/data/HSBA/{}/{}.txt'.format(month, day), 'wb')
+            open('/nfs/home/mingweim/rl_for_optimal_exec/simple_test/data/HSBA/{}_{}.txt'.format(month, day), 'wb')
         pickle.dump(data, df_train)
         df_train.close()
 
