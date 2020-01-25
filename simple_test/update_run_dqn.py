@@ -24,7 +24,7 @@ train_dict = {}
 train_data = []
 for month in train_months:
     with open('/nfs/home/mingweim/rl_for_optimal_exec/simple_test/data/HSBA/{}.txt'.format(month)) as df_train:
-        data = pickle.load(df_train)
+        data = pickle.load(df_train, 'rb')
         train_dict[month] = data
         train_data.append(data)
 train_data = pd.concat(train_data, axis=0, ignore_index=True)
@@ -38,7 +38,7 @@ test_dict = {}
 test_data = []
 for month in test_months:
     with open('/nfs/home/mingweim/rl_for_optimal_exec/simple_test/data/HSBA/{}.txt'.format(month)) as df_train:
-        data = pickle.load(df_train)
+        data = pickle.load(df_train, 'rb')
         test_dict[month] = data
         test_data.append(data)
 test_data = pd.concat(test_data, axis=0, ignore_index=True)
