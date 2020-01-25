@@ -29,10 +29,10 @@ for month in train_months:
         date = pd.to_datetime(data['Date-Time'].dt.strftime('%Y/%m/%d'))
         unique_date = pd.unique(date)
         train_date[month] = unique_date
-num_of_training_days = sum(len(v) for i, v in train_date.items())
+num_of_training_days = sum(len(v) for _, v in train_date.items())
 print('========================================')
 print('Training Set Num of Days: ', num_of_training_days)
-print('Train Data Unique Date: ', sum(v for i, v in train_date.items()))
+print('Train Data Unique Date: ', train_date)
 print('========================================')
 
 test_dict = {}
@@ -47,7 +47,7 @@ for month in test_months:
 num_of_test_days = sum(len(v) for _, v in test_date.items())
 
 print('Test Set Num of Days: ', num_of_test_days)
-print('Test Data Unique Date: ', sum(v for _, v in train_date.items()))
+print('Test Data Unique Date: ', test_date)
 print('========================================')
 print('Running Almgren Chriss!')
 print('========================================')
