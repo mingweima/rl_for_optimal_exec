@@ -2,11 +2,11 @@ import argparse
 
 import matplotlib.pyplot as plt
 
-from Agents.dqn.dqn_train import DQNTrain
-from Agents.drqn.drqn_train import DRQNTrain
-from Agents.dpg.dpg_train import DPG_Train
-from Agents.a2c.a2c_train import A2CTrain
-from Agents.almgren_chriss.almgren_chriss_train import AlmgrenChrissTrain
+from agents.dqn.dqn_train import DQNTrain
+from agents.drqn.drqn_train import DRQNTrain
+from agents.dpg.dpg_train import DPG_Train
+from agents.a2c.a2c_train import A2CTrain
+from agents.almgren_chriss.almgren_chriss_train import AlmgrenChrissTrain
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()

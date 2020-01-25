@@ -105,8 +105,8 @@ venv.bak/
 
 #log
 *.bz2/
-data/sample.csv
-gym_trading/hw_sim/data_OMI/sample.csv
-gym_trading/hw_sim/data_OMI/sample.csv
+trading_environment/data/sample.csv
+gym_trading_deprecated/hw_sim/data_OMI/sample.csv
+gym_trading_deprecated/hw_sim/data_OMI/sample.csv
 *.csv
 *.iml
