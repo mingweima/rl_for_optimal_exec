@@ -387,9 +387,6 @@ class Simulator:
         self.data = self.data_dict[month]
         initial_date = day
 
-        print(self.data)
-        print(day + pd.Timedelta('11hours'))
-
         mid_price_list = []
         volume_list = []
 
