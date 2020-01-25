@@ -102,7 +102,7 @@ ac_dict = {0: 0, 1: 0.25, 2: 0.5, 3: 0.75, 4: 1, 5: 1.25,
 total_loop = 200
 total_episodes = num_of_training_days
 max_steps = 100000              # Max possible steps in an episode
-batch_size = 2500                # Batch size
+batch_size = 1500                # Batch size
 
 print('Training Set')
 env_train = Simulator(train_dict, train_date, ac_dict)
@@ -543,7 +543,7 @@ test_plot.plot(test_avg_reward, color='r', linestyle='dashed')
 loss_plot = fig.add_subplot(122)
 loss_plot.plot(loss_per_loop)
 loss_plot.set_title('Loss')
-plt.savefig('plot.png')
+plt.savefig('plot22.png')
 plt.show()
 
 print('========================================')
