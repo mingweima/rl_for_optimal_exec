@@ -21,58 +21,56 @@ train_months = ['2018-01-01_2018-01-31', '2018-02-01_2018-02-28']
 test_months = ['2018-01-01_2018-01-31', '2018-02-01_2018-02-28']
 
 train_dict = {}
-train_data = []
+train_date = {}
 for month in train_months:
     with open('/nfs/home/mingweim/rl_for_optimal_exec/simple_test/data/HSBA/{}.txt'.format(month), 'rb') as df_train:
         data = pickle.load(df_train, encoding='iso-8859-1')
         train_dict[month] = data
-        train_data.append(data)
-train_data = pd.concat(train_data, axis=0, ignore_index=True)
-date = pd.to_datetime(train_data['Date-Time'].dt.strftime('%Y/%m/%d'))
-unique_date = pd.unique(date)
-num_of_training_days = len(unique_date)
+        date = pd.to_datetime(data['Date-Time'].dt.strftime('%Y/%m/%d'))
+        unique_date = pd.unique(date)
+        train_date[month] = unique_date
+num_of_training_days = sum(len(v) for i, v in train_date.items())
+print('========================================')
 print('Training Set Num of Days: ', num_of_training_days)
 print('Train Data Unique Date: ', unique_date)
+print('========================================')
 
 test_dict = {}
-test_data = []
+test_date = {}
 for month in test_months:
     with open('/nfs/home/mingweim/rl_for_optimal_exec/simple_test/data/HSBA/{}.txt'.format(month), 'rb') as df_train:
         data = pickle.load(df_train, encoding='iso-8859-1')
         test_dict[month] = data
-        test_data.append(data)
-test_data = pd.concat(test_data, axis=0, ignore_index=True)
-date = pd.to_datetime(test_data['Date-Time'].dt.strftime('%Y/%m/%d'))
-unique_date = pd.unique(date)
-num_of_test_days = len(unique_date)
+        date = pd.to_datetime(data['Date-Time'].dt.strftime('%Y/%m/%d'))
+        unique_date = pd.unique(date)
+num_of_test_days = sum(len(v) for i, v in test_date.items())
 
 print('Test Set Num of Days: ', num_of_test_days)
 print('Test Data Unique Date: ', unique_date)
-
-def Almgren_Chriss(kappa, ac_dict, step, num_of_steps):
-        def closest_action(nj):
-            action = 0
-            difference = abs(ac_dict[action] - nj)
-            for ac, proportion in ac_dict.items():
-                if type(ac) is int:
-                    if (proportion - nj) < difference:
-                        action = ac
-                        difference = abs(ac_dict[action] - nj)
-            return action
-
-        if step == num_of_steps:
-            nj = 1
-        elif kappa == 0:
-            nj = 1 / num_of_steps
-        else:
-            nj = 2 * np.sinh(0.5 * kappa) * np.cosh(kappa * (
-                    num_of_steps - (step - 0.5))) / np.sinh(kappa * num_of_steps)
-        action = closest_action(nj)
-        return action
-
 print('========================================')
 print('Running Almgren Chriss!')
 print('========================================')
+
+def Almgren_Chriss(kappa, ac_dict, step, num_of_steps):
+    def closest_action(nj):
+        action = 0
+        difference = abs(ac_dict[action] - nj)
+        for ac, proportion in ac_dict.items():
+            if type(ac) is int:
+                if (proportion - nj) < difference:
+                    action = ac
+                    difference = abs(ac_dict[action] - nj)
+        return action
+
+    if step == num_of_steps:
+        nj = 1
+    elif kappa == 0:
+        nj = 1 / num_of_steps
+    else:
+        nj = 2 * np.sinh(0.5 * kappa) * np.cosh(kappa * (
+                num_of_steps - (step - 0.5))) / np.sinh(kappa * num_of_steps)
+    action = closest_action(nj)
+    return action
 
 # ac_dict = {0: 0, 1: 0.005, 2: 0.01, 3: 0.015, 4: 0.02, 5: 0.025,
 #            6: 0.03, 7: 0.035, 8: 0.04, 9: 0.05, 10: 0.06, 11: 0.07,
@@ -94,9 +92,11 @@ total_episodes = num_of_training_days
 max_steps = 100000              # Max possible steps in an episode
 batch_size = 128                # Batch size
 
-
-env_train = Simulator(train_data, ac_dict)
+print('Training Set')
+env_train = Simulator(train_dict, ac_dict)
 rewards = []
+for months in train_dict.keys():
+    for day_number in len(train_dict[months])
 for num_days in range(num_of_training_days):
     env_train.reset(num_days=num_days)
     total_reward = 0
@@ -109,7 +109,8 @@ for num_days in range(num_of_training_days):
 print('AC Average: ', np.average(rewards))
 print('========================================')
 
-env_test = Simulator(test_data, ac_dict)
+print('Test Set')
+env_test = Simulator(test_dict, ac_dict)
 rewards = []
 for num_days in range(num_of_test_days):
     env_test.reset(num_days=num_days)

@@ -17,7 +17,6 @@ class OrderBook:
             bids (list): a list of dictionaries of bid orders
             asks (list): a list of dictionaries of ask orders
     """
-
     def __init__(self, initial_orders):
         self.bids = []
         self.asks = []
@@ -294,8 +293,9 @@ class Simulator:
     orders and reacting to the actions of the agent.
     """
 
-    def __init__(self, data, ac_dict):
-        self.data = data
+    def __init__(self, data_dict, ac_dict):
+        self.data_dict = data_dict
+        self.months = list(self.data_dict.keys())
 
         self.hothead = 'False'
         self.trading_interval = 600
