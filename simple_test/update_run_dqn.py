@@ -171,7 +171,7 @@ gamma = 0.99                    # Discounting rate
 loop_update = 3
 
 ### MEMORY HYPERPARAMETERS
-pretrain_length = batch_size   # Number of experiences stored in the Memory when initialized for the first time
+pretrain_episodes = batch_size   # Number of experiences stored in the Memory when initialized for the first time
 memory_size = 100000          # Number of experiences the Memory can keep
 
 print('Learning Rate: ', initial_learning_rate)
@@ -302,11 +302,11 @@ class Memory():
 
 memory = Memory(max_size=memory_size)
 
-bar = tqdm(range(pretrain_length))
+bar = tqdm(range(pretrain_episodes))
 bar.set_description('Pretraining')
 
-num_of_steps = 0
-while num_of_steps < pretrain_length:
+num_of_eps = 0
+while num_of_eps < pretrain_episodes:
     for month in train_date.keys():
         for day in train_date[month]:
             state = np.array(env_train.reset(month, day))
@@ -316,9 +316,9 @@ while num_of_steps < pretrain_length:
                 next_state, reward, done, _ = env_train.step(np.argmax(action))
                 memory.add((state, action, reward, next_state, done))
                 state = next_state
-                num_of_steps += 1
                 bar.update(1)
                 if done:
+                    num_of_eps += 1
                     break
 bar.close()
 
