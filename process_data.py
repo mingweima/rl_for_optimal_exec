@@ -60,7 +60,8 @@ for month in months:
     bar.update(1)
     bar.set_description('Storing Data -- {}'.format(month))
 
-    df_train = open('/nfs/home/mingweim/rl_for_optimal_exec/simple_test/data/HSBA/{}.txt'.format(month), 'wb')
+    df_train = open('/nfs/home/mingweim/rl_for_optimal_exec/'
+                    'trading_environment/data/HSBA/{}.txt'.format(month), 'wb')
     pickle.dump(data, df_train)
     df_train.close()
     date = pd.to_datetime(data['Date-Time'].dt.strftime('%Y/%m/%d'))
