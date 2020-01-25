@@ -199,11 +199,11 @@ initial_learning_rate = 0.005    # Alpha (aka learning rate)
 initial_exploration_steps = 0
 explore_start = 1.0            # exploration probability at start
 explore_stop = 0.05          # minimum exploration probability
-decay_rate = 0.01           # exponential decay rate for exploration prob
+decay_rate = 0.05           # exponential decay rate for exploration prob
 
 # Q learning hyperparameters
 gamma = 0.99                    # Discounting rate
-loop_update = 5
+loop_update = 3
 
 ### MEMORY HYPERPARAMETERS
 memory_size = 100000          # Number of experiences the Memory can keep

@@ -170,8 +170,8 @@ class Simulator:
                 LOB = LOB[0]
                 break
             except:
-                print('Cannot find LOB for ', self.current_time - pd.Timedelta('{}hours'.format(hour)))
-                print('Use instead LOB for ', self.current_time - pd.Timedelta('{}hours'.format(hour + 1)))
+                # print('Cannot find LOB for ', self.current_time - pd.Timedelta('{}hours'.format(hour)))
+                # print('Use instead LOB for ', self.current_time - pd.Timedelta('{}hours'.format(hour + 1)))
                 hour += 1
 
         bids = []
