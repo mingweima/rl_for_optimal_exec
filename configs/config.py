@@ -7,148 +7,130 @@ from agents.drqn.drqn_train import DRQNTrain
 from agents.dpg.dpg_train import DPG_Train
 from agents.a2c.a2c_train import A2CTrain
 from agents.almgren_chriss.almgren_chriss_train import AlmgrenChrissTrain
+from agents.dddqn.dddqn_train import dddqn_train
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument('agent', type=str)
-    parser.add_argument('--reward', type=str, default='implementation_shortfall')
-    parser.add_argument('--time', type=int, default=18000)
-    parser.add_argument('--inventory', type=int, default=30000)
-    parser.add_argument('--seed', type=int, default=1)
-    parser.add_argument('--interval', type=int, default=600)
-    parser.add_argument('--data', type=str, default='sample.csv')
-    parser.add_argument('--eta', type=float, default=1.2256)
-    parser.add_argument('--rho', type=float, default=0.1226)
-    parser.add_argument('--sigma', type=float, default=0.257)
-    parser.add_argument('--lamb', type=float, default=1e-4)
-    parser.add_argument('--kappa', type=float, default=1e-3)
-    parser.add_argument('--action_type', type=str, default='vanilla6')
-    parser.add_argument('--hothead', type=str, default='False')
-    parser.add_argument('--double', type=str, default='True')
+    parser.add_argument('total_loop', type=int, default=200)
+    parser.add_argument('batch_size', type=int, default=1500)
+    parser.add_argument('learning_rate', type=float, default=0.005)
+    parser.add_argument('explore_stop', type=float, default=0.05)
+    parser.add_argument('decay_rate', type=float, default=0.05)
+    parser.add_argument('loop_update', type=int, default=5)
+    parser.add_argument('memory_size', type=int, default=100000)
 
     args = parser.parse_args()
+    hyperparameters = {
+        'total_loop': args.total_loop,
+        'batch_size': args.batch_size,
+        'learning_rate': args.learning_rate,
+        'explore_stop': args.explore_stop,
+        'decay_rate': args.decay_rate,
+        'loop_update': args.loop_update,
+        'memory_size': args.memory_size
+    }
 
-    if args.action_type == 'prop_of_ac':
-        ac_dict = {k: 0.1*k for k in range(21)}
-    elif args.action_type == 'vanilla20':
-        ac_dict = {0: 0, 1: 0.02, 2: 0.04, 3: 0.06, 4: 0.08, 5: 0.1,
-                   6: 0.12, 7: 0.14, 8: 0.18, 9: 0.22, 10: 0.26, 11: 0.3,
-                   12: 0.35, 13: 0.4, 14: 0.45, 15: 0.5, 16: 0.6, 17: 0.7, 18: 0.8, 19: 0.9, 20: 1}
-    elif args.action_type == 'vanilla6':
-        ac_dict = {0: 1, 1: 0.5, 2: 0.2, 3: 0.1, 4: 0.05, 5: 0}
-            # 0: 0, 1: 0.05, 2: 0.1, 3: 0.2, 4: 0.5, 5: 1}
-    else:
-        raise Exception('Unknown Action Type')
+
+    train_months = ['2018-01-01_2018-01-31',
+                    '2018-02-01_2018-02-28',
+                    '2018-03-01_2018-03-31',
+                    '2018-04-01_2018-04-30',
+                    '2018-05-01_2018-05-31',
+                    '2018-06-01_2018-06-30',
+                    '2018-07-01_2018-07-31',
+                    '2018-08-01_2018-08-31']
+
+    test_months = ['2018-09-01_2018-09-30',
+                   '2018-10-01_2018-10-31',
+                   '2018-11-01_2018-11-30',
+                   '2018-12-01_2018-12-31']
+
+    ac_dict = {0: 0, 1: 0.25, 2: 0.5, 3: 0.75, 4: 1, 5: 1.25,
+               6: 1.5, 7: 1.75, 8: 2}
 
     # Please always set Elapsed Time and Remaining Inventory True, otherwise AC Model will break down
     ob_dict = {
         'Elapsed Time': True,
         'Remaining Inventory': True,
+        'Bid Ask Spread 1': True,
+        'Bid Ask Spread 2': True,
+        'Bid Ask Spread 3': True,
+        'Bid Ask Spread 4': True,
+        'Bid Ask Spread 5': True,
+        # 'Bid Ask Spread 6': True,
+        # 'Bid Ask Spread 7': True,
+        # 'Bid Ask Spread 8': True,
+        # 'Bid Ask Spread 9': True,
+        # 'Bid Ask Spread 10': True,
         'Bid Price 1': True,
         'Bid Price 2': True,
         'Bid Price 3': True,
         'Bid Price 4': True,
+        'Bid Price 5': True,
+        # 'Bid Price 6': True,
+        # 'Bid Price 7': True,
+        # 'Bid Price 8': True,
+        # 'Bid Price 9': True,
+        # 'Bid Price 10': True,
         'Bid Volume 1': True,
         'Bid Volume 2': True,
         'Bid Volume 3': True,
         'Bid Volume 4': True,
+        'Bid Volume 5': True,
+        # 'Bid Volume 6': True,
+        # 'Bid Volume 7': True,
+        # 'Bid Volume 8': True,
+        # 'Bid Volume 9': True,
+        # 'Bid Volume 10': True,
         'Ask Price 1': True,
         'Ask Price 2': True,
         'Ask Price 3': True,
         'Ask Price 4': True,
+        'Ask Price 5': True,
+        # 'Ask Price 6': True,
+        # 'Ask Price 7': True,
+        # 'Ask Price 8': True,
+        # 'Ask Price 9': True,
+        # 'Ask Price 10': True,
         'Ask Volume 1': True,
         'Ask Volume 2': True,
         'Ask Volume 3': True,
         'Ask Volume 4': True,
-    }
-    scenario_args = {
-        'Time Horizon': args.time,
-        'Initial Inventory': args.inventory,
-        'Trading Interval': args.interval,
-        'Hothead': args.hothead
-    }
-
-    observation_space_args = {
-        'Observation Dictionary': ob_dict,
-        'Upper Limit': 1,
-        'Lower Limit': -1
-    }
-    action_space_args = {
-        'Action Type': args.action_type,
-        'Action Dictionary': ac_dict
+        'Ask Volume 5': True,
+        # 'Ask Volume 6': True,
+        # 'Ask Volume 7': True,
+        # 'Ask Volume 8': True,
+        # 'Ask Volume 9': True,
+        # 'Ask Volume 10': True,
     }
 
-    reward_args = {
-        'Reward Function': args.reward
-    }
-
-    data_args = args.data
-
-    almgren_chriss_args = {
-        'eta': args.eta,
-        'rho': args.rho,
-        'sigma': args.sigma,
-        'lamb': args.lamb,
-        'kappa': args.kappa
-    }
 
     print("============================================================")
     print("Reinforcement Learning for Optimal Execution")
     print("============================================================")
-    print("Time Horizon (Seconds):     ", args.time)
-    print("Trading Interval (Seconds): ", args.interval)
-    print("Initial Inventory:          ", args.inventory)
-    print("Agent:                      ", args.agent)
+    print("Agent: ", args.agent)
     print("============================================================")
 
-    if args.agent == 'dpg' or args.agent == 'DPG':
-        DPG_Train(scenario_args, observation_space_args,
-                  action_space_args, reward_args, data_args, almgren_chriss_args)
-    elif args.agent == 'dqn' or args.agent == 'DQN':
-        DQNTrain(scenario_args, observation_space_args,
-                 action_space_args, reward_args, data_args, almgren_chriss_args)
-    elif args.agent == 'drqn' or args.agent == 'DRQN':
-        DRQNTrain(scenario_args, observation_space_args,
-                  action_space_args, reward_args, data_args, almgren_chriss_args, args.double)
-    elif args.agent == 'almgren_chriss':
-        AlmgrenChrissTrain(scenario_args, observation_space_args,
-                           action_space_args, reward_args, data_args, almgren_chriss_args)
-    elif args.agent == 'a2c' or args.agent == 'A2C':
-        A2CTrain(scenario_args, observation_space_args,
-                 action_space_args, reward_args, data_args, almgren_chriss_args)
-    else:
-        raise Exception("Unknown Agent!")
+    if args.agent == 'dddqn' or args.agent == 'DDDQN':
+        dddqn_train(hyperparameters, ac_dict, ob_dict, train_months, test_months)
 
-
-
-    # scenario_args['Hothead'] = 'False'
-    # almgren_chriss_args['sigma'] = 0
-    # almgren_chriss_args['lamb'] = 0
-    # linear_reward = AlmgrenChrissTrain(scenario_args, observation_space_args,
-    #                                     action_space_args, reward_args, data_args, almgren_chriss_args)
-    #
-    # scenario_args['Hothead'] = 'False'
-    # almgren_chriss_args['kappa'] = 0.0005
-    # ac_reward1 = AlmgrenChrissTrain(scenario_args, observation_space_args,
-    #                                     action_space_args, reward_args, data_args, almgren_chriss_args)
-    #
-    #
-    # almgren_chriss_args['kappa'] = 0.001
-    # ac_reward2 = AlmgrenChrissTrain(scenario_args, observation_space_args,
-    #                                     action_space_args, reward_args, data_args, almgren_chriss_args)
-    #
-    # almgren_chriss_args['kappa'] = 0.005
-    # ac_reward3 = AlmgrenChrissTrain(scenario_args, observation_space_args,
-    #                                     action_space_args, reward_args, data_args, almgren_chriss_args)
-    #
-    # almgren_chriss_args['kappa'] = 0.01
-    # ac_reward4 = AlmgrenChrissTrain(scenario_args, observation_space_args,
-    #                                     action_space_args, reward_args, data_args, almgren_chriss_args)
-    #
-    # scenario_args['Hothead'] = 'True'
-    # hothead_reward = AlmgrenChrissTrain(scenario_args, observation_space_args,
-    #                                     action_space_args, reward_args, data_args, almgren_chriss_args)
-    #
-    # labels = ['Linear', 'AC (5e-4)', 'AC (1e-3)', 'AC (5e-3)', 'AC (1e-2)', 'Hothead']
-    # plt.boxplot([linear_reward, ac_reward1, ac_reward2, ac_reward3, ac_reward4, hothead_reward], labels=labels)
-    # plt.show()
+    # if args.agent == 'dpg' or args.agent == 'DPG':
+    #     DPG_Train(scenario_args, observation_space_args,
+    #               action_space_args, reward_args, data_args, almgren_chriss_args)
+    # elif args.agent == 'dqn' or args.agent == 'DQN':
+    #     DQNTrain(scenario_args, observation_space_args,
+    #              action_space_args, reward_args, data_args, almgren_chriss_args)
+    # elif args.agent == 'drqn' or args.agent == 'DRQN':
+    #     DRQNTrain(scenario_args, observation_space_args,
+    #               action_space_args, reward_args, data_args, almgren_chriss_args, args.double)
+    # elif args.agent == 'almgren_chriss':
+    #     AlmgrenChrissTrain(scenario_args, observation_space_args,
+    #                        action_space_args, reward_args, data_args, almgren_chriss_args)
+    # elif args.agent == 'a2c' or args.agent == 'A2C':
+    #     A2CTrain(scenario_args, observation_space_args,
+    #              action_space_args, reward_args, data_args, almgren_chriss_args)
+    # elif args.agent == 'dddqn' or args.agent == 'DDDQN':
+    #     dddqn_train(scenario_args, observation_space_args)
+    # else:
+    #     raise Exception("Unknown Agent!")

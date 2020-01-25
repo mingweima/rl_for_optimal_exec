@@ -4,6 +4,9 @@ import matplotlib.pyplot as plt
 
 from trading_environment.orderbook import OrderBook
 
+INITIAL_SHARES = 3000
+EPISODE_LENGTH_IN_SECONDS = 18000
+TRADING_INTERVAL_IN_SECONDS = 600
 
 class Simulator:
     """
@@ -11,15 +14,15 @@ class Simulator:
     orders and reacting to the actions of the agent.
     """
 
-    def __init__(self, data_dict, date_dict, ac_dict):
+    def __init__(self, data_dict, date_dict, ac_dict, ob_dict):
         self.data_dict = data_dict
         self.date_dict = date_dict
 
         self.hothead = 'False'
-        self.trading_interval = 600
-        self.time_horizon = pd.Timedelta(seconds=18000)
+        self.trading_interval = TRADING_INTERVAL_IN_SECONDS
+        self.time_horizon = pd.Timedelta(seconds=EPISODE_LENGTH_IN_SECONDS)
         self.trading_steps = int(self.time_horizon.seconds / self.trading_interval)
-        self.initial_inventory = 3000
+        self.initial_inventory = INITIAL_SHARES
         self.look_back = 12
 
         # Initialize the action space
@@ -27,60 +30,6 @@ class Simulator:
         self.ac_type = 'prop of linear'
 
         # Initialize the observation space
-        ob_dict = {
-            'Elapsed Time': True,
-            'Remaining Inventory': True,
-            'Bid Ask Spread 1': True,
-            'Bid Ask Spread 2': True,
-            'Bid Ask Spread 3': True,
-            'Bid Ask Spread 4': True,
-            'Bid Ask Spread 5': True,
-            # 'Bid Ask Spread 6': True,
-            # 'Bid Ask Spread 7': True,
-            # 'Bid Ask Spread 8': True,
-            # 'Bid Ask Spread 9': True,
-            # 'Bid Ask Spread 10': True,
-            'Bid Price 1': True,
-            'Bid Price 2': True,
-            'Bid Price 3': True,
-            'Bid Price 4': True,
-            'Bid Price 5': True,
-            # 'Bid Price 6': True,
-            # 'Bid Price 7': True,
-            # 'Bid Price 8': True,
-            # 'Bid Price 9': True,
-            # 'Bid Price 10': True,
-            'Bid Volume 1': True,
-            'Bid Volume 2': True,
-            'Bid Volume 3': True,
-            'Bid Volume 4': True,
-            'Bid Volume 5': True,
-            # 'Bid Volume 6': True,
-            # 'Bid Volume 7': True,
-            # 'Bid Volume 8': True,
-            # 'Bid Volume 9': True,
-            # 'Bid Volume 10': True,
-            'Ask Price 1': True,
-            'Ask Price 2': True,
-            'Ask Price 3': True,
-            'Ask Price 4': True,
-            'Ask Price 5': True,
-            # 'Ask Price 6': True,
-            # 'Ask Price 7': True,
-            # 'Ask Price 8': True,
-            # 'Ask Price 9': True,
-            # 'Ask Price 10': True,
-            'Ask Volume 1': True,
-            'Ask Volume 2': True,
-            'Ask Volume 3': True,
-            'Ask Volume 4': True,
-            'Ask Volume 5': True,
-            # 'Ask Volume 6': True,
-            # 'Ask Volume 7': True,
-            # 'Ask Volume 8': True,
-            # 'Ask Volume 9': True,
-            # 'Ask Volume 10': True,
-        }
         self.ob_dict = {k: v for k, v in ob_dict.items() if v}
 
         # Initialize the reward function
