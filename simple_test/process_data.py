@@ -28,12 +28,6 @@ train_months = ['2018-09-01_2018-09-30',
 test_months = ['2018-09-01_2018-09-30',
                '2018-10-01_2018-10-31',]
 
-train_paths = [f'/nfs/home/mingweim/lob/hsbc/L2_HSBA.L_{month}.csv.gz'
-                for month in training_months]
-
-test_paths =  [f'/nfs/home/mingweim/lob/hsbc/L2_HSBA.L_{month}.csv.gz'
-                for month in test_months]
-
 train_data_list = []
 test_data_list = []
 
