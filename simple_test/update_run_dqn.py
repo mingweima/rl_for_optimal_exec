@@ -177,7 +177,6 @@ config = tf.ConfigProto()
 config.gpu_options.allow_growth = True
 set_session(tf.Session(config=config))
 
-
 class DDDQNNet:
     def __init__(self, state_size, action_size, initial_learning_rate, name):
         # define learning rate
@@ -487,7 +486,7 @@ for loop in range(total_loop):
         avg_re_per_loop.append(np.mean(total_reward_list))
         loss_per_loop.append(np.average(losses))
 
-    print(f'{datetime.datetime.now()}'
+    print(f'{datetime.datetime.now()} '
           f'Loop = {loop}, '
         f'Avg R = {np.mean(total_reward_list)}, '
         f'Max R = {np.max(total_reward_list)}, '
