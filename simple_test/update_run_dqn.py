@@ -394,14 +394,14 @@ for loop in range(total_loop):
     months = list(train_date.keys())
     np.random.shuffle(months)
 
-    bar = tqdm(range(len(months)))
+    bar = tqdm(num_of_training_days, leave=False)
 
     for month in months:
-        bar.update(1)
 
         days = train_date[month]
         np.random.shuffle(days)
         for day in days:
+            bar.update(1)
             bar.set_description('Running Experiment, Day: {}'.format(day))
             step = 0
             episode_rewards = []
