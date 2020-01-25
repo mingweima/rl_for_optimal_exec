@@ -64,7 +64,7 @@ for month in months:
     data = data.drop(['Hour', 'Minute', 'Day'], axis=1)
     data = data.iloc[1:]
 
-    df_train = open('data/HSBA/{}.txt'.format(month), 'wb')
+    df_train = open('/nfs/home/mingweim/rl_for_optimal_exec/simple_test/data/HSBA/{}.txt'.format(month), 'wb')
     pickle.dump(data, df_train)
     df_train.close()
 
