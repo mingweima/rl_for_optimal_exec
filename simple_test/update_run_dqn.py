@@ -316,8 +316,8 @@ while num_of_eps < pretrain_episodes:
                 next_state, reward, done, _ = env_train.step(np.argmax(action))
                 memory.add((state, action, reward, next_state, done))
                 state = next_state
-                bar.update(1)
                 if done:
+                    bar.update(1)
                     num_of_eps += 1
                     break
 bar.close()
