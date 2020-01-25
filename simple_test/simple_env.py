@@ -384,7 +384,7 @@ class Simulator:
         # Initialize the OrderBook
         # initial_date = random.choice(self.unique_date[-10:])
         # initial_date = self.unique_date[num_days]
-        self.data = self.data_dict[month]
+        self.data = self.data_dict[month][day]
         initial_date = day
 
         mid_price_list = []

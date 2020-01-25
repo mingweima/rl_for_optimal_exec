@@ -23,12 +23,17 @@ test_months = ['2018-01-01_2018-01-31', '2018-02-01_2018-02-28']
 train_dict = {}
 train_date = {}
 for month in train_months:
+    train_dict[month] = {}
     with open('/nfs/home/mingweim/rl_for_optimal_exec/simple_test/data/HSBA/{}.txt'.format(month), 'rb') as df_train:
         data = pickle.load(df_train, encoding='iso-8859-1')
-        train_dict[month] = data
-        date = pd.to_datetime(data['Date-Time'].dt.strftime('%Y/%m/%d'))
-        unique_date = pd.unique(date)
-        train_date[month] = unique_date
+    date = pd.to_datetime(data['Date-Time'].dt.strftime('%Y/%m/%d'))
+    unique_date = pd.unique(date)
+    train_date[month] = unique_date
+    for day in unique_date:
+        with open('/nfs/home/mingweim'
+                  '/rl_for_optimal_exec/simple_test/data/HSBA/{}_{}.txt'.format(month, day), 'rb') as df:
+            data = pickle.load(df, encoding='iso-8859-1')
+        train_dict[month][day] = data
 num_of_training_days = sum(len(v) for _, v in train_date.items())
 print('========================================')
 print('Training Set Num of Days: ', num_of_training_days)
@@ -38,12 +43,17 @@ print('========================================')
 test_dict = {}
 test_date = {}
 for month in test_months:
-    with open('/nfs/home/mingweim/rl_for_optimal_exec/simple_test/data/HSBA/{}.txt'.format(month), 'rb') as df_train:
-        data = pickle.load(df_train, encoding='iso-8859-1')
-        test_dict[month] = data
-        date = pd.to_datetime(data['Date-Time'].dt.strftime('%Y/%m/%d'))
-        unique_date = pd.unique(date)
-        test_date[month] = unique_date
+    test_dict[month] = {}
+    with open('/nfs/home/mingweim/rl_for_optimal_exec/simple_test/data/HSBA/{}.txt'.format(month), 'rb') as df_test:
+        data = pickle.load(df_test, encoding='iso-8859-1')
+    date = pd.to_datetime(data['Date-Time'].dt.strftime('%Y/%m/%d'))
+    unique_date = pd.unique(date)
+    test_date[month] = unique_date
+    for day in unique_date:
+        with open('/nfs/home/mingweim'
+                  '/rl_for_optimal_exec/simple_test/data/HSBA/{}_{}.txt'.format(month, day), 'rb') as df:
+            data = pickle.load(df, encoding='iso-8859-1')
+        test_dict[month][day] = data
 num_of_test_days = sum(len(v) for _, v in test_date.items())
 
 print('Test Set Num of Days: ', num_of_test_days)
