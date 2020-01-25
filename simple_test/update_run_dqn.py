@@ -23,8 +23,8 @@ test_months = ['2018-01-01_2018-01-31', '2018-02-01_2018-02-28']
 train_dict = {}
 train_data = []
 for month in train_months:
-    with open('/nfs/home/mingweim/rl_for_optimal_exec/simple_test/data/HSBA/{}.txt'.format(month)) as df_train:
-        data = pickle.load(df_train, 'rb')
+    with open('/nfs/home/mingweim/rl_for_optimal_exec/simple_test/data/HSBA/{}.txt'.format(month), 'rb') as df_train:
+        data = pickle.load(df_train, encoding='iso-8859-1')
         train_dict[month] = data
         train_data.append(data)
 train_data = pd.concat(train_data, axis=0, ignore_index=True)
@@ -37,8 +37,8 @@ print('Train Data Unique Date: ', unique_date)
 test_dict = {}
 test_data = []
 for month in test_months:
-    with open('/nfs/home/mingweim/rl_for_optimal_exec/simple_test/data/HSBA/{}.txt'.format(month)) as df_train:
-        data = pickle.load(df_train, 'rb')
+    with open('/nfs/home/mingweim/rl_for_optimal_exec/simple_test/data/HSBA/{}.txt'.format(month), 'rb') as df_train:
+        data = pickle.load(df_train, encoding='iso-8859-1')
         test_dict[month] = data
         test_data.append(data)
 test_data = pd.concat(test_data, axis=0, ignore_index=True)
