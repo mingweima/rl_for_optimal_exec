@@ -394,7 +394,7 @@ for loop in range(total_loop):
     months = list(train_date.keys())
     np.random.shuffle(months)
 
-    bar = tqdm(num_of_training_days, leave=False)
+    bar = tqdm(range(num_of_training_days), leave=False)
     bar.set_description('Running Loop {}'.format(loop))
 
     for month in months:
