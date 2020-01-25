@@ -11,7 +11,7 @@ from agents.dddqn.dddqn_train import dddqn_train
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
-    parser.add_argument('agent', type=str)
+    parser.add_argument('agent', default='dddqn', type=str)
     parser.add_argument('total_loop', type=int, default=200)
     parser.add_argument('batch_size', type=int, default=1500)
     parser.add_argument('learning_rate', type=float, default=0.005)
