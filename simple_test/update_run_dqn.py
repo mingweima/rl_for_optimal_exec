@@ -32,7 +32,7 @@ for month in train_months:
 num_of_training_days = sum(len(v) for i, v in train_date.items())
 print('========================================')
 print('Training Set Num of Days: ', num_of_training_days)
-print('Train Data Unique Date: ', train_dict)
+print('Train Data Unique Date: ', train_date)
 print('========================================')
 
 test_dict = {}
@@ -47,7 +47,7 @@ for month in test_months:
 num_of_test_days = sum(len(v) for i, v in test_date.items())
 
 print('Test Set Num of Days: ', num_of_test_days)
-print('Test Data Unique Date: ', test_dict)
+print('Test Data Unique Date: ', test_date)
 print('========================================')
 print('Running Almgren Chriss!')
 print('========================================')
