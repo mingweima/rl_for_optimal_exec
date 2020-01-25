@@ -102,7 +102,7 @@ ac_dict = {0: 0, 1: 0.25, 2: 0.5, 3: 0.75, 4: 1, 5: 1.25,
 total_loop = 200
 total_episodes = num_of_training_days
 max_steps = 100000              # Max possible steps in an episode
-batch_size = 1280                # Batch size
+batch_size = 2500                # Batch size
 
 print('Training Set')
 env_train = Simulator(train_dict, train_date, ac_dict)
