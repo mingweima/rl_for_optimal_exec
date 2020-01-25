@@ -397,7 +397,7 @@ avg_re_per_loop = []
 loss_per_loop = []
 test_avg_reward = []
 
-for loop in range(total_loop):
+for loop in range(1, total_loop + 1):
     loop_indx += 1
     decay_step += 1
     total_reward_list = []

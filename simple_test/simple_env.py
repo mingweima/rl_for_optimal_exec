@@ -400,10 +400,10 @@ class Simulator:
                     LOB = LOB[0]
                     break
                 except:
-                    print('Cannot find LOB for ', day + pd.Timedelta('{}hours'.format(11 - hour))
-                          + pd.Timedelta('{}hours'.format(interval)))
-                    print('Use instead LOB for ', day + pd.Timedelta('{}hours'.format(11 - hour - 1))
-                          + pd.Timedelta('{}hours'.format(interval)))
+                    # print('Cannot find LOB for ', day + pd.Timedelta('{}hours'.format(11 - hour))
+                    #       + pd.Timedelta('{}hours'.format(interval)))
+                    # print('Use instead LOB for ', day + pd.Timedelta('{}hours'.format(11 - hour - 1))
+                    #       + pd.Timedelta('{}hours'.format(interval)))
                     hour += 1
 
             mid_price = (LOB[1] + LOB[3]) / 2
