@@ -7,6 +7,7 @@ import sys
 import pickle
 import random
 
+from tqdm import tqdm
 import tensorflow as tf
 import numpy as np
 from numpy.random import seed
@@ -301,6 +302,9 @@ class Memory():
 
 memory = Memory(max_size=memory_size)
 
+bar = tqdm(range(pretrain_length))
+bar.set_description('Pretraining')
+
 num_of_steps = 0
 while num_of_steps < pretrain_length:
     for month in train_date.keys():
@@ -313,8 +317,10 @@ while num_of_steps < pretrain_length:
                 memory.add((state, action, reward, next_state, done))
                 state = next_state
                 num_of_steps += 1
+                bar.update(1)
                 if done:
                     break
+bar.close()
 
 writer = tf.summary.FileWriter('./tensorboard', DQNetwork.get_graph())
 
