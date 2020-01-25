@@ -85,30 +85,32 @@ batch_size = 128                # Batch size
 print('Training Set')
 env_train = Simulator(train_dict, train_date, ac_dict)
 rewards = []
-for month, day in train_date.items():
-    env_train.reset(month, day)
-    total_reward = 0
-    for step in np.arange(1, 31):
-        action = Almgren_Chriss(0, ac_dict, step, 30)
-        state, reward, done, _ = env_train.step(4)
-        total_reward += reward
-    rewards.append(total_reward)
-    print('{} Total Reward: '.format(day), total_reward)
+for month in train_date.keys():
+    for day in train_date[month]:
+        env_train.reset(month, day)
+        total_reward = 0
+        for step in np.arange(1, 31):
+            action = Almgren_Chriss(0, ac_dict, step, 30)
+            state, reward, done, _ = env_train.step(4)
+            total_reward += reward
+        rewards.append(total_reward)
+        print('{} Total Reward: '.format(day), total_reward)
 print('AC Average: ', np.average(rewards))
 print('========================================')
 
 print('Test Set')
 env_test = Simulator(train_dict, train_date, ac_dict)
 rewards = []
-for month, day in test_date.items():
-    env_test.reset(month, day)
-    total_reward = 0
-    for step in np.arange(1, 31):
-        action = Almgren_Chriss(0, ac_dict, step, 30)
-        state, reward, done, _ = env_test.step(4)
-        total_reward += reward
-    rewards.append(total_reward)
-    print('{} Total Reward: '.format(day), total_reward)
+for month in test_date.keys():
+    for day in test_date[month]:
+        env_test.reset(month, day)
+        total_reward = 0
+        for step in np.arange(1, 31):
+            action = Almgren_Chriss(0, ac_dict, step, 30)
+            state, reward, done, _ = env_test.step(4)
+            total_reward += reward
+        rewards.append(total_reward)
+        print('{} Total Reward: '.format(day), total_reward)
 print('AC Average: ', np.average(rewards))
 print('========================================')
 
