@@ -171,7 +171,6 @@ gamma = 0.99                    # Discounting rate
 loop_update = 3
 
 ### MEMORY HYPERPARAMETERS
-pretrain_episodes = batch_size   # Number of experiences stored in the Memory when initialized for the first time
 memory_size = 100000          # Number of experiences the Memory can keep
 
 print('Learning Rate: ', initial_learning_rate)
@@ -302,24 +301,21 @@ class Memory():
 
 memory = Memory(max_size=memory_size)
 
-bar = tqdm(range(pretrain_episodes))
+bar = tqdm(range(num_of_training_days))
 bar.set_description('Pretraining')
 
-num_of_eps = 0
-while num_of_eps < pretrain_episodes:
-    for month in train_date.keys():
-        for day in train_date[month]:
-            state = np.array(env_train.reset(month, day))
-            while True:
-                choice = random.randint(1, len(possible_actions)) - 1
-                action = possible_actions[choice]
-                next_state, reward, done, _ = env_train.step(np.argmax(action))
-                memory.add((state, action, reward, next_state, done))
-                state = next_state
-                if done:
-                    bar.update(1)
-                    num_of_eps += 1
-                    break
+for month in train_date.keys():
+    for day in train_date[month]:
+        state = np.array(env_train.reset(month, day))
+        while True:
+            choice = random.randint(1, len(possible_actions)) - 1
+            action = possible_actions[choice]
+            next_state, reward, done, _ = env_train.step(np.argmax(action))
+            memory.add((state, action, reward, next_state, done))
+            state = next_state
+            if done:
+                bar.update(1)
+                break
 bar.close()
 
 writer = tf.summary.FileWriter('./tensorboard', DQNetwork.get_graph())
