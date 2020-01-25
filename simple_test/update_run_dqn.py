@@ -503,12 +503,16 @@ for loop in range(total_loop):
         tau = 0
         print(f"Model updated at time {datetime.datetime.now()}")
 
+        bar = tqdm(range(num_of_test_days), leave=False)
+        bar.set_description("Testing Results")
         reward_list = []
         for month in test_date.keys():
             for day in test_date[month]:
+                bar.update(1)
                 check_reward = te_performance(month, day)
                 reward_list.append(check_reward)
-
+        bar.close()
+        
         avg_re = np.average(reward_list)
         print('Test Average Reward: ', avg_re)
         test_avg_reward.append(avg_re)
