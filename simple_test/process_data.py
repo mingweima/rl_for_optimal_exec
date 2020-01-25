@@ -23,7 +23,7 @@ months = ['2018-01-01_2018-01-31',
           '2018-12-01_2018-12-31']
 
 for month in months:
-    bar = tqdm(range(6))
+    bar = tqdm(range(7))
     bar.set_description('Reading Data -- {}'.format(month))
     path_name = '/nfs/home/mingweim/lob/hsbc/L2_HSBA.L_{}.csv.gz'.format(month)
 
@@ -62,11 +62,17 @@ for month in months:
     data = data.drop(
         data.loc[(data['Hour'] < 8) | (data['Hour'] > 16) | ((data['Hour'] == 16) & (data['Minute'] > 0))].index)
     data = data.drop(['Hour', 'Minute', 'Day'], axis=1)
-    data = data.iloc[1:]
 
-    df_train = open('/nfs/home/mingweim/rl_for_optimal_exec/simple_test/data/HSBA/{}.txt'.format(month), 'wb')
-    pickle.dump(data, df_train)
-    df_train.close()
+    bar.update(1)
+    bar.set_description('Storing Data -- {}'.format(month))
+
+    date = pd.to_datetime(data['Date-Time'].dt.strftime('%Y/%m/%d'))
+    unique_date = pd.unique(date)
+    for day in unique_date:
+        df_train = \
+            open('/nfs/home/mingweim/rl_for_optimal_exec/simple_test/data/HSBA/{}/{}.txt'.format(month, day), 'wb')
+        pickle.dump(data, df_train)
+        df_train.close()
 
     bar.update(1)
     bar.set_description('Finished Processing Data -- {}'.format(month))
