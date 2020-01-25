@@ -18,8 +18,23 @@ from sklearn.preprocessing import OneHotEncoder
 
 from simple_test.simple_env import Simulator
 
-train_months = ['2018-01-01_2018-01-31', '2018-02-01_2018-02-28']
-test_months = ['2018-01-01_2018-01-31', '2018-02-01_2018-02-28']
+train_months = ['2018-01-01_2018-01-31',
+                '2018-02-01_2018-02-28',
+                '2018-03-01_2018-03-31',
+                '2018-04-01_2018-04-30',
+                '2018-05-01_2018-05-31',
+                '2018-06-01_2018-06-30',
+                '2018-07-01_2018-07-31',
+                '2018-08-01_2018-08-31',
+                '2018-09-01_2018-09-30',
+                '2018-10-01_2018-10-31',
+                '2018-11-01_2018-11-30',
+                '2018-12-01_2018-12-31']
+
+test_months = ['2018-09-01_2018-09-30',
+               '2018-10-01_2018-10-31',
+               '2018-11-01_2018-11-30',
+               '2018-12-01_2018-12-31']
 
 train_dict = {}
 train_date = {}
@@ -512,7 +527,7 @@ for loop in range(total_loop):
                 check_reward = te_performance(month, day)
                 reward_list.append(check_reward)
         bar.close()
-        
+
         avg_re = np.average(reward_list)
         print('Test Average Reward: ', avg_re)
         test_avg_reward.append(avg_re)
