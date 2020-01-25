@@ -395,6 +395,7 @@ for loop in range(total_loop):
     np.random.shuffle(months)
 
     bar = tqdm(num_of_training_days, leave=False)
+    bar.set_description('Running Loop {}'.format(loop))
 
     for month in months:
 
@@ -402,7 +403,6 @@ for loop in range(total_loop):
         np.random.shuffle(days)
         for day in days:
             bar.update(1)
-            bar.set_description('Running Experiment, Day: {}'.format(day))
             step = 0
             episode_rewards = []
             state = env_train.reset(month, day)
@@ -435,7 +435,6 @@ for loop in range(total_loop):
 
             ### Training Network
             # Obtain random mini-batch from memory
-            bar.set_description('Training Network, Day: {}'.format(day))
             batch = memory.sample(batch_size)
             states_mb = np.array([each[0] for each in batch], ndmin=3)
             actions_mb = np.array([each[1] for each in batch])
