@@ -4,7 +4,7 @@ import matplotlib.pyplot as plt
 
 from trading_environment.orderbook import OrderBook
 
-INITIAL_SHARES = 3000
+INITIAL_SHARES = 10000
 EPISODE_LENGTH_IN_SECONDS = 18000
 TRADING_INTERVAL_IN_SECONDS = 600
 
