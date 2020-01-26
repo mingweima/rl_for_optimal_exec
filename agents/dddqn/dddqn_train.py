@@ -257,9 +257,11 @@ def dddqn_train(hyperparameters, ac_dict, ob_dict, train_months, test_months):
         #     action = possible_actions[choice]
         if explore_probability > exp_exp_tradeoff:
             Ps = sess.run(DQNetwork.output_softmax, feed_dict={DQNetwork.inputs_: state.reshape((1, *state.shape))})[0]
-            print(p)
-            choice = np.random.choice(action_size, 1, p=Ps)[0]
-            action = possible_actions[choice]
+            try:
+                choice = np.random.choice(action_size, 1, p=Ps)[0]
+                action = possible_actions[choice]
+            except:
+                print(Ps)
         else:
             # Get action from Q-network (exploitation)
             # Estimate the Qs values state
