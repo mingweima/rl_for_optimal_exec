@@ -27,11 +27,7 @@ def dddqn_train(hyperparameters, ac_dict, ob_dict, train_months, test_months):
                                                                                  t)
     if not os.path.exists(dirpath):
         os.mkdir(dirpath)
-    train_f = open(dirpath + '/training.txt', 'w+')
-    test_f = open(dirpath + '/test.txt', 'w+')
-    config_f = open(dirpath + '/config.txt', 'w+')
     almgren_chriss_f = open(dirpath + '/almgren_chriss.txt', 'w+')
-
 
     train_dict = {}
     train_date = {}
@@ -154,9 +150,9 @@ def dddqn_train(hyperparameters, ac_dict, ob_dict, train_months, test_months):
                 state = next_state
         return np.sum(all_reward)
 
+    almgren_chriss_f.close()
+
     print('Training Network!')
-    print('Training Network!', file=train_f)
-    print('Training Network!', file=test_f)
 
     state = env_train.reset(list(train_date.keys())[0], train_date[list(train_date.keys())[0]][0])
     state = np.array(state)
@@ -186,13 +182,14 @@ def dddqn_train(hyperparameters, ac_dict, ob_dict, train_months, test_months):
     ### MEMORY HYPERPARAMETERS
     memory_size = hyperparameters['memory_size']  # Number of experiences the Memory can keep
 
+    config_f = open(dirpath + '/config.txt', 'w+')
     print('Hyperparameters', file=config_f)
     print('Total Loop: {}'.format(total_loop), file=config_f)
     print('Batch Size: {}'.format(batch_size), file=config_f)
     print('Final Exploration Probability: {}'.format(explore_stop), file=config_f)
     print('Initial Learning Rate: {}'.format(initial_learning_rate), file=config_f)
     print('Loop Update: {}'.format(loop_update), file=config_f)
-
+    config_f.close()
 
     ### MODIFY THIS TO FALSE IF YOU JUST WANT TO SEE THE TRAINED AGENT
     training = True
@@ -294,6 +291,11 @@ def dddqn_train(hyperparameters, ac_dict, ob_dict, train_months, test_months):
     avg_re_per_loop = []
     loss_per_loop = []
     test_avg_reward = []
+
+    train_f = open(dirpath + '/training.txt', 'w+')
+    test_f = open(dirpath + '/test.txt', 'w+')
+    print('Training Network!', file=train_f)
+    print('Training Network!', file=test_f)
 
     for loop in range(1, total_loop + 1):
         loop_indx += 1
@@ -467,3 +469,5 @@ def dddqn_train(hyperparameters, ac_dict, ob_dict, train_months, test_months):
 
     saver.save(sess, dirpath + '/model.ckpt')
     sess.close()
+    test_f.close()
+    train_f.close()
