@@ -20,8 +20,10 @@ from agents.dddqn.memory import Memory
 
 def dddqn_train(hyperparameters, ac_dict, ob_dict, train_months, test_months):
 
+    ticker = hyperparameters['ticker']
     t = time.strftime('%Y-%m-%d_%H:%M:%I', time.localtime(time.time()))
-    dirpath = os.getcwd() + '/recordings/HSBA/dddqn_loop{}_bs{}_mem{}_{}'.format(hyperparameters['total_loop'],
+    dirpath = os.getcwd() + '/recordings/{}/dddqn_loop{}_bs{}_mem{}_{}'.format(ticker,
+                                                                               hyperparameters['total_loop'],
                                                                                  hyperparameters['batch_size'],
                                                                                  hyperparameters['memory_size'],
                                                                                  t)
@@ -33,13 +35,13 @@ def dddqn_train(hyperparameters, ac_dict, ob_dict, train_months, test_months):
     train_date = {}
     for month in train_months:
         train_dict[month] = {}
-        with open(os.getcwd() + '/trading_environment/data/HSBA/{}.txt'.format(month), 'rb') as df_train:
+        with open(os.getcwd() + '/trading_environment/data/{}/{}.txt'.format(ticker, month), 'rb') as df_train:
             data = pickle.load(df_train, encoding='iso-8859-1')
         date = pd.to_datetime(data['Date-Time'].dt.strftime('%Y/%m/%d'))
         unique_date = pd.unique(date)
         train_date[month] = unique_date
         for day in unique_date:
-            with open(os.getcwd() + '/trading_environment/data/HSBA/{}_{}.txt'.format(month, day), 'rb') as df:
+            with open(os.getcwd() + '/trading_environment/data/{}/{}_{}.txt'.format(ticker, month, day), 'rb') as df:
                 data = pickle.load(df, encoding='iso-8859-1')
             train_dict[month][day] = data
     num_of_training_days = sum(len(v) for _, v in train_date.items())
@@ -48,13 +50,13 @@ def dddqn_train(hyperparameters, ac_dict, ob_dict, train_months, test_months):
     test_date = {}
     for month in test_months:
         test_dict[month] = {}
-        with open(os.getcwd() + '/trading_environment/data/HSBA/{}.txt'.format(month), 'rb') as df_test:
+        with open(os.getcwd() + '/trading_environment/data/{}/{}.txt'.format(ticker, month), 'rb') as df_test:
             data = pickle.load(df_test, encoding='iso-8859-1')
         date = pd.to_datetime(data['Date-Time'].dt.strftime('%Y/%m/%d'))
         unique_date = pd.unique(date)
         test_date[month] = unique_date
         for day in unique_date:
-            with open(os.getcwd() + '/trading_environment/data/HSBA/{}_{}.txt'.format(month, day), 'rb') as df:
+            with open(os.getcwd() + '/trading_environment/data/{}/{}_{}.txt'.format(ticker, month, day), 'rb') as df:
                 data = pickle.load(df, encoding='iso-8859-1')
             test_dict[month][day] = data
     num_of_test_days = sum(len(v) for _, v in test_date.items())

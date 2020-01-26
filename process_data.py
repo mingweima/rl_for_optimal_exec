@@ -1,25 +1,55 @@
 import pickle
 from tqdm import tqdm
-
+import argparse
 import pandas as pd
 
-months = ['2018-01-01_2018-01-31',
-          '2018-02-01_2018-02-28',
-          '2018-03-01_2018-03-31',
-          '2018-04-01_2018-04-30',
-          '2018-05-01_2018-05-31',
-          '2018-06-01_2018-06-30',
-          '2018-07-01_2018-07-31',
-          '2018-08-01_2018-08-31',
-          '2018-09-01_2018-09-30',
-          '2018-10-01_2018-10-31',
-          '2018-11-01_2018-11-30',
-          '2018-12-01_2018-12-31']
+parser = argparse.ArgumentParser()
+parser.add_argument('--ticker', type=str, default='HSBA')
+args = parser.parse_args()
+
+ticker = args.ticker
+
+months = ['2016-01-01_2016-01-31',
+                    '2016-02-01_2016-02-29',
+                    '2016-03-01_2016-03-31',
+                    '2016-04-01_2016-04-30',
+                    '2016-05-01_2016-05-31',
+                    '2016-06-01_2016-06-30',
+                    '2016-07-01_2016-07-31',
+                    '2016-08-01_2016-08-31',
+                    '2016-09-01_2016-09-30',
+                    '2016-10-01_2016-10-31',
+                    '2016-11-01_2016-11-30',
+                    '2016-12-01_2016-12-31',
+                    '2017-01-01_2017-01-31',
+                    '2017-02-01_2017-02-28',
+                    '2017-03-01_2017-03-31',
+                    '2017-04-01_2017-04-30',
+                    '2017-05-01_2017-05-31',
+                    '2017-06-01_2017-06-30',
+                    '2017-07-01_2017-07-31',
+                    '2017-08-01_2017-08-31',
+                    '2017-09-01_2017-09-30',
+                    '2017-10-01_2017-10-31',
+                    '2017-11-01_2017-11-30',
+                    '2017-12-01_2017-12-31',
+                    '2018-01-01_2018-01-31',
+                    '2018-02-01_2018-02-28',
+                    '2018-03-01_2018-03-31',
+                    '2018-04-01_2018-04-30',
+                    '2018-05-01_2018-05-31',
+                    '2018-06-01_2018-06-30',
+                    '2018-07-01_2018-07-31',
+                   '2018-08-01_2018-08-31',
+                   '2018-09-01_2018-09-30',
+                   '2018-10-01_2018-10-31',
+                   '2018-11-01_2018-11-30',
+                   '2018-12-01_2018-12-31']
 
 for month in months:
     bar = tqdm(range(7))
     bar.set_description('Reading Data -- {}'.format(month))
-    path_name = '/nfs/home/mingweim/lob/hsbc/L2_HSBA.L_{}.csv.gz'.format(month)
+    path_name = '/nfs/home/mingweim/lob/{}/L2_{}.L_{}.csv.gz'.format(ticker, ticker, month)
 
     raw_data = pd.read_csv(path_name, compression='gzip', error_bad_lines=False)
 
@@ -61,14 +91,14 @@ for month in months:
     bar.set_description('Storing Data -- {}'.format(month))
 
     df_train = open('/nfs/home/mingweim/rl_for_optimal_exec/'
-                    'trading_environment/data/HSBA/{}.txt'.format(month), 'wb')
+                    'trading_environment/data/{}/{}.txt'.format(ticker, month), 'wb')
     pickle.dump(data, df_train)
     df_train.close()
     date = pd.to_datetime(data['Date-Time'].dt.strftime('%Y/%m/%d'))
     unique_date = pd.unique(date)
     for day in unique_date:
         df_train = open('/nfs/home/mingweim/rl_for_optimal_exec/trading_environment'
-                        '/data/HSBA/{}_{}.txt'.format(month, day), 'wb')
+                        '/data/{}/{}_{}.txt'.format(ticker, month, day), 'wb')
         pickle.dump(data, df_train)
         df_train.close()
 

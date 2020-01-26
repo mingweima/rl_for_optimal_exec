@@ -20,9 +20,11 @@ if __name__ == "__main__":
     parser.add_argument('--loop_update', type=int, default=3)
     parser.add_argument('--memory_size', type=int, default=200000)
     parser.add_argument('--network_update', type=int, default=30)
+    parser.add_argument('--ticker', type=str, default='HSBA')
 
     args = parser.parse_args()
     hyperparameters = {
+        'ticker': args.ticker,
         'total_loop': args.total_loop,
         'batch_size': args.batch_size,
         'learning_rate': args.learning_rate,
@@ -134,6 +136,7 @@ if __name__ == "__main__":
     print("============================================================")
     print("Reinforcement Learning for Optimal Execution")
     print("============================================================")
+    print("Ticker:                          ", args.ticker)
     print("Agent:                           ", args.agent)
     print("Total Loop:                      ", args.total_loop)
     print("Batch Size:                      ", args.batch_size)
