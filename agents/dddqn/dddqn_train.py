@@ -441,9 +441,9 @@ def dddqn_train(hyperparameters, ac_dict, ob_dict, train_months, test_months):
             update_target = update_target_graph()
             sess.run(update_target)
             tau = 0
-            print(f"Model updated at time {datetime.datetime.now()}")
+            print(f"\nModel updated at time {datetime.datetime.now()}")
             train_f = open(dirpath + '/training.txt', 'a+')
-            print(f"Model updated at time {datetime.datetime.now()}\n", file=train_f)
+            print(f"\nModel updated at time {datetime.datetime.now()}\n", file=train_f)
             train_f.close()
 
 
