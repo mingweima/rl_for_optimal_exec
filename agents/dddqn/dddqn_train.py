@@ -26,7 +26,7 @@ def dddqn_train(hyperparameters, ac_dict, ob_dict, train_months, test_months):
         initial_shares = 200000
     elif ticker == 'HSBA':
         initial_shares = 100000
-    elif ticker == 'UVLR':
+    elif ticker == 'ULVR':
         initial_shares = 10000
     elif ticker == 'RDSa':
         initial_shares = 100000
