@@ -267,7 +267,7 @@ def dddqn_train(hyperparameters, ac_dict, ob_dict, train_months, test_months):
 
         return op_holder
 
-    saver = tf.train.Saver(max_to_keep=total_loop)
+    saver = tf.train.Saver()
 
     total_step = 0
     decay_step = 0
@@ -451,4 +451,6 @@ def dddqn_train(hyperparameters, ac_dict, ob_dict, train_months, test_months):
             reward_list.append(check_reward)
     print('Test Average Reward: ', np.average(reward_list))
     print('Test Average Reward: ', np.average(reward_list), file=file)
+
+    saver.save(dirpath + '/model.ckpt')
 
