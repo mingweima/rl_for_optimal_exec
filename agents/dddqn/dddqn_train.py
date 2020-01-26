@@ -34,10 +34,6 @@ def dddqn_train(hyperparameters, ac_dict, ob_dict, train_months, test_months):
             train_dict[month][day] = data
     num_of_training_days = sum(len(v) for _, v in train_date.items())
 
-    print('========================================')
-    print('Training Set Num of Days: ', num_of_training_days)
-    print('========================================')
-
     test_dict = {}
     test_date = {}
     for month in test_months:
@@ -55,10 +51,10 @@ def dddqn_train(hyperparameters, ac_dict, ob_dict, train_months, test_months):
             test_dict[month][day] = data
     num_of_test_days = sum(len(v) for _, v in test_date.items())
 
+    print('Training Set Num of Days: ', num_of_training_days)
     print('Test Set Num of Days: ', num_of_test_days)
-    print('========================================')
+    print('============================================================')
     print('Running Almgren Chriss!')
-    print('========================================')
 
     def almgren_chriss(kappa, ac_dict, step, num_of_steps):
         def closest_action(nj):
