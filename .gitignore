@@ -110,4 +110,4 @@ gym_trading_deprecated/hw_sim/data_OMI/sample.csv
 gym_trading_deprecated/hw_sim/data_OMI/sample.csv
 *.csv
 *.iml
-*.store
+*.DS_Store
