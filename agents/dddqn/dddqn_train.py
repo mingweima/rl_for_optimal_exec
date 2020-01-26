@@ -21,6 +21,20 @@ from agents.dddqn.memory import Memory
 def dddqn_train(hyperparameters, ac_dict, ob_dict, train_months, test_months):
 
     ticker = hyperparameters['ticker']
+
+    if ticker == 'BARC':
+        initial_shares = 200000
+    elif ticker == 'HSBA':
+        initial_shares = 100000
+    elif ticker == 'UVLR':
+        initial_shares = 10000
+    elif ticker == 'RDSa':
+        initial_shares = 100000
+    elif ticker == 'RR':
+        initial_shares = 100000
+    else:
+        raise Exception('Unknown Ticker')
+
     t = time.strftime('%Y-%m-%d_%H:%M:%I', time.localtime(time.time()))
     dirpath = os.getcwd() + '/recordings/{}/dddqn_loop{}_bs{}_mem{}_{}'.format(ticker,
                                                                                hyperparameters['total_loop'],
@@ -97,7 +111,7 @@ def dddqn_train(hyperparameters, ac_dict, ob_dict, train_months, test_months):
 
     print('Training Set')
     print('Training Set', file=almgren_chriss_f)
-    env_train = Simulator(train_dict, train_date, ac_dict, ob_dict)
+    env_train = Simulator(train_dict, train_date, ac_dict, ob_dict, initial_shares)
     rewards = []
     for month in train_date.keys():
         for day in train_date[month]:
@@ -116,7 +130,7 @@ def dddqn_train(hyperparameters, ac_dict, ob_dict, train_months, test_months):
         print('========================================', file=f)
         print('Test Set', file=f)
 
-    env_test = Simulator(test_dict, test_date, ac_dict, ob_dict)
+    env_test = Simulator(test_dict, test_date, ac_dict, ob_dict, initial_shares)
     rewards = []
     for month in test_date.keys():
         for day in test_date[month]:
@@ -466,17 +480,19 @@ def dddqn_train(hyperparameters, ac_dict, ob_dict, train_months, test_months):
             avg_re_per_loop.append(np.mean(total_reward_list))
             loss_per_loop.append(np.average(losses))
 
-    fig = plt.figure()
-    reward_plot = fig.add_subplot(121)
+    fig1 = plt.figure()
+    reward_plot = fig1.add_subplot(111)
     reward_plot.plot(avg_re_per_loop)
-    reward_plot.set_title('Reward')
+    reward_plot.set_title('Blue: Training Set Reward; Red: Test Set Reward')
     test_plot = reward_plot.twinx()
     test_plot.plot(test_avg_reward, color='r', linestyle='dashed')
+    plt.savefig(dirpath + '/reward.png')
 
-    loss_plot = fig.add_subplot(122)
+    fig2 = plt.figure()
+    loss_plot = fig2.add_subplot(111)
     loss_plot.plot(loss_per_loop)
     loss_plot.set_title('Loss')
-    plt.savefig(dirpath + '/plot.png')
+    plt.savefig(dirpath + '/loss.png')
     plt.show()
 
     print('============================================================')
