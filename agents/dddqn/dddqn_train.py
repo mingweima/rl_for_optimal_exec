@@ -234,11 +234,11 @@ def dddqn_train(hyperparameters, ac_dict, ob_dict, train_months, test_months):
                     break
     bar.close()
 
-    writer = tf.summary.FileWriter('./tensorboard', DQNetwork.get_graph())
+    # writer = tf.summary.FileWriter('./tensorboard', DQNetwork.get_graph())
 
     ## Losses
 
-    write_op = DQNetwork.record_tensorboard()
+    # write_op = DQNetwork.record_tensorboard()
 
     def predict_action(explore_start, explore_stop, decay_rate, decay_step, state, actions):
         ## EPSILON GREEDY STRATEGY
@@ -406,12 +406,12 @@ def dddqn_train(hyperparameters, ac_dict, ob_dict, train_months, test_months):
                     losses.append(loss)
 
                 # Write TF Summaries
-                    summary = sess.run(write_op, feed_dict={DQNetwork.inputs_: states_mb,
-                                                        DQNetwork.target_Q: targets_mb,
-                                                        DQNetwork.actions_: actions_mb})
-
-                    writer.add_summary(summary, total_step)
-                    total_step += 1
+                #     summary = sess.run(write_op, feed_dict={DQNetwork.inputs_: states_mb,
+                #                                         DQNetwork.target_Q: targets_mb,
+                #                                         DQNetwork.actions_: actions_mb})
+                #
+                #     writer.add_summary(summary, total_step)
+                #     total_step += 1
 
         bar.close()
 
