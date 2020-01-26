@@ -169,13 +169,6 @@ def dddqn_train(hyperparameters, ac_dict, ob_dict, train_months, test_months):
     ### MEMORY HYPERPARAMETERS
     memory_size = hyperparameters['memory_size']  # Number of experiences the Memory can keep
 
-    print('Learning Rate: ', initial_learning_rate)
-    print('Gamma: ', gamma)
-    print('Memory Size: ', memory_size)
-    print('Batch Size: ', batch_size)
-    print('Explore Stop:', explore_stop)
-    print('Explore Decay', decay_rate)
-
     ### MODIFY THIS TO FALSE IF YOU JUST WANT TO SEE THE TRAINED AGENT
     training = True
 
