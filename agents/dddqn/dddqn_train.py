@@ -452,5 +452,5 @@ def dddqn_train(hyperparameters, ac_dict, ob_dict, train_months, test_months):
     print('Test Average Reward: ', np.average(reward_list))
     print('Test Average Reward: ', np.average(reward_list), file=file)
 
-    saver.save(dirpath + '/model.ckpt')
-
+    saver.save(sess, dirpath + '/model.ckpt')
+    sess.close()
