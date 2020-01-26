@@ -17,7 +17,7 @@ if __name__ == "__main__":
     parser.add_argument('--learning_rate', type=float, default=0.005)
     parser.add_argument('--explore_stop', type=float, default=0.05)
     parser.add_argument('--decay_rate', type=float, default=0.05)
-    parser.add_argument('--loop_update', type=int, default=5)
+    parser.add_argument('--loop_update', type=int, default=3)
     parser.add_argument('--memory_size', type=int, default=100000)
 
     args = parser.parse_args()
