@@ -36,7 +36,6 @@ def dddqn_train(hyperparameters, ac_dict, ob_dict, train_months, test_months):
 
     print('========================================')
     print('Training Set Num of Days: ', num_of_training_days)
-    print('Train Data Unique Date: ', train_date)
     print('========================================')
 
     test_dict = {}
@@ -57,7 +56,6 @@ def dddqn_train(hyperparameters, ac_dict, ob_dict, train_months, test_months):
     num_of_test_days = sum(len(v) for _, v in test_date.items())
 
     print('Test Set Num of Days: ', num_of_test_days)
-    print('Test Data Unique Date: ', test_date)
     print('========================================')
     print('Running Almgren Chriss!')
     print('========================================')
