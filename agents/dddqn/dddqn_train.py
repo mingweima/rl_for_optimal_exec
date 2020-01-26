@@ -1,5 +1,6 @@
 import os
 import datetime
+import time
 import pickle
 import random
 
@@ -16,21 +17,30 @@ from trading_environment.trading_env import Simulator
 from agents.dddqn.dddqnnet import DDDQNNet
 from agents.dddqn.memory import Memory
 
+
 def dddqn_train(hyperparameters, ac_dict, ob_dict, train_months, test_months):
-    print(os.getcwd())
+
+    t = time.strftime('%Y-%m-%d_%H:%M:%I', time.localtime(time.time()))
+    dirpath = os.getcwd() + '/recordings/HSBA/dddqn_loop{}_bs{}_mem{}_{}'.format(hyperparameters['total_loop'],
+                                                                                 hyperparameters['batch_size'],
+                                                                                 hyperparameters['memory_size'],
+                                                                                 t)
+    if not os.path.exists(dirpath):
+        os.mkdir(dirpath)
+    file = open(dirpath + '/recordings.txt', 'w+')
+
+
     train_dict = {}
     train_date = {}
     for month in train_months:
         train_dict[month] = {}
-        with open('/nfs/home/mingweim/rl_for_optimal_exec'
-                  '/trading_environment/data/HSBA/{}.txt'.format(month), 'rb') as df_train:
+        with open(os.getcwd() + '/trading_environment/data/HSBA/{}.txt'.format(month), 'rb') as df_train:
             data = pickle.load(df_train, encoding='iso-8859-1')
         date = pd.to_datetime(data['Date-Time'].dt.strftime('%Y/%m/%d'))
         unique_date = pd.unique(date)
         train_date[month] = unique_date
         for day in unique_date:
-            with open('/nfs/home/mingweim/rl_for_optimal_exec'
-                      '/trading_environment/data/HSBA/{}_{}.txt'.format(month, day), 'rb') as df:
+            with open(os.getcwd() + '/trading_environment/data/HSBA/{}_{}.txt'.format(month, day), 'rb') as df:
                 data = pickle.load(df, encoding='iso-8859-1')
             train_dict[month][day] = data
     num_of_training_days = sum(len(v) for _, v in train_date.items())
@@ -39,23 +49,22 @@ def dddqn_train(hyperparameters, ac_dict, ob_dict, train_months, test_months):
     test_date = {}
     for month in test_months:
         test_dict[month] = {}
-        with open('/nfs/home/mingweim/rl_for_optimal_exec'
-                  '/trading_environment/data/HSBA/{}.txt'.format(month), 'rb') as df_test:
+        with open(os.getcwd() + '/trading_environment/data/HSBA/{}.txt'.format(month), 'rb') as df_test:
             data = pickle.load(df_test, encoding='iso-8859-1')
         date = pd.to_datetime(data['Date-Time'].dt.strftime('%Y/%m/%d'))
         unique_date = pd.unique(date)
         test_date[month] = unique_date
         for day in unique_date:
-            with open('/nfs/home/mingweim/rl_for_optimal_exec'
-                      '/trading_environment/data/HSBA/{}_{}.txt'.format(month, day), 'rb') as df:
+            with open(os.getcwd() + '/trading_environment/data/HSBA/{}_{}.txt'.format(month, day), 'rb') as df:
                 data = pickle.load(df, encoding='iso-8859-1')
             test_dict[month][day] = data
     num_of_test_days = sum(len(v) for _, v in test_date.items())
 
-    print('Training Set Num of Days: ', num_of_training_days)
-    print('Test Set Num of Days: ', num_of_test_days)
-    print('============================================================')
-    print('Running Almgren Chriss!')
+    for f in [None, file]:
+        print('Training Set Num of Days: ', num_of_training_days, file=f)
+        print('Test Set Num of Days: ', num_of_test_days, file=f)
+        print('============================================================', file=f)
+        print('Running Almgren Chriss!', file=f)
 
     def almgren_chriss(kappa, ac_dict, step, num_of_steps):
         def closest_action(nj):
@@ -86,6 +95,7 @@ def dddqn_train(hyperparameters, ac_dict, ob_dict, train_months, test_months):
     batch_size = hyperparameters['batch_size']
 
     print('Training Set')
+    print('Training Set', file=file)
     env_train = Simulator(train_dict, train_date, ac_dict, ob_dict)
     rewards = []
     for month in train_date.keys():
@@ -98,10 +108,13 @@ def dddqn_train(hyperparameters, ac_dict, ob_dict, train_months, test_months):
                 total_reward += reward
             rewards.append(total_reward)
             print('{} Total Reward: '.format(day), total_reward)
-    print('AC Average: ', np.average(rewards))
-    print('========================================')
+            print('{} Total Reward: '.format(day), total_reward, file=file)
 
-    print('Test Set')
+    for f in [None, file]:
+        print('AC Average: ', np.average(rewards), file=f)
+        print('========================================', file=f)
+        print('Test Set', file=f)
+
     env_test = Simulator(test_dict, test_date, ac_dict, ob_dict)
     rewards = []
     for month in test_date.keys():
@@ -114,8 +127,11 @@ def dddqn_train(hyperparameters, ac_dict, ob_dict, train_months, test_months):
                 total_reward += reward
             rewards.append(total_reward)
             print('{} Total Reward: '.format(day), total_reward)
-    print('AC Average: ', np.average(rewards))
-    print('========================================')
+            print('{} Total Reward: '.format(day), total_reward, file=file)
+
+    for f in [None, file]:
+        print('AC Average: ', np.average(rewards), file=f)
+        print('========================================', file=f)
 
     def te_performance(month, day):
         state = env_test.reset(month, day)
@@ -136,6 +152,7 @@ def dddqn_train(hyperparameters, ac_dict, ob_dict, train_months, test_months):
         return np.sum(all_reward)
 
     print('Training Network!')
+    print('Training Network!', file=file)
 
     state = env_train.reset(list(train_date.keys())[0], train_date[list(train_date.keys())[0]][0])
     state = np.array(state)
@@ -376,6 +393,13 @@ def dddqn_train(hyperparameters, ac_dict, ob_dict, train_months, test_months):
               f'Min R = {np.min(total_reward_list)}, '
               f'Loss = {np.average(losses)}, '
               f'Explore P = {explore_probability}')
+        print(f'{datetime.datetime.now()} '
+              f'Loop = {loop}, '
+              f'Avg R = {np.mean(total_reward_list)}, '
+              f'Max R = {np.max(total_reward_list)}, '
+              f'Min R = {np.min(total_reward_list)}, '
+              f'Loss = {np.average(losses)}, '
+              f'Explore P = {explore_probability}', file=file)
 
         if loop_indx % loop_update == 0:
             # Update the parameters of our TargetNetwork with DQN_weights
@@ -383,6 +407,8 @@ def dddqn_train(hyperparameters, ac_dict, ob_dict, train_months, test_months):
             sess.run(update_target)
             tau = 0
             print(f"Model updated at time {datetime.datetime.now()}")
+            print(f"Model updated at time {datetime.datetime.now()}", file=file)
+
 
             bar = tqdm(range(num_of_test_days), leave=False)
             bar.set_description("Testing Results")
@@ -395,6 +421,7 @@ def dddqn_train(hyperparameters, ac_dict, ob_dict, train_months, test_months):
             bar.close()
 
             avg_re = np.average(reward_list)
+            print('Test Average Reward: ', avg_re, file=file)
             print('Test Average Reward: ', avg_re)
             test_avg_reward.append(avg_re)
             avg_re_per_loop.append(np.mean(total_reward_list))
@@ -410,15 +437,18 @@ def dddqn_train(hyperparameters, ac_dict, ob_dict, train_months, test_months):
     loss_plot = fig.add_subplot(122)
     loss_plot.plot(loss_per_loop)
     loss_plot.set_title('Loss')
-    plt.savefig('plot_ddqn_loop200_bs2000_mem200000.png')
+    plt.savefig(dirpath + 'plot.png')
     plt.show()
 
-    print('========================================')
+    print('============================================================')
+    print('============================================================', file=file)
     reward_list = []
     for month in test_date.keys():
         for day in test_date[month]:
             check_reward = te_performance(month, day)
+            print('{} Total Reward: '.format(day), check_reward, file=file)
             print('{} Total Reward: '.format(day), check_reward)
             reward_list.append(check_reward)
     print('Test Average Reward: ', np.average(reward_list))
+    print('Test Average Reward: ', np.average(reward_list), file=file)
 
