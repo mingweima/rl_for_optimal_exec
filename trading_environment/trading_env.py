@@ -55,7 +55,9 @@ class Simulator:
         for interval in range(5):
             hour = 0
             while True:
-                print(LOB)
+                print(self.data)
+                i = 0
+
                 LOB = np.array(self.data.loc[self.data['Date-Time'] >=
                                              day + pd.Timedelta('{}hours'.format(11 - hour)) +
                                              pd.Timedelta('{}hours'.format(interval))].head(1))
