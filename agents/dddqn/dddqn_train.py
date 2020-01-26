@@ -459,7 +459,7 @@ def dddqn_train(hyperparameters, ac_dict, ob_dict, train_months, test_months):
 
             avg_re = np.average(reward_list)
             test_f = open(dirpath + '/test.txt', 'a+')
-            print('Loop {}, Test Average Reward: \n'.format(loop_indx), avg_re, file=test_f)
+            print('Loop {}, Test Average Reward: '.format(loop_indx), avg_re, '\n', file=test_f)
             test_f.close()
             print('Test Average Reward: ', avg_re)
             test_avg_reward.append(avg_re)
