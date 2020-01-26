@@ -27,7 +27,10 @@ def dddqn_train(hyperparameters, ac_dict, ob_dict, train_months, test_months):
                                                                                  t)
     if not os.path.exists(dirpath):
         os.mkdir(dirpath)
-    file = open(dirpath + '/recordings.txt', 'w+')
+    train_f = open(dirpath + '/training.txt', 'w+')
+    test_f = open(dirpath + '/test.txt', 'w+')
+    config_f = open(dirpath + 'config.txt', 'w+')
+    almgren_chriss_f = open(dirpath + 'almgren_chriss.txt', 'w+')
 
 
     train_dict = {}
@@ -60,7 +63,7 @@ def dddqn_train(hyperparameters, ac_dict, ob_dict, train_months, test_months):
             test_dict[month][day] = data
     num_of_test_days = sum(len(v) for _, v in test_date.items())
 
-    for f in [None, file]:
+    for f in [None, almgren_chriss_f]:
         print('Training Set Num of Days: ', num_of_training_days, file=f)
         print('Test Set Num of Days: ', num_of_test_days, file=f)
         print('============================================================', file=f)
@@ -95,7 +98,7 @@ def dddqn_train(hyperparameters, ac_dict, ob_dict, train_months, test_months):
     batch_size = hyperparameters['batch_size']
 
     print('Training Set')
-    print('Training Set', file=file)
+    print('Training Set', file=almgren_chriss_f)
     env_train = Simulator(train_dict, train_date, ac_dict, ob_dict)
     rewards = []
     for month in train_date.keys():
@@ -108,9 +111,9 @@ def dddqn_train(hyperparameters, ac_dict, ob_dict, train_months, test_months):
                 total_reward += reward
             rewards.append(total_reward)
             print('{} Total Reward: '.format(day), total_reward)
-            print('{} Total Reward: '.format(day), total_reward, file=file)
+            print('{} Total Reward: '.format(day), total_reward, file=almgren_chriss_f)
 
-    for f in [None, file]:
+    for f in [None, almgren_chriss_f]:
         print('AC Average: ', np.average(rewards), file=f)
         print('========================================', file=f)
         print('Test Set', file=f)
@@ -129,7 +132,7 @@ def dddqn_train(hyperparameters, ac_dict, ob_dict, train_months, test_months):
             print('{} Total Reward: '.format(day), total_reward)
             print('{} Total Reward: '.format(day), total_reward, file=file)
 
-    for f in [None, file]:
+    for f in [None, almgren_chriss_f]:
         print('AC Average: ', np.average(rewards), file=f)
         print('========================================', file=f)
 
@@ -152,7 +155,8 @@ def dddqn_train(hyperparameters, ac_dict, ob_dict, train_months, test_months):
         return np.sum(all_reward)
 
     print('Training Network!')
-    print('Training Network!', file=file)
+    print('Training Network!', file=train_f)
+    print('Training Network!', file=test_f)
 
     state = env_train.reset(list(train_date.keys())[0], train_date[list(train_date.keys())[0]][0])
     state = np.array(state)
@@ -169,6 +173,7 @@ def dddqn_train(hyperparameters, ac_dict, ob_dict, train_months, test_months):
     action_size = len(possible_actions)  # 8 possible actions
     initial_learning_rate = hyperparameters['learning_rate']  # Alpha (aka learning rate)
 
+
     # Exploration parameters for epsilon greedy strategy
     explore_start = 1.0  # exploration probability at start
     explore_stop = hyperparameters['explore_stop']  # minimum exploration probability
@@ -180,6 +185,14 @@ def dddqn_train(hyperparameters, ac_dict, ob_dict, train_months, test_months):
 
     ### MEMORY HYPERPARAMETERS
     memory_size = hyperparameters['memory_size']  # Number of experiences the Memory can keep
+
+    print('Hyperparameters', file=config_f)
+    print('Total Loop: {}'.format(total_loop), file=config_f)
+    print('Batch Size: {}'.format(batch_size), file=config_f)
+    print('Final Exploration Probability: {}'.format(explore_stop), file=config_f)
+    print('Initial Learning Rate: {}'.format(initial_learning_rate), file=config_f)
+    print('Loop Update: {}'.format(loop_update), file=config_f)
+
 
     ### MODIFY THIS TO FALSE IF YOU JUST WANT TO SEE THE TRAINED AGENT
     training = True
@@ -399,7 +412,7 @@ def dddqn_train(hyperparameters, ac_dict, ob_dict, train_months, test_months):
               f'Max R = {np.max(total_reward_list)}, '
               f'Min R = {np.min(total_reward_list)}, '
               f'Loss = {np.average(losses)}, '
-              f'Explore P = {explore_probability}', file=file)
+              f'Explore P = {explore_probability}', file=train_f)
 
         if loop_indx % loop_update == 0:
             # Update the parameters of our TargetNetwork with DQN_weights
@@ -407,7 +420,7 @@ def dddqn_train(hyperparameters, ac_dict, ob_dict, train_months, test_months):
             sess.run(update_target)
             tau = 0
             print(f"Model updated at time {datetime.datetime.now()}")
-            print(f"Model updated at time {datetime.datetime.now()}", file=file)
+            print(f"Model updated at time {datetime.datetime.now()}", file=train_f)
 
 
             bar = tqdm(range(num_of_test_days), leave=False)
@@ -421,7 +434,7 @@ def dddqn_train(hyperparameters, ac_dict, ob_dict, train_months, test_months):
             bar.close()
 
             avg_re = np.average(reward_list)
-            print('Test Average Reward: ', avg_re, file=file)
+            print('Loop {}, Test Average Reward: '.format(loop_indx), avg_re, file=test_f)
             print('Test Average Reward: ', avg_re)
             test_avg_reward.append(avg_re)
             avg_re_per_loop.append(np.mean(total_reward_list))
@@ -441,16 +454,16 @@ def dddqn_train(hyperparameters, ac_dict, ob_dict, train_months, test_months):
     plt.show()
 
     print('============================================================')
-    print('============================================================', file=file)
+    print('============================================================', file=test_f)
     reward_list = []
     for month in test_date.keys():
         for day in test_date[month]:
             check_reward = te_performance(month, day)
-            print('{} Total Reward: '.format(day), check_reward, file=file)
+            print('{} Total Reward: '.format(day), check_reward, file=test_f)
             print('{} Total Reward: '.format(day), check_reward)
             reward_list.append(check_reward)
     print('Test Average Reward: ', np.average(reward_list))
-    print('Test Average Reward: ', np.average(reward_list), file=file)
+    print('Test Average Reward: ', np.average(reward_list), file=test_f)
 
     saver.save(sess, dirpath + '/model.ckpt')
     sess.close()
