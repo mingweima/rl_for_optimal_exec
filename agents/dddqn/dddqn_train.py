@@ -130,7 +130,7 @@ def dddqn_train(hyperparameters, ac_dict, ob_dict, train_months, test_months):
                 total_reward += reward
             rewards.append(total_reward)
             print('{} Total Reward: '.format(day), total_reward)
-            print('{} Total Reward: '.format(day), total_reward, file=file)
+            print('{} Total Reward: '.format(day), total_reward, file=almgren_chriss_f)
 
     for f in [None, almgren_chriss_f]:
         print('AC Average: ', np.average(rewards), file=f)
