@@ -198,11 +198,11 @@ def dddqn_train(hyperparameters, ac_dict, ob_dict, train_months, test_months):
     ### MODIFY THIS TO FALSE IF YOU JUST WANT TO SEE THE TRAINED AGENT
     training = True
 
-    # config = tf.ConfigProto(
-    #     device_count={"CPU": 40},
-    #     inter_op_parallelism_threads=40,
-    #     intra_op_parallelism_threads=40)
-    config = tf.ConfigProto()
+    config = tf.ConfigProto(
+        device_count={"CPU": 20},
+        inter_op_parallelism_threads=20,
+        intra_op_parallelism_threads=20)
+    # config = tf.ConfigProto()
     config.gpu_options.allow_growth = True
     set_session(tf.Session(config=config))
 
