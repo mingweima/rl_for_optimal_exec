@@ -132,7 +132,14 @@ if __name__ == "__main__":
     print("============================================================")
     print("Reinforcement Learning for Optimal Execution")
     print("============================================================")
-    print("Agent: ", args.agent)
+    print("Agent:                           ", args.agent)
+    print("Total Loop:                      ", args.total_loop)
+    print("Batch Size:                      ", args.batch_size)
+    print("Initial Learning Rate:           ", args.learning_rate)
+    print("Final Exploration Probability:   ", args.explore_stop)
+    print("Exploration Decay:               ", args.decay_rate)
+    print("Target Network Update Period:    ", args.loop_update)
+    print("Replay Buffer Size:              ", args.memory_size)
     print("============================================================")
 
     if args.agent == 'dddqn' or args.agent == 'DDDQN':
