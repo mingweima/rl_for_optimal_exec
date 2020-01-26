@@ -13,12 +13,12 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument('--agent', type=str, default='dddqn')
     parser.add_argument('--total_loop', type=int, default=200)
-    parser.add_argument('--batch_size', type=int, default=5000)
+    parser.add_argument('--batch_size', type=int, default=2000)
     parser.add_argument('--learning_rate', type=float, default=0.005)
     parser.add_argument('--explore_stop', type=float, default=0.05)
     parser.add_argument('--decay_rate', type=float, default=0.04)
     parser.add_argument('--loop_update', type=int, default=3)
-    parser.add_argument('--memory_size', type=int, default=1000000)
+    parser.add_argument('--memory_size', type=int, default=200000)
 
     args = parser.parse_args()
     hyperparameters = {

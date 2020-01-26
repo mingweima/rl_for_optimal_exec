@@ -422,7 +422,7 @@ def dddqn_train(hyperparameters, ac_dict, ob_dict, train_months, test_months):
     loss_plot = fig.add_subplot(122)
     loss_plot.plot(loss_per_loop)
     loss_plot.set_title('Loss')
-    plt.savefig('plot_ddqn_loop200_bs5000_mem1000000.png')
+    plt.savefig('plot_ddqn_loop200_bs2000_mem200000.png')
     plt.show()
 
     print('========================================')
