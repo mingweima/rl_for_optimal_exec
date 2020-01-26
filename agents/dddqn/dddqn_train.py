@@ -200,8 +200,8 @@ def dddqn_train(hyperparameters, ac_dict, ob_dict, train_months, test_months):
 
     config = tf.ConfigProto(
         device_count={"CPU": 40},
-        inter_op_parallelism_threads=1,
-        intra_op_parallelism_threads=1)
+        inter_op_parallelism_threads=4,
+        intra_op_parallelism_threads=4)
     config.gpu_options.allow_growth = True
     set_session(tf.Session(config=config))
 
