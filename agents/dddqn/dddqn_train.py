@@ -29,8 +29,8 @@ def dddqn_train(hyperparameters, ac_dict, ob_dict, train_months, test_months):
         os.mkdir(dirpath)
     train_f = open(dirpath + '/training.txt', 'w+')
     test_f = open(dirpath + '/test.txt', 'w+')
-    config_f = open(dirpath + 'config.txt', 'w+')
-    almgren_chriss_f = open(dirpath + 'almgren_chriss.txt', 'w+')
+    config_f = open(dirpath + '/config.txt', 'w+')
+    almgren_chriss_f = open(dirpath + '/almgren_chriss.txt', 'w+')
 
 
     train_dict = {}
