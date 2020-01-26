@@ -1,3 +1,4 @@
+import os
 import datetime
 import pickle
 import random
@@ -16,7 +17,7 @@ from agents.dddqn.dddqnnet import DDDQNNet
 from agents.dddqn.memory import Memory
 
 def dddqn_train(hyperparameters, ac_dict, ob_dict, train_months, test_months):
-
+    print(os.getcwd())
     train_dict = {}
     train_date = {}
     for month in train_months:
