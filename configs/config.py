@@ -142,6 +142,7 @@ if __name__ == "__main__":
     print("Exploration Decay:               ", args.decay_rate)
     print("Target Network Update Period:    ", args.loop_update)
     print("Replay Buffer Size:              ", args.memory_size)
+    print("Network Update Period (episode): ", args.network_update)
     print("============================================================")
 
     if args.agent == 'dddqn' or args.agent == 'DDDQN':

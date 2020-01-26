@@ -313,11 +313,11 @@ def dddqn_train(hyperparameters, ac_dict, ob_dict, train_months, test_months):
         bar = tqdm(range(num_of_training_days), leave=False)
         bar.set_description('Running Loop {}'.format(loop))
 
+        num_of_day = 0
         for month in months:
 
             days = train_date[month]
             np.random.shuffle(days)
-            num_of_day = 0
             for day in days:
                 num_of_day += 1
                 bar.update(1)
