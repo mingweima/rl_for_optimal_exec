@@ -19,6 +19,7 @@ if __name__ == "__main__":
     parser.add_argument('--decay_rate', type=float, default=0.04)
     parser.add_argument('--loop_update', type=int, default=3)
     parser.add_argument('--memory_size', type=int, default=200000)
+    parser.add_argument('--network_update', type=int, default=30)
 
     args = parser.parse_args()
     hyperparameters = {
@@ -28,7 +29,8 @@ if __name__ == "__main__":
         'explore_stop': args.explore_stop,
         'decay_rate': args.decay_rate,
         'loop_update': args.loop_update,
-        'memory_size': args.memory_size
+        'memory_size': args.memory_size,
+        'network_update': args.network_update
     }
 
     train_months = ['2016-01-01_2016-01-31',
