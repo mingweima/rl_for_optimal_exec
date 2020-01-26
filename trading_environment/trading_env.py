@@ -52,15 +52,17 @@ class Simulator:
         mid_price_list = []
         volume_list = []
 
+        # 5 steps of normalization
         for interval in range(5):
             hour = 0
             while True:
-                print(self.data)
-                i = 0
-
-                LOB = np.array(self.data.loc[self.data['Date-Time'] >=
-                                             day + pd.Timedelta('{}hours'.format(11 - hour)) +
-                                             pd.Timedelta('{}hours'.format(interval))].head(1))
+                for ind, row in self.data.iterrows():
+                    if row['Date-Time'] >= day + pd.Timedelta('{}hours'.format(11 - hour)) + \
+                            pd.Timedelta('{}hours'.format(interval)):
+                        np.array(self.data.iloc[ind])
+                # LOB = np.array(self.data.loc[self.data['Date-Time'] >=
+                #                              day + pd.Timedelta('{}hours'.format(11 - hour)) +
+                #                              pd.Timedelta('{}hours'.format(interval))].head(1))
                 try:
                     LOB = LOB[0]
                     break
