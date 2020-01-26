@@ -257,7 +257,6 @@ def dddqn_train(hyperparameters, ac_dict, ob_dict, train_months, test_months):
         #     action = possible_actions[choice]
         if explore_probability > exp_exp_tradeoff:
             Ps = sess.run(DQNetwork.output_softmax, feed_dict={DQNetwork.inputs_: state.reshape((1, *state.shape))})[0]
-
             choice = np.random.choice(action_size, 1, p=Ps)[0]
             action = possible_actions[choice]
         else:
@@ -346,8 +345,7 @@ def dddqn_train(hyperparameters, ac_dict, ob_dict, train_months, test_months):
                                                                  state,
                                                                  possible_actions)
                     except:
-                        print(state)
-                        print(sess.run(DQNetwork.output_softmax, feed_dict={DQNetwork.inputs_: state.reshape((1, *state.shape))})[0])
+                        raise Exception('Model Output Nan Probability!')
                     # Do the action
                     next_state, reward, done, _ = env_train.step(np.argmax(action))
                     next_state = np.array(next_state)
