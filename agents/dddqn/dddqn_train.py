@@ -150,9 +150,9 @@ def dddqn_train(hyperparameters, ac_dict, ob_dict, train_months, test_months):
         print('AC Average: ', np.average(rewards), file=f)
         print('========================================', file=f)
 
-    test_list_f = open(dirpath + 'test_list_f.txt', 'wb')
-    pickle.dump(reward_list, test_list_f)
-    test_list_f.close()
+    AC_list_f = open(dirpath + 'AC_list_f.txt', 'wb')
+    pickle.dump(rewards, AC_list_f)
+    AC_list_f.close()
 
     def te_performance(month, day):
         state = env_test.reset(month, day)
