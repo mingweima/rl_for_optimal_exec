@@ -150,6 +150,10 @@ def dddqn_train(hyperparameters, ac_dict, ob_dict, train_months, test_months):
         print('AC Average: ', np.average(rewards), file=f)
         print('========================================', file=f)
 
+    test_list_f = open(dirpath + 'test_list_f.txt', 'wb')
+    pickle.dump(reward_list, test_list_f)
+    test_list_f.close()
+
     def te_performance(month, day):
         state = env_test.reset(month, day)
         state = np.array(state)
@@ -509,9 +513,15 @@ def dddqn_train(hyperparameters, ac_dict, ob_dict, train_months, test_months):
             print('{} Total Reward: '.format(day), check_reward, file=test_f)
             print('{} Total Reward: '.format(day), check_reward)
             reward_list.append(check_reward)
+
+    test_list_f = open(dirpath + 'test_list_f.txt', 'wb')
+    pickle.dump(reward_list, test_list_f)
+    test_list_f.close()
+
     print('Test Average Reward: ', np.average(reward_list))
     print('Test Average Reward: ', np.average(reward_list), file=test_f)
 
     saver.save(sess, dirpath + '/model.ckpt')
     sess.close()
     test_f.close()
+
