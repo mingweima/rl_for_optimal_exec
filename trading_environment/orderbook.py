@@ -22,7 +22,7 @@ class OrderBook:
         for ask_order in initial_orders[1]:
             self.handleLimitOrder(ask_order)
         base_price = 0.99 * initial_orders[0][-1]['PRICE']
-        self.handleLimitOrder({'TYPE': 0, 'ORDER_ID': -1, 'PRICE': base_price, 'SIZE': 200000, 'BUY_SELL_FLAG': 'BUY'})
+        self.handleLimitOrder({'TYPE': 0, 'ORDER_ID': -1, 'PRICE': base_price, 'SIZE': 800000, 'BUY_SELL_FLAG': 'BUY'})
 
     def update(self, historical_orders):
         self.bids = []
@@ -33,7 +33,7 @@ class OrderBook:
         for ask_order in historical_orders[1]:
             self.handleLimitOrder(ask_order)
         base_price = 0.99 * historical_orders[0][-1]['PRICE']
-        self.handleLimitOrder({'TYPE': 0, 'ORDER_ID': -1, 'PRICE': base_price, 'SIZE': 200000, 'BUY_SELL_FLAG': 'BUY'})
+        self.handleLimitOrder({'TYPE': 0, 'ORDER_ID': -1, 'PRICE': base_price, 'SIZE': 800000, 'BUY_SELL_FLAG': 'BUY'})
 
     def handleLimitOrder(self, input_order):
         """
