@@ -203,6 +203,7 @@ def dddqn_train(hyperparameters, ac_dict, ob_dict, train_months, test_months):
 
     config_f = open(dirpath + '/config.txt', 'w+')
     print('Hyperparameters', file=config_f)
+    print('Total Shares to Liquidate: {}'.format(initial_shares), file=config_f)
     print('Total Loop: {}'.format(total_loop), file=config_f)
     print('Batch Size: {}'.format(batch_size), file=config_f)
     print('Final Exploration Probability: {}'.format(explore_stop), file=config_f)
