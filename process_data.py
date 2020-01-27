@@ -65,7 +65,7 @@ for month in months:
     bar.set_description('Rounding to Time Integer -- {}'.format(month))
 
     data['Date-Time'] = pd.to_datetime(data['Date-Time'],
-                                       format='%Y-%m-%dT%H:%M:%S.%fZ').dt.round('{}s'.format(600))
+                                       format='%Y-%m-%dT%H:%M:%S.%fZ').dt.round('{}s'.format(300))
 
     bar.update(1)
     bar.set_description('Grouping By -- {}'.format(month))
@@ -85,7 +85,7 @@ for month in months:
     data['Minute'] = data['Date-Time'].dt.minute
     data = data.drop(
         data.loc[(data['Hour'] < 8) | (data['Hour'] > 16) | ((data['Hour'] == 16) & (data['Minute'] > 0))].index)
-    data = data.drop(['Hour', 'Minute', 'Day'], axis=1)
+    # data = data.drop(['Hour', 'Minute', 'Day'], axis=1)
 
     bar.update(1)
     bar.set_description('Storing Data -- {}'.format(month))
@@ -97,10 +97,20 @@ for month in months:
     date = pd.to_datetime(data['Date-Time'].dt.strftime('%Y/%m/%d'))
     unique_date = pd.unique(date)
     for day in unique_date:
-        df_train = open('/nfs/home/mingweim/rl_for_optimal_exec/trading_environment'
-                        '/data/{}/{}_{}.txt'.format(ticker, month, day), 'wb')
-        pickle.dump(data, df_train)
-        df_train.close()
+        for session in ['morning', 'afternoon']:
+            df_train = open('/nfs/home/mingweim/rl_for_optimal_exec/trading_environment'
+                            '/data/{}/{}_{}_{}.txt'.format(ticker, month, day, session), 'wb')
+            if session == 'morning':
+                session_data = data.loc[(data['Date-Time'] >= day + pd.Timedelta('{}hours'.format(8)))
+                                        & (data['Date-Time'] <= day + pd.Timedelta('{}hours'.format(12)))]
+            else:
+                session_data = data.loc[(data['Date-Time'] >= day + pd.Timedelta('{}hours'.format(12)))
+                                        & (data['Date-Time'] <= day + pd.Timedelta('{}hours'.format(16)))]
+            print(session_data)
+            pickle.dump(session_data, df_train)
+            df_train.close()
+
+
 
     bar.update(1)
     bar.set_description('Finished Processing Data -- {}'.format(month))
