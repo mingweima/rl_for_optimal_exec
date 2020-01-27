@@ -234,11 +234,8 @@ class OrderBook:
 
     def getBidsQuantity(self, level):
         qty = 0
-        try:
-            for o in self.bids[level - 1]:
-                qty += o['SIZE']
-        except:
-            qty = 0
+        for o in self.bids[level - 1]:
+            qty += o['SIZE']
         return qty
 
     def getTotalBidsQuantity(self):
@@ -287,9 +284,8 @@ class OrderBook:
         """
         Returns the current bid-ask spread.
         """
-
         try:
             return self.asks[level - 1][0]['PRICE'] - self.bids[level - 1][0]['PRICE']
         except:
-            print(self.asks)
-            print(self.bids)
+            raise Exception("For this specific moment, the LOB does not have enough levels! \n"
+                            "Please reset the observation space to involve only lower levels of LOB.")
