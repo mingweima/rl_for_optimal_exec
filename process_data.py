@@ -101,14 +101,20 @@ for month in months:
             df_train = open('/nfs/home/mingweim/rl_for_optimal_exec/trading_environment'
                             '/data/{}/{}_{}_{}.txt'.format(ticker, month, day, session), 'wb')
             if session == 'morning':
-                session_data = data.loc[(data['Date-Time'] >= day + pd.Timedelta('{}hours'.format(8)))
-                                        & (data['Date-Time'] <= day + pd.Timedelta('{}hours'.format(12)))]
+                session_data = data.loc[data['Date-Time'] >= day + pd.Timedelta('{}hours'.format(8))]
+                session_data.reset_index(drop=True, inplace=True)
+                session_data = session_data.iloc[:49]
+                if session_data.iloc[-1:]['Date-Time'] != day + pd.Timedelta('12hours'):
+                    print('Day: ', day)
+                    print(session_data)
             else:
-                session_data = data.loc[(data['Date-Time'] >= day + pd.Timedelta('{}hours'.format(12)))
-                                        & (data['Date-Time'] <= day + pd.Timedelta('{}hours'.format(16)))]
-            if len(session_data) != 49:
-                print('Day: ', day)
-                print(session_data)
+                session_data = data.loc[data['Date-Time'] >= day + pd.Timedelta('{}hours'.format(12))]
+                session_data.reset_index(drop=True, inplace=True)
+                session_data = session_data.iloc[:49]
+                if session_data.iloc[-1:]['Date-Time'] != day + pd.Timedelta('16hours'):
+                    print('Day: ', day)
+                    print(session_data)
+
             pickle.dump(session_data, df_train)
             df_train.close()
 
