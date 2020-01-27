@@ -106,11 +106,11 @@ for month in months:
             else:
                 session_data = data.loc[(data['Date-Time'] >= day + pd.Timedelta('{}hours'.format(12)))
                                         & (data['Date-Time'] <= day + pd.Timedelta('{}hours'.format(16)))]
-            print(session_data)
+            if len(session_data) != 49:
+                print('Day: ', day)
+                print(session_data)
             pickle.dump(session_data, df_train)
             df_train.close()
-
-
 
     bar.update(1)
     bar.set_description('Finished Processing Data -- {}'.format(month))
