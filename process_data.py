@@ -85,7 +85,7 @@ for month in months:
     data['Minute'] = data['Date-Time'].dt.minute
     data = data.drop(
         data.loc[(data['Hour'] < 8) | (data['Hour'] > 16) | ((data['Hour'] == 16) & (data['Minute'] > 0))].index)
-    # data = data.drop(['Hour', 'Minute', 'Day'], axis=1)
+    data = data.drop(['Minute', 'Day'], axis=1)
 
     bar.update(1)
     bar.set_description('Storing Data -- {}'.format(month))
@@ -104,14 +104,16 @@ for month in months:
                 session_data = data.loc[data['Date-Time'] >= day + pd.Timedelta('{}hours'.format(8))]
                 session_data.reset_index(drop=True, inplace=True)
                 session_data = session_data.iloc[:49]
-                if session_data.iloc[-1:]['Date-Time'] != day + pd.Timedelta('12hours'):
+                ext = session_data.iloc[-1:]
+                if ext['Hour'][0] != 12:
                     print('Day: ', day)
                     print(session_data)
             else:
                 session_data = data.loc[data['Date-Time'] >= day + pd.Timedelta('{}hours'.format(12))]
                 session_data.reset_index(drop=True, inplace=True)
                 session_data = session_data.iloc[:49]
-                if session_data.iloc[-1:]['Date-Time'] != day + pd.Timedelta('16hours'):
+                ext = session_data.iloc[-1:]
+                if ext['Hour'][0] != 16:
                     print('Day: ', day)
                     print(session_data)
 
