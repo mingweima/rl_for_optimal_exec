@@ -21,7 +21,7 @@ if __name__ == "__main__":
     parser.add_argument('--memory_size', type=int, default=200000)
     parser.add_argument('--network_update', type=int, default=30)
     parser.add_argument('--ticker', type=str, default='HSBA')
-    parser.add_argument('--lstm_lookback', type=int, default=18)
+    parser.add_argument('--lstm_lookback', type=int, default=15)
     parser.add_argument('--liquidate_volume', type=float, default=0.01)
 
     args = parser.parse_args()
