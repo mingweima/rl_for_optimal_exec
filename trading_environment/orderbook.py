@@ -224,14 +224,21 @@ class OrderBook:
 
     def getAsksQuantity(self, level):
         qty = 0
-        for o in self.asks[level - 1]:
-            qty += o['SIZE']
+
+        try:
+            for o in self.asks[level - 1]:
+                qty += o['SIZE']
+        except:
+            qty = 0
         return qty
 
     def getBidsQuantity(self, level):
         qty = 0
-        for o in self.bids[level - 1]:
-            qty += o['SIZE']
+        try:
+            for o in self.bids[level - 1]:
+                qty += o['SIZE']
+        except:
+            qty = 0
         return qty
 
     def getTotalBidsQuantity(self):
@@ -280,4 +287,9 @@ class OrderBook:
         """
         Returns the current bid-ask spread.
         """
-        return self.asks[level - 1][0]['PRICE'] - self.bids[level - 1][0]['PRICE']
+
+        try:
+            return self.asks[level - 1][0]['PRICE'] - self.bids[level - 1][0]['PRICE']
+        except:
+            print(self.asks)
+            print(self.bids)
