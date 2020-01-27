@@ -109,11 +109,11 @@ for month in months:
                     print('Day: ', day)
                     print(session_data)
             else:
-                session_data = data.loc[data['Date-Time'] >= day + pd.Timedelta('{}hours'.format(12))]
+                session_data = data.loc[data['Date-Time'] >= day + pd.Timedelta('{}hours'.format(11))]
                 session_data.reset_index(drop=True, inplace=True)
                 session_data = session_data.iloc[:49]
                 ext = session_data.loc[48]
-                if ext['Hour'] != 16:
+                if ext['Hour'] != 15:
                     print('Day: ', day)
                     print(session_data)
 
