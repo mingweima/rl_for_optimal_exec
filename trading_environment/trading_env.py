@@ -232,7 +232,11 @@ class Simulator:
             obs.append(self.inventory / self.initial_inventory)
         for i in np.arange(1, 11):
             if 'Bid Ask Spread {}'.format(i) in self.ob_dict.keys():
-                obs.append(self.OrderBook.getBidAskSpread(i))
+                try:
+                    obs.append(self.OrderBook.getBidAskSpread(i))
+                except:
+                    print(self.current_time)
+                    print(i)
         for i in np.arange(1, 11):
             if 'Bid Price {}'.format(i) in self.ob_dict.keys():
                 obs.append((self.OrderBook.getBidsPrice(i) - self.price_mean) / self.price_std)

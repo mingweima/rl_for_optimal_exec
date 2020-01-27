@@ -280,5 +280,4 @@ class OrderBook:
         """
         Returns the current bid-ask spread.
         """
-
         return self.asks[level - 1][0]['PRICE'] - self.bids[level - 1][0]['PRICE']
