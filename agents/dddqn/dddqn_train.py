@@ -154,6 +154,25 @@ def dddqn_train(hyperparameters, ac_dict, ob_dict, train_months, test_months):
     pickle.dump(rewards, AC_list_f)
     AC_list_f.close()
 
+    for f in [None, almgren_chriss_f]:
+        print('============================================================', file=f)
+        print('Running Hothead!', file=f)
+    # Hothead
+    rewards = []
+    for month in test_date.keys():
+        for day in test_date[month]:
+            env_test.reset(month, day)
+            total_reward = 0
+            state, reward, done, _ = env_test.step(-1)
+            total_reward += reward
+            rewards.append(total_reward)
+            print('{} Total Reward: '.format(day), total_reward)
+            print('{} Total Reward: '.format(day), total_reward, file=almgren_chriss_f)
+
+    for f in [None, almgren_chriss_f]:
+        print('Hothead Average: ', np.average(rewards), file=f)
+        print('========================================', file=f)
+
     def te_performance(month, day):
         state = env_test.reset(month, day)
         state = np.array(state)

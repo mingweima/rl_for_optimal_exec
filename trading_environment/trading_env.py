@@ -174,6 +174,9 @@ class Simulator:
         # Place the agent's order to the limit order book
         if self.hothead == 'True':
             order_size = - self.inventory
+        elif action == -1:
+            order_size = - self.inventory
+            print('wkfds')
         elif self.current_time + pd.Timedelta(seconds=self.trading_interval) > self.initial_time + self.time_horizon:
             order_size = -self.inventory
         else:
