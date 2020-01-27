@@ -150,7 +150,7 @@ def dddqn_train(hyperparameters, ac_dict, ob_dict, train_months, test_months):
         print('AC Average: ', np.average(rewards), file=f)
         print('========================================', file=f)
 
-    AC_list_f = open(dirpath + 'AC_list_f.txt', 'wb')
+    AC_list_f = open(dirpath + '/AC_list_f.txt', 'wb')
     pickle.dump(rewards, AC_list_f)
     AC_list_f.close()
 
@@ -548,7 +548,7 @@ def dddqn_train(hyperparameters, ac_dict, ob_dict, train_months, test_months):
             print('{} Total Reward: '.format(day), check_reward)
             reward_list.append(check_reward)
 
-    test_list_f = open(dirpath + 'test_list_f.txt', 'wb')
+    test_list_f = open(dirpath + '/test_list_f.txt', 'wb')
     pickle.dump(reward_list, test_list_f)
     test_list_f.close()
 
