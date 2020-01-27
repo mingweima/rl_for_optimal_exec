@@ -35,7 +35,7 @@ if __name__ == "__main__":
         'loop_update': args.loop_update,
         'memory_size': args.memory_size,
         'network_update': args.network_update,
-        'lstm_lookback': args.lookback,
+        'lstm_lookback': args.lstm_lookback,
         'liquidate_volume': args.liquidate_volume
     }
 
