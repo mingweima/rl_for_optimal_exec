@@ -147,6 +147,8 @@ if __name__ == "__main__":
     print("Replay Buffer Size:              ", args.memory_size)
     print("Network Update Period (episode): ", args.network_update)
     print("============================================================")
+    print("Observation Space:               ", ob_dict)
+    print("============================================================")
 
     if args.agent == 'dddqn' or args.agent == 'DDDQN':
         dddqn_train(hyperparameters, ac_dict, ob_dict, train_months, test_months)

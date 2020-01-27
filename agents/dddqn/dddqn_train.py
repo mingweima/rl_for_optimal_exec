@@ -207,6 +207,7 @@ def dddqn_train(hyperparameters, ac_dict, ob_dict, train_months, test_months):
     print('Initial Learning Rate: {}'.format(initial_learning_rate), file=config_f)
     print('Update Target Network Period (loop): {}'.format(loop_update), file=config_f)
     print('Update Network Period (episode): {}'.format(network_update), file=config_f)
+    print('Observation Space: ', ob_dict, file=config_f)
     config_f.close()
 
     ### MODIFY THIS TO FALSE IF YOU JUST WANT TO SEE THE TRAINED AGENT
