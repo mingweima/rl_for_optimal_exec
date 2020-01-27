@@ -21,6 +21,7 @@ if __name__ == "__main__":
     parser.add_argument('--memory_size', type=int, default=200000)
     parser.add_argument('--network_update', type=int, default=30)
     parser.add_argument('--ticker', type=str, default='HSBA')
+    parser.add_argument('--lstm_lookback', type=int, default=18)
 
     args = parser.parse_args()
     hyperparameters = {
@@ -32,7 +33,8 @@ if __name__ == "__main__":
         'decay_rate': args.decay_rate,
         'loop_update': args.loop_update,
         'memory_size': args.memory_size,
-        'network_update': args.network_update
+        'network_update': args.network_update,
+        'lstm_lookback': args.lookback
     }
 
     train_months = ['2016-01-01_2016-01-31',

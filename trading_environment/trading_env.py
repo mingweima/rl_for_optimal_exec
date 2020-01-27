@@ -13,7 +13,7 @@ class Simulator:
     orders and reacting to the actions of the agent.
     """
 
-    def __init__(self, data_dict, date_dict, ac_dict, ob_dict, initial_shares):
+    def __init__(self, data_dict, date_dict, ac_dict, ob_dict, initial_shares, look_back):
         self.data_dict = data_dict
         self.date_dict = date_dict
 
@@ -22,7 +22,7 @@ class Simulator:
         self.time_horizon = pd.Timedelta(seconds=EPISODE_LENGTH_IN_SECONDS)
         self.trading_steps = int(self.time_horizon.seconds / self.trading_interval)
         self.initial_inventory = initial_shares
-        self.look_back = 12
+        self.look_back = look_back
 
         # Initialize the action space
         self.ac_dict = ac_dict

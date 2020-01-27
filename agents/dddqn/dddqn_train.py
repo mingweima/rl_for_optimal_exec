@@ -21,6 +21,7 @@ from agents.dddqn.memory import Memory
 def dddqn_train(hyperparameters, ac_dict, ob_dict, train_months, test_months):
 
     ticker = hyperparameters['ticker']
+    look_back = hyperparameters['lstm_lookback']
 
     if ticker == 'BARC':
         initial_shares = 200000
@@ -111,7 +112,7 @@ def dddqn_train(hyperparameters, ac_dict, ob_dict, train_months, test_months):
 
     print('Training Set')
     print('Training Set', file=almgren_chriss_f)
-    env_train = Simulator(train_dict, train_date, ac_dict, ob_dict, initial_shares)
+    env_train = Simulator(train_dict, train_date, ac_dict, ob_dict, initial_shares, look_back)
     rewards = []
     for month in train_date.keys():
         for day in train_date[month]:
@@ -130,7 +131,7 @@ def dddqn_train(hyperparameters, ac_dict, ob_dict, train_months, test_months):
         print('========================================', file=f)
         print('Test Set', file=f)
 
-    env_test = Simulator(test_dict, test_date, ac_dict, ob_dict, initial_shares)
+    env_test = Simulator(test_dict, test_date, ac_dict, ob_dict, initial_shares, look_back)
     rewards = []
     for month in test_date.keys():
         for day in test_date[month]:
