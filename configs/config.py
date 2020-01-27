@@ -21,7 +21,7 @@ if __name__ == "__main__":
     parser.add_argument('--memory_size', type=int, default=300000)
     parser.add_argument('--network_update', type=int, default=30)
     parser.add_argument('--ticker', type=str, default='HSBA')
-    parser.add_argument('--lstm_lookback', type=int, default=15)
+    parser.add_argument('--lstm_lookback', type=int, default=12)
     parser.add_argument('--liquidate_volume', type=float, default=0.05)
 
     args = parser.parse_args()
@@ -151,6 +151,7 @@ if __name__ == "__main__":
     print("Target Network Update Period:    ", args.loop_update)
     print("Replay Buffer Size:              ", args.memory_size)
     print("Network Update Period (episode): ", args.network_update)
+    print("LSTM Lookback:                   ", args.lstm_lookback)
     print("============================================================")
     print("Observation Space:               ", ob_dict)
     print("============================================================")

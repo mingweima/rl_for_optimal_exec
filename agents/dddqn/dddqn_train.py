@@ -129,7 +129,7 @@ def dddqn_train(hyperparameters, ac_dict, ob_dict, train_months, test_months):
 
     for f in [None, almgren_chriss_f]:
         print('AC Average: ', np.average(rewards), file=f)
-        print('========================================', file=f)
+        print('============================================================', file=f)
         print('Test Set', file=f)
 
     env_test = Simulator(test_dict, test_date, ac_dict, ob_dict, initial_shares, look_back)
@@ -148,7 +148,7 @@ def dddqn_train(hyperparameters, ac_dict, ob_dict, train_months, test_months):
 
     for f in [None, almgren_chriss_f]:
         print('AC Average: ', np.average(rewards), file=f)
-        print('========================================', file=f)
+        print('============================================================', file=f)
 
     AC_list_f = open(dirpath + '/AC_list_f.txt', 'wb')
     pickle.dump(rewards, AC_list_f)
@@ -171,7 +171,7 @@ def dddqn_train(hyperparameters, ac_dict, ob_dict, train_months, test_months):
 
     for f in [None, almgren_chriss_f]:
         print('Hothead Average: ', np.average(rewards), file=f)
-        print('========================================', file=f)
+        print('============================================================', file=f)
 
     def te_performance(month, day):
         state = env_test.reset(month, day)
