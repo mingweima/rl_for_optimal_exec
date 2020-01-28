@@ -34,7 +34,7 @@ class Simulator:
         # Initialize the reward function
         self.reward_function = 'implementation_shortfall'
 
-    def reset(self, month, day):
+    def reset(self, month, day, session):
         """
         Reset the trading_environment before the start of the experiment or after finishing one trial.
 
@@ -45,29 +45,15 @@ class Simulator:
         # Initialize the OrderBook
         # initial_date = random.choice(self.unique_date[-10:])
         # initial_date = self.unique_date[num_days]
-        self.data = self.data_dict[month][day]
+        self.data = self.data_dict[month][day][session]
         initial_date = day
 
         mid_price_list = []
         volume_list = []
 
-        # 5 steps of normalization
-        for interval in range(5):
-            hour = 0
-            while True:
-                LOB = np.array(self.data.loc[self.data['Date-Time'] >=
-                                             day + pd.Timedelta('{}hours'.format(11 - hour)) +
-                                             pd.Timedelta('{}hours'.format(interval))].head(1))
-                try:
-                    LOB = LOB[0]
-                    break
-                except:
-                    # print('Cannot find LOB for ', day + pd.Timedelta('{}hours'.format(11 - hour))
-                    #       + pd.Timedelta('{}hours'.format(interval)))
-                    # print('Use instead LOB for ', day + pd.Timedelta('{}hours'.format(11 - hour - 1))
-                    #       + pd.Timedelta('{}hours'.format(interval)))
-                    hour += 1
-
+        # 24 steps of normalization (2 hours)
+        for interval in range(24):
+            LOB = np.array(self.data.loc[interval])
             mid_price = (LOB[1] + LOB[3]) / 2
             if mid_price:
                 mid_price_list.append(mid_price)
