@@ -20,6 +20,7 @@ months = ['2016-01-01_2016-01-31',
                     '2016-09-01_2016-09-30',
                     '2016-10-01_2016-10-31',
                     '2016-11-01_2016-11-30',
+                    '2016-12-01_2016-12-31',
                     '2017-01-01_2017-01-31',
                     '2017-02-01_2017-02-28',
                     '2017-03-01_2017-03-31',
@@ -31,6 +32,7 @@ months = ['2016-01-01_2016-01-31',
                     '2017-09-01_2017-09-30',
                     '2017-10-01_2017-10-31',
                     '2017-11-01_2017-11-30',
+                    '2017-12-01_2017-12-31',
                     '2018-01-01_2018-01-31',
                     '2018-02-01_2018-02-28',
                     '2018-03-01_2018-03-31',
@@ -41,7 +43,8 @@ months = ['2016-01-01_2016-01-31',
                     '2018-08-01_2018-08-31',
                     '2018-09-01_2018-09-30',
                     '2018-10-01_2018-10-31',
-                    '2018-11-01_2018-11-30']
+                    '2018-11-01_2018-11-30',
+                    '2018-12-01_2018-12-31']
 
 for month in months:
     bar = tqdm(range(7))
@@ -74,7 +77,11 @@ for month in months:
 
     data['Day'] = data['Date-Time'].dt.dayofweek
     data = data.drop(data.loc[(data['Day'] == 5) | (data['Day'] == 6)].index)
-
+    data = data.drop(data.loc[(data['Date-Time'] >= pd.to_datetime('2016/7/14'))
+                              & (data['Date-Time'] < pd.to_datetime('2016/7/15'))].index)
+    for year in [2016, 2017, 2018]:
+        data.drop(data.loc[(data['Date-Time'] >= pd.to_datetime('{}/12/23'.format(year)))
+                           & (data['Date-Time'] < pd.to_datetime('{}/12/28'.format(year)))].index)
 
     bar.update(1)
     bar.set_description('Deleting Auction Periods -- {}'.format(month))

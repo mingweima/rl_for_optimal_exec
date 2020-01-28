@@ -57,9 +57,12 @@ def dddqn_train(hyperparameters, ac_dict, ob_dict, train_months, test_months):
         unique_date = pd.unique(date)
         train_date[month] = unique_date
         for day in unique_date:
-            with open(os.getcwd() + '/trading_environment/data/{}/{}_{}.txt'.format(ticker, month, day), 'rb') as df:
-                data = pickle.load(df, encoding='iso-8859-1')
-            train_dict[month][day] = data
+            train_dict[month][day] = {}
+            for session in ['morning', 'afternoon']:
+                with open(os.getcwd() +
+                          '/trading_environment/data/{}/{}_{}_{}.txt'.format(ticker, month, day, session), 'rb') as df:
+                    data = pickle.load(df, encoding='iso-8859-1')
+                    train_dict[month][day][session] = data
     num_of_training_days = sum(len(v) for _, v in train_date.items())
 
     test_dict = {}
@@ -72,9 +75,12 @@ def dddqn_train(hyperparameters, ac_dict, ob_dict, train_months, test_months):
         unique_date = pd.unique(date)
         test_date[month] = unique_date
         for day in unique_date:
-            with open(os.getcwd() + '/trading_environment/data/{}/{}_{}.txt'.format(ticker, month, day), 'rb') as df:
-                data = pickle.load(df, encoding='iso-8859-1')
-            test_dict[month][day] = data
+            test_dict[month][day] = {}
+            for session in ['morning', 'afternoon']:
+                with open(os.getcwd() +
+                          '/trading_environment/data/{}/{}_{}_{}.txt'.format(ticker, month, day, session), 'rb') as df:
+                    data = pickle.load(df, encoding='iso-8859-1')
+                    test_dict[month][day][session] = data
     num_of_test_days = sum(len(v) for _, v in test_date.items())
 
     for f in [None, almgren_chriss_f]:
@@ -117,15 +123,16 @@ def dddqn_train(hyperparameters, ac_dict, ob_dict, train_months, test_months):
     rewards = []
     for month in train_date.keys():
         for day in train_date[month]:
-            env_train.reset(month, day)
-            total_reward = 0
-            for step in np.arange(1, 31):
-                action = almgren_chriss(0, ac_dict, step, 30)
-                state, reward, done, _ = env_train.step(4)
-                total_reward += reward
-            rewards.append(total_reward)
-            print('{} Total Reward: '.format(day), total_reward)
-            print('{} Total Reward: '.format(day), total_reward, file=almgren_chriss_f)
+            for session in ['morning', 'afternoon']:
+                env_train.reset(month, day, session)
+                total_reward = 0
+                for step in np.arange(1, 25):
+                    action = almgren_chriss(0, ac_dict, step, 24)
+                    state, reward, done, _ = env_train.step(4)
+                    total_reward += reward
+                rewards.append(total_reward)
+                print('{}, {} Total Reward: '.format(day, session), total_reward)
+                print('{}, {} Total Reward: '.format(day, session), total_reward, file=almgren_chriss_f)
 
     for f in [None, almgren_chriss_f]:
         print('AC Average: ', np.average(rewards), file=f)
@@ -136,15 +143,16 @@ def dddqn_train(hyperparameters, ac_dict, ob_dict, train_months, test_months):
     rewards = []
     for month in test_date.keys():
         for day in test_date[month]:
-            env_test.reset(month, day)
-            total_reward = 0
-            for step in np.arange(1, 31):
-                action = almgren_chriss(0, ac_dict, step, 30)
-                state, reward, done, _ = env_test.step(4)
-                total_reward += reward
-            rewards.append(total_reward)
-            print('{} Total Reward: '.format(day), total_reward)
-            print('{} Total Reward: '.format(day), total_reward, file=almgren_chriss_f)
+            for session in ['morning', 'afternoon']:
+                env_test.reset(month, day, session)
+                total_reward = 0
+                for step in np.arange(1, 25):
+                    action = almgren_chriss(0, ac_dict, step, 24)
+                    state, reward, done, _ = env_test.step(4)
+                    total_reward += reward
+                rewards.append(total_reward)
+                print('{}, {} Total Reward: '.format(day, session), total_reward)
+                print('{}, {} Total Reward: '.format(day, session), total_reward, file=almgren_chriss_f)
 
     for f in [None, almgren_chriss_f]:
         print('AC Average: ', np.average(rewards), file=f)
@@ -161,20 +169,21 @@ def dddqn_train(hyperparameters, ac_dict, ob_dict, train_months, test_months):
     rewards = []
     for month in test_date.keys():
         for day in test_date[month]:
-            env_test.reset(month, day)
-            total_reward = 0
-            state, reward, done, _ = env_test.step(-1)
-            total_reward += reward
-            rewards.append(total_reward)
-            print('{} Total Reward: '.format(day), total_reward)
-            print('{} Total Reward: '.format(day), total_reward, file=almgren_chriss_f)
+            for session in ['morning', 'afternoon']:
+                env_test.reset(month, day, session)
+                total_reward = 0
+                state, reward, done, _ = env_test.step(-1)
+                total_reward += reward
+                rewards.append(total_reward)
+                print('{}, {} Total Reward: '.format(day, session), total_reward)
+                print('{}, {} Total Reward: '.format(day, session), total_reward, file=almgren_chriss_f)
 
     for f in [None, almgren_chriss_f]:
         print('Hothead Average: ', np.average(rewards), file=f)
         print('============================================================', file=f)
 
-    def te_performance(month, day):
-        state = env_test.reset(month, day)
+    def te_performance(month, day, session):
+        state = env_test.reset(month, day, session)
         state = np.array(state)
         all_reward = []
         while True:
@@ -195,7 +204,7 @@ def dddqn_train(hyperparameters, ac_dict, ob_dict, train_months, test_months):
 
     print('Training Network!')
 
-    state = env_train.reset(list(train_date.keys())[0], train_date[list(train_date.keys())[0]][0])
+    state = env_train.reset(list(train_date.keys())[0], train_date[list(train_date.keys())[0]][0], 'morning')
     state = np.array(state)
     # state = state.reshape(state.shape + (1,))
 
@@ -258,21 +267,22 @@ def dddqn_train(hyperparameters, ac_dict, ob_dict, train_months, test_months):
 
     memory = Memory(max_size=memory_size)
 
-    bar = tqdm(range(num_of_training_days), leave=False)
+    bar = tqdm(range(num_of_training_days * 2), leave=False)
     bar.set_description('Pretraining')
 
     for month in train_date.keys():
         for day in train_date[month]:
-            state = np.array(env_train.reset(month, day))
-            while True:
-                choice = random.randint(1, len(possible_actions)) - 1
-                action = possible_actions[choice]
-                next_state, reward, done, _ = env_train.step(np.argmax(action))
-                memory.add((state, action, reward, next_state, done))
-                state = next_state
-                if done:
-                    bar.update(1)
-                    break
+            for session in ['morning', 'afternoon']:
+                state = np.array(env_train.reset(month, day, session))
+                while True:
+                    choice = random.randint(1, len(possible_actions)) - 1
+                    action = possible_actions[choice]
+                    next_state, reward, done, _ = env_train.step(np.argmax(action))
+                    memory.add((state, action, reward, next_state, done))
+                    state = next_state
+                    if done:
+                        bar.update(1)
+                        break
     bar.close()
 
     # writer = tf.summary.FileWriter('./tensorboard', DQNetwork.get_graph())
@@ -371,37 +381,38 @@ def dddqn_train(hyperparameters, ac_dict, ob_dict, train_months, test_months):
             for day in days:
                 num_of_day += 1
                 bar.update(1)
-                step = 0
-                episode_rewards = []
-                state = env_train.reset(month, day)
-                state = np.array(state)
-                while step < max_steps:
-                    step += 1
-                    # With ϵ select a random action atat, otherwise select a = argmaxQ(st,a)
-                    try:
-                        action, explore_probability = predict_action(explore_start,
-                                                                 explore_stop,
-                                                                 decay_rate,
-                                                                 decay_step,
-                                                                 state,
-                                                                 possible_actions)
-                    except:
-                        raise Exception('Model Output Nan Probability!')
-                    # Do the action
-                    next_state, reward, done, _ = env_train.step(np.argmax(action))
-                    next_state = np.array(next_state)
-                    episode_rewards.append(reward)
-                    # If the game is finished
-                    if done:
-                        # Set step = max_steps to end the episode
-                        step = max_steps
-                        memory.add((state, action, reward, next_state, done))
-                        total_reward = np.sum(episode_rewards)
-                        total_reward_list.append(total_reward)
 
-                    else:
-                        memory.add((state, action, reward, next_state, done))
-                        state = next_state
+                for session in ['morning', 'afternoon']:
+                    step = 0
+                    episode_rewards = []
+                    state = env_train.reset(month, day, session)
+                    state = np.array(state)
+                    while step < max_steps:
+                        step += 1
+                        # With ϵ select a random action atat, otherwise select a = argmaxQ(st,a)
+                        try:
+                            action, explore_probability = predict_action(explore_start,
+                                                                    explore_stop,
+                                                                    decay_rate,
+                                                                    decay_step,
+                                                                    state,
+                                                                    possible_actions)
+                        except:
+                            raise Exception('Model Output Nan Probability!')
+                        # Do the action
+                        next_state, reward, done, _ = env_train.step(np.argmax(action))
+                        next_state = np.array(next_state)
+                        episode_rewards.append(reward)
+                        # If the game is finished
+                        if done:
+                            # Set step = max_steps to end the episode
+                            step = max_steps
+                            memory.add((state, action, reward, next_state, done))
+                            total_reward = np.sum(episode_rewards)
+                            total_reward_list.append(total_reward)
+                        else:
+                            memory.add((state, action, reward, next_state, done))
+                            state = next_state
 
                 if num_of_day % network_update == 0:
                     ### Training Network
@@ -448,7 +459,6 @@ def dddqn_train(hyperparameters, ac_dict, ob_dict, train_months, test_months):
                                                  DQNetwork.actions_: actions_mb})
 
                     losses.append(loss)
-
                 # Write TF Summaries
                 #     summary = sess.run(write_op, feed_dict={DQNetwork.inputs_: states_mb,
                 #                                         DQNetwork.target_Q: targets_mb,
@@ -456,7 +466,6 @@ def dddqn_train(hyperparameters, ac_dict, ob_dict, train_months, test_months):
                 #
                 #     writer.add_summary(summary, total_step)
                 #     total_step += 1
-
         bar.close()
 
         print(f'{datetime.datetime.now()} '
@@ -481,21 +490,21 @@ def dddqn_train(hyperparameters, ac_dict, ob_dict, train_months, test_months):
             # Update the parameters of our TargetNetwork with DQN_weights
             update_target = update_target_graph()
             sess.run(update_target)
-            tau = 0
             print(f"\nModel updated at time {datetime.datetime.now()}")
             train_f = open(dirpath + '/training.txt', 'a+')
             print(f"\nModel updated at time {datetime.datetime.now()}\n", file=train_f)
             train_f.close()
 
 
-            bar = tqdm(range(num_of_test_days), leave=False)
+            bar = tqdm(range(num_of_test_days * 2), leave=False)
             bar.set_description("Testing Results")
             reward_list = []
             for month in test_date.keys():
                 for day in test_date[month]:
-                    bar.update(1)
-                    check_reward = te_performance(month, day)
-                    reward_list.append(check_reward)
+                    for session in ['morning', 'afternoon']:
+                        bar.update(1)
+                        check_reward = te_performance(month, day, session)
+                        reward_list.append(check_reward)
             bar.close()
 
             avg_re = np.average(reward_list)
@@ -543,10 +552,11 @@ def dddqn_train(hyperparameters, ac_dict, ob_dict, train_months, test_months):
     reward_list = []
     for month in test_date.keys():
         for day in test_date[month]:
-            check_reward = te_performance(month, day)
-            print('{} Total Reward: '.format(day), check_reward, file=test_f)
-            print('{} Total Reward: '.format(day), check_reward)
-            reward_list.append(check_reward)
+            for session in ['morning', 'afternoon']:
+                check_reward = te_performance(month, day, session)
+                print('{} Total Reward: '.format(day), check_reward, file=test_f)
+                print('{} Total Reward: '.format(day), check_reward)
+                reward_list.append(check_reward)
 
     test_list_f = open(dirpath + '/test_list_f.txt', 'wb')
     pickle.dump(reward_list, test_list_f)
