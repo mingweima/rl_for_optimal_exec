@@ -4,8 +4,6 @@ import matplotlib.pyplot as plt
 
 from trading_environment.orderbook import OrderBook
 
-EPISODE_LENGTH_IN_SECONDS = 7200
-TRADING_INTERVAL_IN_SECONDS = 300
 STEPS = 24
 
 class Simulator:
@@ -25,7 +23,6 @@ class Simulator:
 
         # Initialize the action space
         self.ac_dict = ac_dict
-        self.ac_type = 'prop of linear'
 
         # Initialize the observation space
         self.ob_dict = {k: v for k, v in ob_dict.items() if v}
@@ -42,10 +39,7 @@ class Simulator:
         """
 
         # Initialize the OrderBook
-        # initial_date = random.choice(self.unique_date[-10:])
-        # initial_date = self.unique_date[num_days]
         self.data = self.data_dict[month][day][session]
-        initial_date = day
 
         mid_price_list = []
         volume_list = []
@@ -62,14 +56,6 @@ class Simulator:
 
         self.price_mean, self.price_std, self.volume_mean, self.volume_std = \
             np.average(mid_price_list), np.std(mid_price_list), np.average(volume_list), np.std(volume_list)
-
-        # Only in use for env.render()
-        self.normalized_price_list = []
-        self.mid_price_list = []
-        self.normalized_volume_list = []
-        self.volume_list = []
-        self.size_list = []
-        self.reward_list = []
 
         self.inventory = self.initial_inventory
 
@@ -88,8 +74,6 @@ class Simulator:
         self.OrderBook = OrderBook(self.get_historical_order())
 
         self.arrival_price = self.OrderBook.getMidPrice()
-        self.remaining_inventory_list = []
-        self.action_list = []
 
         return self.observation_sequence[-self.look_back:]
 
@@ -122,47 +106,21 @@ class Simulator:
                 info: any additional info
         """
 
-
-        # Take an observation of the current state
-        obs = self.observation()
-        self.observation_sequence.append(obs)
-
-        # Set the last market price before taking any action and updating the LOB
-        self.last_market_price = self.OrderBook.getMidPrice()
-
-        # Append the action taken to the action list
-        self.action_list.append(action)
-
-        self.normalized_price_list.append((self.OrderBook.getMidPrice() - self.price_mean) / self.price_std)
-        self.normalized_volume_list.append((self.OrderBook.getBidsQuantity(1) - self.volume_mean) / self.volume_std)
-        self.mid_price_list.append(self.OrderBook.getMidPrice())
-        self.volume_list.append(self.OrderBook.getBidsQuantity(1))
-
         # Place the agent's order to the limit order book
-        if self.hothead == 'True':
+        if action == -1:
             order_size = - self.inventory
-        elif action == -1:
+        elif self.current_loc >= 47:
             order_size = - self.inventory
-        elif self.current_time + pd.Timedelta(seconds=self.trading_interval) > self.initial_time + self.time_horizon:
-            order_size = -self.inventory
         else:
-            if self.ac_type == 'vanilla':
-                action = self.ac_dict[action]
-                order_size = - round(self.initial_inventory * action)
-            elif self.ac_type == 'prop of linear':
-                action = self.ac_dict[action]
-                order_size = - round(self.initial_inventory * action / self.trading_steps)
-            else:
-                raise Exception('Unknown Action Type')
-            if self.inventory + order_size < 0:
-                order_size = - self.inventory
+            action = self.ac_dict[action]
+            order_size = - round(self.initial_inventory * action / self.trading_steps)
+        if self.inventory + order_size < 0:
+            order_size = - self.inventory
 
         if order_size != 0:
             vwap, _ = self.OrderBook.handleMarketOrder(order_size)
         else:
             vwap = 0
-
-        self.size_list.append(-order_size)
 
         implementation_shortfall = - (order_size / self.initial_inventory) * (vwap - self.arrival_price)
 
@@ -172,24 +130,24 @@ class Simulator:
         else:
             raise Exception("Unknown Reward Function!")
 
-        self.reward_list.append(reward)
-
         # Update the trading_environment and get new observation
         self.inventory += order_size
-        self.remaining_inventory_list.append(self.inventory)
 
         done = (self.inventory <= 0)
 
-        info = {'time': self.current_time,
+        info = {'step': self.current_loc - 23,
                 'shortfall': implementation_shortfall,
-                'size': - order_size,
-                'price_before_action': self.last_market_price}
+                'size': - order_size}
 
         # Update the time
-        self.current_time += pd.Timedelta(seconds=self.trading_interval)
+        self.current_loc += 1
 
         # Update the LOB. (for OMI data)
         self.OrderBook.update(self.get_historical_order())
+
+        # Take an observation of the current state
+        obs = self.observation()
+        self.observation_sequence.append(obs)
 
         return self.observation_sequence[-self.look_back:], reward, done, info
 
@@ -221,29 +179,4 @@ class Simulator:
         return np.asarray(obs)
 
     def render(self):
-
-        fig = plt.figure()
-        volume1 = fig.add_subplot(221)
-        volume1.plot(range(len(self.normalized_volume_list)), self.normalized_volume_list)
-        volume1.set_ylim([-10, 10])
-        volume1.set_title('Bids Level 1 volume for 10 days')
-        volume2 = volume1.twinx()
-        volume2.plot(range(len(self.normalized_volume_list)), self.volume_list, color='r', linestyle='dashed')
-        volume2.set_ylim([0, 10000])
-
-        price1 = fig.add_subplot(222)
-        price1.plot(range(len(self.normalized_price_list)), self.normalized_price_list)
-        price1.set_ylim([-2, 3])
-        price1.set_title('Price for 10 days')
-        price2 = price1.twinx()
-        price2.plot(range(len(self.normalized_price_list)), self.mid_price_list, color='r', linestyle='dashed')
-        price2.set_ylim([1840, 1940])
-
-        re1 = fig.add_subplot(223)
-        re1.bar(range(len(self.size_list)), self.size_list)
-        re1.set_ylim([0, 10000])
-        re1.set_title('Reward for 10 days')
-        re2 = re1.twinx()
-        re2.plot(range(len(self.size_list)), self.reward_list, self.reward_list, color='r', linestyle='dashed')
-        re2.set_ylim([-1, 1])
-        plt.show()
+        pass
