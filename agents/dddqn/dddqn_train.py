@@ -370,7 +370,7 @@ def dddqn_train(hyperparameters, ac_dict, ob_dict, train_months, test_months):
         months = list(train_date.keys())
         np.random.shuffle(months)
 
-        bar = tqdm(range(num_of_training_days), leave=False)
+        bar = tqdm(range(num_of_training_days * 2), leave=False)
         bar.set_description('Running Loop {}'.format(loop))
 
         num_of_day = 0
