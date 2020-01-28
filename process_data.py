@@ -79,6 +79,8 @@ for month in months:
     data = data.drop(data.loc[(data['Day'] == 5) | (data['Day'] == 6)].index)
     data = data.drop(data.loc[(data['Date-Time'] >= pd.to_datetime('2016/7/14'))
                               & (data['Date-Time'] < pd.to_datetime('2016/7/15'))].index)
+    data = data.drop(data.loc[(data['Date-Time'] >= pd.to_datetime('2018/4/5'))
+                              & (data['Date-Time'] < pd.to_datetime('2018/4/7'))].index)
     for year in [2016, 2017, 2018]:
         data.drop(data.loc[(data['Date-Time'] >= pd.to_datetime('{}/12/23'.format(year)))
                            & (data['Date-Time'] < pd.to_datetime('{}/12/28'.format(year)))].index)
