@@ -74,8 +74,8 @@ if __name__ == "__main__":
                    '2018-10-01_2018-10-31',
                    '2018-11-01_2018-11-30']
 
-    ac_dict = {0: 0, 1: 0.25, 2: 0.5, 3: 0.75, 4: 1, 5: 1.25,
-               6: 1.5, 7: 1.75, 8: 2}
+    ac_dict = {0: 0, 1: 0.25, 2: 0.5, 3: 0.6, 4: 7, 5: 0.8, 6: 0.9, 7: 1,
+               8: 1.1, 9: 1.2, 10: 1.3, 11: 1.4, 12: 1.5, 13: 1.75, 14: 2}
 
     # Please always set Elapsed Time and Remaining Inventory True, otherwise AC Model will break down
     ob_dict = {
@@ -96,9 +96,9 @@ if __name__ == "__main__":
         'Bid Price 3': True,
         'Bid Price 4': True,
         'Bid Price 5': True,
-        # 'Bid Price 6': True,
-        # 'Bid Price 7': True,
-        # 'Bid Price 8': True,
+        'Bid Price 6': True,
+        'Bid Price 7': True,
+        'Bid Price 8': True,
         # 'Bid Price 9': True,
         # 'Bid Price 10': True,
         'Bid Volume 1': True,
@@ -106,9 +106,9 @@ if __name__ == "__main__":
         'Bid Volume 3': True,
         'Bid Volume 4': True,
         'Bid Volume 5': True,
-        # 'Bid Volume 6': True,
-        # 'Bid Volume 7': True,
-        # 'Bid Volume 8': True,
+        'Bid Volume 6': True,
+        'Bid Volume 7': True,
+        'Bid Volume 8': True,
         # 'Bid Volume 9': True,
         # 'Bid Volume 10': True,
         'Ask Price 1': True,
@@ -116,9 +116,9 @@ if __name__ == "__main__":
         'Ask Price 3': True,
         'Ask Price 4': True,
         'Ask Price 5': True,
-        # 'Ask Price 6': True,
-        # 'Ask Price 7': True,
-        # 'Ask Price 8': True,
+        'Ask Price 6': True,
+        'Ask Price 7': True,
+        'Ask Price 8': True,
         # 'Ask Price 9': True,
         # 'Ask Price 10': True,
         'Ask Volume 1': True,
@@ -126,9 +126,9 @@ if __name__ == "__main__":
         'Ask Volume 3': True,
         'Ask Volume 4': True,
         'Ask Volume 5': True,
-        # 'Ask Volume 6': True,
-        # 'Ask Volume 7': True,
-        # 'Ask Volume 8': True,
+        'Ask Volume 6': True,
+        'Ask Volume 7': True,
+        'Ask Volume 8': True,
         # 'Ask Volume 9': True,
         # 'Ask Volume 10': True,
     }
