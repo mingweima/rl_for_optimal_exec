@@ -82,7 +82,7 @@ for month in months:
     data = data.drop(data.loc[(data['Date-Time'] >= pd.to_datetime('2018/4/5'))
                               & (data['Date-Time'] < pd.to_datetime('2018/4/7'))].index)
     for year in [2016, 2017, 2018]:
-        data.drop(data.loc[(data['Date-Time'] >= pd.to_datetime('{}/12/23'.format(year)))
+        data = data.drop(data.loc[(data['Date-Time'] >= pd.to_datetime('{}/12/23'.format(year)))
                            & (data['Date-Time'] < pd.to_datetime('{}/12/29'.format(year)))].index)
 
     bar.update(1)

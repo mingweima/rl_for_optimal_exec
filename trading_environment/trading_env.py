@@ -4,8 +4,9 @@ import matplotlib.pyplot as plt
 
 from trading_environment.orderbook import OrderBook
 
-EPISODE_LENGTH_IN_SECONDS = 18000
-TRADING_INTERVAL_IN_SECONDS = 600
+EPISODE_LENGTH_IN_SECONDS = 7200
+TRADING_INTERVAL_IN_SECONDS = 300
+STEPS = 24
 
 class Simulator:
     """
@@ -18,9 +19,7 @@ class Simulator:
         self.date_dict = date_dict
 
         self.hothead = 'False'
-        self.trading_interval = TRADING_INTERVAL_IN_SECONDS
-        self.time_horizon = pd.Timedelta(seconds=EPISODE_LENGTH_IN_SECONDS)
-        self.trading_steps = int(self.time_horizon.seconds / self.trading_interval)
+        self.trading_steps = STEPS
         self.initial_inventory = initial_shares
         self.look_back = look_back
 
@@ -74,19 +73,18 @@ class Simulator:
 
         self.inventory = self.initial_inventory
 
-        self.initial_time = initial_date + pd.Timedelta('11hours')
+        self.initial_loc = 24
+        self.current_loc = 0
 
         # Initialize the observation sequence
         self.observation_sequence = []
-        self.current_time = self.initial_time - pd.Timedelta(seconds=self.trading_interval)
         self.OrderBook = OrderBook(self.get_historical_order())
-        while self.current_time > initial_date + pd.Timedelta('8hours'):
+        while self.current_loc <= 24:
             self.OrderBook.update(self.get_historical_order())
             self.observation_sequence.append(self.observation())
-            self.current_time = self.current_time - pd.Timedelta(seconds=self.trading_interval)
-        self.observation_sequence.reverse()
+            self.current_loc += 1
 
-        self.current_time = self.initial_time
+        self.current_loc = 24
         self.OrderBook = OrderBook(self.get_historical_order())
 
         self.arrival_price = self.OrderBook.getMidPrice()
@@ -96,31 +94,18 @@ class Simulator:
         return self.observation_sequence[-self.look_back:]
 
     def get_historical_order(self):
-        hour = 0
-        while True:
-            LOB = np.array(
-                self.data.loc[self.data['Date-Time'] >= self.current_time - pd.Timedelta('{}hours'.format(hour))].head(
-                    1))
-            try:
-                LOB = LOB[0]
-                break
-            except:
-                # print('Cannot find LOB for ', self.current_time - pd.Timedelta('{}hours'.format(hour)))
-                # print('Use instead LOB for ', self.current_time - pd.Timedelta('{}hours'.format(hour + 1)))
-                hour += 1
+        LOB = np.array(self.data.loc[self.current_loc])
 
         bids = []
         for i in range(10):
             price = LOB[4 * i + 1]
             size = LOB[4 * i + 2]
-            bids.append({'TIME': self.current_time,
-                         'TYPE': 0, 'ORDER_ID': -1, 'PRICE': price, 'SIZE': size, 'BUY_SELL_FLAG': 'BUY'})
+            bids.append({'TYPE': 0, 'ORDER_ID': -1, 'PRICE': price, 'SIZE': size, 'BUY_SELL_FLAG': 'BUY'})
         asks = []
         for i in range(10):
             price = LOB[4 * i + 3]
             size = LOB[4 * i + 4]
-            asks.append({'TIME': self.current_time,
-                         'TYPE': 0, 'ORDER_ID': -1, 'PRICE': price, 'SIZE': size, 'BUY_SELL_FLAG': 'SELL'})
+            asks.append({'TYPE': 0, 'ORDER_ID': -1, 'PRICE': price, 'SIZE': size, 'BUY_SELL_FLAG': 'SELL'})
 
         return [bids, asks]
 
@@ -136,11 +121,7 @@ class Simulator:
                 done (boolean): whether this trajectory has ended or not
                 info: any additional info
         """
-        # Update the time
-        self.current_time += pd.Timedelta(seconds=self.trading_interval)
 
-        # Update the LOB. (for OMI data)
-        self.OrderBook.update(self.get_historical_order())
 
         # Take an observation of the current state
         obs = self.observation()
@@ -204,6 +185,12 @@ class Simulator:
                 'size': - order_size,
                 'price_before_action': self.last_market_price}
 
+        # Update the time
+        self.current_time += pd.Timedelta(seconds=self.trading_interval)
+
+        # Update the LOB. (for OMI data)
+        self.OrderBook.update(self.get_historical_order())
+
         return self.observation_sequence[-self.look_back:], reward, done, info
 
     def observation(self):
@@ -215,7 +202,7 @@ class Simulator:
         """
         obs = []
         if 'Elapsed Time' in self.ob_dict.keys():
-            obs.append((self.current_time - self.initial_time) / self.time_horizon)
+            obs.append((self.current_loc - self.initial_loc) / self.trading_steps)
         if 'Remaining Inventory' in self.ob_dict.keys():
             obs.append(self.inventory / self.initial_inventory)
         for i in np.arange(1, 11):
