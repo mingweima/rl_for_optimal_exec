@@ -380,7 +380,7 @@ def dddqn_train(hyperparameters, ac_dict, ob_dict, train_months, test_months):
         total_reward_list = []
         losses = []
 
-        months = np.array((train_date.keys()))
+        months = list(train_date.keys())
         months = np.random.choice(months, target_network_update)
 
         bar = tqdm(range(target_network_update), leave=False)
