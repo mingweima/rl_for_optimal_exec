@@ -141,10 +141,10 @@ def dddqn_train(hyperparameters, ac_dict, ob_dict, train_months, test_months):
     bar.close()
 
     for f in [None, almgren_chriss_f]:
-        print('AC Average: ', np.average(rewards), file=f)
+        print('Train AC Average: ', round(np.average(rewards), 3), file=f)
         print('============================================================', file=f)
-        print('Test Set', file=f)
 
+    print('Test Set', file=almgren_chriss_f)
     bar = tqdm(range(num_of_test_days * 2), leave=False)
     bar.set_description('AC Test Set')
     env_test = Simulator(test_dict, test_date, ac_dict, ob_dict, initial_shares, look_back)
@@ -160,11 +160,11 @@ def dddqn_train(hyperparameters, ac_dict, ob_dict, train_months, test_months):
                     total_reward += reward
                 rewards.append(total_reward)
                 # print('{}, {} Total Reward: '.format(day, session), total_reward)
-                print('{}, {} Total Reward: '.format(day, session), total_reward, file=almgren_chriss_f)
+                print('{}, {} Total Reward: '.format(day, session), round(total_reward, 3), file=almgren_chriss_f)
     bar.close()
 
     for f in [None, almgren_chriss_f]:
-        print('AC Average: ', np.average(rewards), file=f)
+        print('Test AC Average: ', np.average(rewards), file=f)
         print('============================================================', file=f)
 
     AC_list_f = open(dirpath + '/AC_list_f.txt', 'wb')
@@ -188,7 +188,7 @@ def dddqn_train(hyperparameters, ac_dict, ob_dict, train_months, test_months):
                 rewards.append(total_reward)
                 bar.update(1)
                 # print('{}, {} Total Reward: '.format(day, session), total_reward)
-                print('{}, {} Total Reward: '.format(day, session), total_reward, file=almgren_chriss_f)
+                print('{}, {} Total Reward: '.format(day, session), round(total_reward, 3), file=almgren_chriss_f)
     bar.close()
 
     for f in [None, almgren_chriss_f]:
@@ -484,19 +484,19 @@ def dddqn_train(hyperparameters, ac_dict, ob_dict, train_months, test_months):
 
         print(f'{datetime.datetime.now()} '
               f'Loop = {loop}, '
-              f'Avg R = {np.mean(total_reward_list)}, '
-              f'Max R = {np.max(total_reward_list)}, '
-              f'Min R = {np.min(total_reward_list)}, '
-              f'Loss = {np.average(losses)}, '
+              f'Avg R = {round(np.average(total_reward_list), 3)}, '
+              f'Max R = {round(np.max(total_reward_list), 3)}, '
+              f'Min R = {round(np.min(total_reward_list), 3)}, '
+              f'Loss = {round(np.average(losses), 3)}, '
               f'Explore P = {explore_probability}')
 
         train_f = open(dirpath + '/training.txt', 'a+')
         print(f'{datetime.datetime.now()} '
               f'Loop = {loop}, '
-              f'Avg R = {np.mean(total_reward_list)}, '
-              f'Max R = {np.max(total_reward_list)}, '
-              f'Min R = {np.min(total_reward_list)}, '
-              f'Loss = {np.average(losses)}, '
+              f'Avg R = {round(np.average(total_reward_list), 3)}, '
+              f'Max R = {round(np.max(total_reward_list), 3)}, '
+              f'Min R = {round(np.min(total_reward_list), 3)}, '
+              f'Loss = {round(np.average(losses), 3)}, '
               f'Explore P = {explore_probability}\n', file=train_f)
         train_f.close()
 
@@ -513,9 +513,9 @@ def dddqn_train(hyperparameters, ac_dict, ob_dict, train_months, test_months):
 
         avg_re = np.average(reward_list)
         test_f = open(dirpath + '/test.txt', 'a+')
-        print('Loop {}, Test Average Reward: '.format(loop_indx), avg_re, '\n', file=test_f)
+        print('Loop {}, Test Average Reward: '.format(loop_indx), round(avg_re, 3), '\n', file=test_f)
         test_f.close()
-        print('Test Average Reward: ', avg_re)
+        print('Loop {}, Test Average Reward: '.format(loop_indx), round(avg_re, 3))
         test_avg_reward.append(avg_re)
         avg_re_per_loop.append(np.mean(total_reward_list))
         loss_per_loop.append(np.average(losses))
@@ -566,8 +566,8 @@ def dddqn_train(hyperparameters, ac_dict, ob_dict, train_months, test_months):
     pickle.dump(reward_list, test_list_f)
     test_list_f.close()
 
-    print('Test Average Reward: ', np.average(reward_list))
-    print('Test Average Reward: ', np.average(reward_list), file=test_f)
+    print('Test Average Reward: ', round(np.average(reward_list), 3))
+    print('Test Average Reward: ', round(np.average(reward_list), 3), file=test_f)
 
     saver.save(sess, dirpath + '/model.ckpt')
     sess.close()
