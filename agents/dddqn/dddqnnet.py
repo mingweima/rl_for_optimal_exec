@@ -70,7 +70,7 @@ class DDDQNNet:
             # self.optimizer = tf.train.RMSPropOptimizer(self.learning_rate, epsilon=0.1).minimize(self.loss)
 
             # record my values
-            self.display_action = tf.argmax(self.actions_, axis=1)
+            # self.display_action = tf.argmax(self.actions_, axis=1)
 
     def record_tensorboard(self):
         tf.summary.scalar("learning_rate", self.learning_rate)
