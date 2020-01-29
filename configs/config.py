@@ -13,7 +13,7 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument('--agent', type=str, default='dddqn')
     parser.add_argument('--total_loop', type=int, default=200)
-    parser.add_argument('--batch_size', type=int, default=10000)
+    parser.add_argument('--batch_size', type=int, default=20000)
     parser.add_argument('--learning_rate', type=float, default=0.005)
     parser.add_argument('--explore_stop', type=float, default=0.05)
     parser.add_argument('--decay_rate', type=float, default=0.02)
@@ -22,7 +22,7 @@ if __name__ == "__main__":
     parser.add_argument('--network_update', type=int, default=30)
     parser.add_argument('--ticker', type=str, default='HSBA')
     parser.add_argument('--lstm_lookback', type=int, default=24)
-    parser.add_argument('--liquidate_volume', type=float, default=0.05)
+    parser.add_argument('--liquidate_volume', type=float, default=0.03)
 
     args = parser.parse_args()
     hyperparameters = {
@@ -74,18 +74,19 @@ if __name__ == "__main__":
                    '2018-10-01_2018-10-31',
                    '2018-11-01_2018-11-30']
 
-    ac_dict = {0: 0, 1: 0.25, 2: 0.5, 3: 0.6, 4: 7, 5: 0.8, 6: 0.9, 7: 1,
-               8: 1.1, 9: 1.2, 10: 1.3, 11: 1.4, 12: 1.5, 13: 1.75, 14: 2}
+    # ac_dict = {0: 0, 1: 0.25, 2: 0.5, 3: 0.6, 4: 7, 5: 0.8, 6: 0.9, 7: 1,
+    #            8: 1.1, 9: 1.2, 10: 1.3, 11: 1.4, 12: 1.5, 13: 1.75, 14: 2}
+    ac_dict = {0: 1, 1: 0.9, 2: 1.1, 3: 0.8, 4: 1.2, 5: 0.7, 6: 1.3, 7: 0.6, 8: 1.4, 9: 0.5, 10: 10}
 
     # Please always set Elapsed Time and Remaining Inventory True, otherwise AC Model will break down
     ob_dict = {
         'Elapsed Time': True,
         'Remaining Inventory': True,
-        'Bid Ask Spread 1': True,
-        'Bid Ask Spread 2': True,
-        'Bid Ask Spread 3': True,
-        'Bid Ask Spread 4': True,
-        'Bid Ask Spread 5': True,
+        # 'Bid Ask Spread 1': True,
+        # 'Bid Ask Spread 2': True,
+        # 'Bid Ask Spread 3': True,
+        # 'Bid Ask Spread 4': True,
+        # 'Bid Ask Spread 5': True,
         # 'Bid Ask Spread 6': True,
         # 'Bid Ask Spread 7': True,
         # 'Bid Ask Spread 8': True,
@@ -96,41 +97,41 @@ if __name__ == "__main__":
         'Bid Price 3': True,
         'Bid Price 4': True,
         'Bid Price 5': True,
-        # 'Bid Price 6': True,
-        # 'Bid Price 7': True,
-        # 'Bid Price 8': True,
-        # 'Bid Price 9': True,
-        # 'Bid Price 10': True,
+        'Bid Price 6': True,
+        'Bid Price 7': True,
+        'Bid Price 8': True,
+        'Bid Price 9': True,
+        'Bid Price 10': True,
         'Bid Volume 1': True,
         'Bid Volume 2': True,
         'Bid Volume 3': True,
         'Bid Volume 4': True,
         'Bid Volume 5': True,
-        # 'Bid Volume 6': True,
-        # 'Bid Volume 7': True,
-        # 'Bid Volume 8': True,
-        # 'Bid Volume 9': True,
-        # 'Bid Volume 10': True,
+        'Bid Volume 6': True,
+        'Bid Volume 7': True,
+        'Bid Volume 8': True,
+        'Bid Volume 9': True,
+        'Bid Volume 10': True,
         'Ask Price 1': True,
         'Ask Price 2': True,
         'Ask Price 3': True,
         'Ask Price 4': True,
         'Ask Price 5': True,
-        # 'Ask Price 6': True,
-        # 'Ask Price 7': True,
-        # 'Ask Price 8': True,
-        # 'Ask Price 9': True,
-        # 'Ask Price 10': True,
+        'Ask Price 6': True,
+        'Ask Price 7': True,
+        'Ask Price 8': True,
+        'Ask Price 9': True,
+        'Ask Price 10': True,
         'Ask Volume 1': True,
         'Ask Volume 2': True,
         'Ask Volume 3': True,
         'Ask Volume 4': True,
         'Ask Volume 5': True,
-        # 'Ask Volume 6': True,
-        # 'Ask Volume 7': True,
-        # 'Ask Volume 8': True,
-        # 'Ask Volume 9': True,
-        # 'Ask Volume 10': True,
+        'Ask Volume 6': True,
+        'Ask Volume 7': True,
+        'Ask Volume 8': True,
+        'Ask Volume 9': True,
+        'Ask Volume 10': True,
     }
 
 

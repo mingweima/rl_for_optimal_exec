@@ -127,11 +127,10 @@ def dddqn_train(hyperparameters, ac_dict, ob_dict, train_months, test_months):
                 env_train.reset(month, day, session)
                 total_reward = 0
                 for step in np.arange(1, 25):
-                    action = almgren_chriss(0, ac_dict, step, 24)
-                    state, reward, done, _ = env_train.step(4)
+                    state, reward, done, _ = env_train.step(0)
                     total_reward += reward
                 rewards.append(total_reward)
-                print('{}, {} Total Reward: '.format(day, session), total_reward)
+                # print('{}, {} Total Reward: '.format(day, session), total_reward)
                 print('{}, {} Total Reward: '.format(day, session), total_reward, file=almgren_chriss_f)
 
     for f in [None, almgren_chriss_f]:
@@ -147,11 +146,10 @@ def dddqn_train(hyperparameters, ac_dict, ob_dict, train_months, test_months):
                 env_test.reset(month, day, session)
                 total_reward = 0
                 for step in np.arange(1, 25):
-                    action = almgren_chriss(0, ac_dict, step, 24)
-                    state, reward, done, _ = env_test.step(4)
+                    state, reward, done, _ = env_test.step(0)
                     total_reward += reward
                 rewards.append(total_reward)
-                print('{}, {} Total Reward: '.format(day, session), total_reward)
+                # print('{}, {} Total Reward: '.format(day, session), total_reward)
                 print('{}, {} Total Reward: '.format(day, session), total_reward, file=almgren_chriss_f)
 
     for f in [None, almgren_chriss_f]:
@@ -175,7 +173,7 @@ def dddqn_train(hyperparameters, ac_dict, ob_dict, train_months, test_months):
                 state, reward, done, _ = env_test.step(-1)
                 total_reward += reward
                 rewards.append(total_reward)
-                print('{}, {} Total Reward: '.format(day, session), total_reward)
+                # print('{}, {} Total Reward: '.format(day, session), total_reward)
                 print('{}, {} Total Reward: '.format(day, session), total_reward, file=almgren_chriss_f)
 
     for f in [None, almgren_chriss_f]:
