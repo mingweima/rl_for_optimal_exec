@@ -117,7 +117,8 @@ def dddqn_train(hyperparameters, ac_dict, ob_dict, train_months, test_months):
     max_steps = 100000  # Max possible steps in an episode
     batch_size = hyperparameters['batch_size']
 
-    print('Training Set')
+    bar = tqdm(range(num_of_training_days * 2), leave=False)
+    bar.set_description('AC Training Set')
     print('Training Set', file=almgren_chriss_f)
     env_train = Simulator(train_dict, train_date, ac_dict, ob_dict, initial_shares, look_back)
     rewards = []
@@ -126,6 +127,7 @@ def dddqn_train(hyperparameters, ac_dict, ob_dict, train_months, test_months):
             for session in ['morning', 'afternoon']:
                 env_train.reset(month, day, session)
                 total_reward = 0
+                bar.update(1)
                 for step in np.arange(1, 25):
                     state, reward, done, _ = env_train.step(0)
                     total_reward += reward
@@ -133,11 +135,15 @@ def dddqn_train(hyperparameters, ac_dict, ob_dict, train_months, test_months):
                 # print('{}, {} Total Reward: '.format(day, session), total_reward)
                 print('{}, {} Total Reward: '.format(day, session), total_reward, file=almgren_chriss_f)
 
+    bar.close()
+
     for f in [None, almgren_chriss_f]:
         print('AC Average: ', np.average(rewards), file=f)
         print('============================================================', file=f)
         print('Test Set', file=f)
 
+    bar = tqdm(range(num_of_test_days * 2), leave=False)
+    bar.set_description('AC Test Set')
     env_test = Simulator(test_dict, test_date, ac_dict, ob_dict, initial_shares, look_back)
     rewards = []
     for month in test_date.keys():
@@ -145,12 +151,14 @@ def dddqn_train(hyperparameters, ac_dict, ob_dict, train_months, test_months):
             for session in ['morning', 'afternoon']:
                 env_test.reset(month, day, session)
                 total_reward = 0
+                bar.update(1)
                 for step in np.arange(1, 25):
                     state, reward, done, _ = env_test.step(0)
                     total_reward += reward
                 rewards.append(total_reward)
                 # print('{}, {} Total Reward: '.format(day, session), total_reward)
                 print('{}, {} Total Reward: '.format(day, session), total_reward, file=almgren_chriss_f)
+    bar.close()
 
     for f in [None, almgren_chriss_f]:
         print('AC Average: ', np.average(rewards), file=f)
@@ -160,6 +168,8 @@ def dddqn_train(hyperparameters, ac_dict, ob_dict, train_months, test_months):
     pickle.dump(rewards, AC_list_f)
     AC_list_f.close()
 
+    bar = tqdm(range(num_of_test_days * 2), leave=False)
+    bar.set_description('Hothead Test Set')
     for f in [None, almgren_chriss_f]:
         print('============================================================', file=f)
         print('Running Hothead!', file=f)
@@ -173,8 +183,10 @@ def dddqn_train(hyperparameters, ac_dict, ob_dict, train_months, test_months):
                 state, reward, done, _ = env_test.step(-1)
                 total_reward += reward
                 rewards.append(total_reward)
+                bar.update(1)
                 # print('{}, {} Total Reward: '.format(day, session), total_reward)
                 print('{}, {} Total Reward: '.format(day, session), total_reward, file=almgren_chriss_f)
+    bar.close()
 
     for f in [None, almgren_chriss_f]:
         print('Hothead Average: ', np.average(rewards), file=f)
