@@ -76,8 +76,8 @@ if __name__ == "__main__":
 
     # ac_dict = {0: 0, 1: 0.25, 2: 0.5, 3: 0.6, 4: 7, 5: 0.8, 6: 0.9, 7: 1,
     #            8: 1.1, 9: 1.2, 10: 1.3, 11: 1.4, 12: 1.5, 13: 1.75, 14: 2}
-    # ac_dict = {0: 1, 1: 0.9, 2: 1.1, 3: 0.8, 4: 1.2, 5: 0.7, 6: 1.3, 7: 0.6, 8: 1.4, 9: 0.5, 10: 10}
-    ac_dict = {0: 1, 1: 0.9}
+    ac_dict = {0: 1, 1: 0.9, 2: 1.1, 3: 0.8, 4: 1.2, 5: 0.7, 6: 1.3, 7: 0.6, 8: 1.4, 9: 0.5, 10: 1.5}
+    # ac_dict = {0: 1, 1: 0.9}
     # Please always set Elapsed Time and Remaining Inventory True, otherwise AC Model will break down
     ob_dict = {
         'Elapsed Time': True,
