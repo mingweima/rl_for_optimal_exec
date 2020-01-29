@@ -17,9 +17,9 @@ if __name__ == "__main__":
     parser.add_argument('--learning_rate', type=float, default=0.005)
     parser.add_argument('--explore_stop', type=float, default=0.05)
     parser.add_argument('--decay_rate', type=float, default=0.1)
-    parser.add_argument('--target_network_update', type=int, default=300)
+    parser.add_argument('--target_network_update', type=int, default=9)
     parser.add_argument('--memory_size', type=int, default=100000)
-    parser.add_argument('--network_update', type=int, default=100)
+    parser.add_argument('--network_update', type=int, default=3)
     parser.add_argument('--ticker', type=str, default='HSBA')
     parser.add_argument('--lstm_lookback', type=int, default=24)
     parser.add_argument('--liquidate_volume', type=float, default=0.03)
@@ -92,44 +92,44 @@ if __name__ == "__main__":
         # 'Bid Ask Spread 8': True,
         # 'Bid Ask Spread 9': True,
         # 'Bid Ask Spread 10': True,
-        # 'Bid Price 1': True,
-        # 'Bid Price 2': True,
-        # 'Bid Price 3': True,
-        # 'Bid Price 4': True,
-        # 'Bid Price 5': True,
-        # 'Bid Price 6': True,
-        # 'Bid Price 7': True,
-        # 'Bid Price 8': True,
+        'Bid Price 1': True,
+        'Bid Price 2': True,
+        'Bid Price 3': True,
+        'Bid Price 4': True,
+        'Bid Price 5': True,
+        'Bid Price 6': True,
+        'Bid Price 7': True,
+        'Bid Price 8': True,
         # 'Bid Price 9': True,
         # 'Bid Price 10': True,
-        # 'Bid Volume 1': True,
-        # 'Bid Volume 2': True,
-        # 'Bid Volume 3': True,
-        # 'Bid Volume 4': True,
-        # 'Bid Volume 5': True,
-        # 'Bid Volume 6': True,
-        # 'Bid Volume 7': True,
-        # 'Bid Volume 8': True,
+        'Bid Volume 1': True,
+        'Bid Volume 2': True,
+        'Bid Volume 3': True,
+        'Bid Volume 4': True,
+        'Bid Volume 5': True,
+        'Bid Volume 6': True,
+        'Bid Volume 7': True,
+        'Bid Volume 8': True,
         # 'Bid Volume 9': True,
         # 'Bid Volume 10': True,
-        # 'Ask Price 1': True,
-        # 'Ask Price 2': True,
-        # 'Ask Price 3': True,
-        # 'Ask Price 4': True,
-        # 'Ask Price 5': True,
-        # 'Ask Price 6': True,
-        # 'Ask Price 7': True,
-        # 'Ask Price 8': True,
+        'Ask Price 1': True,
+        'Ask Price 2': True,
+        'Ask Price 3': True,
+        'Ask Price 4': True,
+        'Ask Price 5': True,
+        'Ask Price 6': True,
+        'Ask Price 7': True,
+        'Ask Price 8': True,
         # 'Ask Price 9': True,
         # 'Ask Price 10': True,
-        # 'Ask Volume 1': True,
-        # 'Ask Volume 2': True,
-        # 'Ask Volume 3': True,
-        # 'Ask Volume 4': True,
-        # 'Ask Volume 5': True,
-        # 'Ask Volume 6': True,
-        # 'Ask Volume 7': True,
-        # 'Ask Volume 8': True,
+        'Ask Volume 1': True,
+        'Ask Volume 2': True,
+        'Ask Volume 3': True,
+        'Ask Volume 4': True,
+        'Ask Volume 5': True,
+        'Ask Volume 6': True,
+        'Ask Volume 7': True,
+        'Ask Volume 8': True,
         # 'Ask Volume 9': True,
         # 'Ask Volume 10': True,
     }
@@ -146,9 +146,9 @@ if __name__ == "__main__":
     print("Initial Learning Rate:           ", args.learning_rate)
     print("Final Exploration Probability:   ", args.explore_stop)
     print("Exploration Decay:               ", args.decay_rate)
-    print("Target Network Update (day):     ", args.target_network_update)
+    print("Target Network Update (month):   ", args.target_network_update)
     print("Replay Buffer Size:              ", args.memory_size)
-    print("Network Update Period (day):     ", args.network_update)
+    print("Network Update Period (month):   ", args.network_update)
     print("LSTM Lookback:                   ", args.lstm_lookback)
     print("============================================================")
     print("Observation Space:               ", ob_dict)
