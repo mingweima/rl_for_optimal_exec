@@ -115,7 +115,6 @@ def dddqn_train(hyperparameters, ac_dict, ob_dict, train_months, test_months):
 
     ### TRAINING HYPERPARAMETERS
     total_loop = hyperparameters['total_loop']
-    loop_batch_size = hyperparameters['loop_batch_size']
     total_episodes = num_of_training_days
     max_steps = 100000  # Max possible steps in an episode
     batch_size = hyperparameters['batch_size']
