@@ -15,6 +15,8 @@ import matplotlib.pyplot as plt
 from keras.backend.tensorflow_backend import set_session
 from sklearn.preprocessing import OneHotEncoder
 
+
+
 from trading_environment.trading_env import Simulator
 from agents.dddqn.dddqnnet import DDDQNNet
 from agents.dddqn.memory import Memory
