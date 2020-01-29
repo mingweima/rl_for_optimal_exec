@@ -169,11 +169,11 @@ def dddqn_train(hyperparameters, ac_dict, ob_dict, train_months, test_months):
     pickle.dump(rewards, AC_list_f)
     AC_list_f.close()
 
-    bar = tqdm(range(num_of_test_days * 2), leave=False)
-    bar.set_description('Hothead Test Set')
     for f in [None, almgren_chriss_f]:
         print('============================================================', file=f)
         print('Running Hothead!', file=f)
+    bar = tqdm(range(num_of_test_days * 2), leave=False)
+    bar.set_description('Hothead Test Set')
     # Hothead
     rewards = []
     for month in test_date.keys():
