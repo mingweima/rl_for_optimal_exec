@@ -12,7 +12,7 @@ from agents.dddqn.dddqn_train import dddqn_train
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument('--agent', type=str, default='dddqn')
-    parser.add_argument('--total_loop', type=int, default=600)
+    parser.add_argument('--total_loop', type=int, default=200)
     parser.add_argument('--batch_size', type=int, default=10000)
     parser.add_argument('--learning_rate', type=float, default=0.005)
     parser.add_argument('--explore_stop', type=float, default=0.05)
@@ -82,11 +82,11 @@ if __name__ == "__main__":
     ob_dict = {
         'Elapsed Time': True,
         'Remaining Inventory': True,
-        # 'Bid Ask Spread 1': True,
-        # 'Bid Ask Spread 2': True,
-        # 'Bid Ask Spread 3': True,
-        # 'Bid Ask Spread 4': True,
-        # 'Bid Ask Spread 5': True,
+        'Bid Ask Spread 1': True,
+        'Bid Ask Spread 2': True,
+        'Bid Ask Spread 3': True,
+        'Bid Ask Spread 4': True,
+        'Bid Ask Spread 5': True,
         # 'Bid Ask Spread 6': True,
         # 'Bid Ask Spread 7': True,
         # 'Bid Ask Spread 8': True,
@@ -97,9 +97,9 @@ if __name__ == "__main__":
         'Bid Price 3': True,
         'Bid Price 4': True,
         'Bid Price 5': True,
-        'Bid Price 6': True,
-        'Bid Price 7': True,
-        'Bid Price 8': True,
+        # 'Bid Price 6': True,
+        # 'Bid Price 7': True,
+        # 'Bid Price 8': True,
         # 'Bid Price 9': True,
         # 'Bid Price 10': True,
         'Bid Volume 1': True,
@@ -107,9 +107,9 @@ if __name__ == "__main__":
         'Bid Volume 3': True,
         'Bid Volume 4': True,
         'Bid Volume 5': True,
-        'Bid Volume 6': True,
-        'Bid Volume 7': True,
-        'Bid Volume 8': True,
+        # 'Bid Volume 6': True,
+        # 'Bid Volume 7': True,
+        # 'Bid Volume 8': True,
         # 'Bid Volume 9': True,
         # 'Bid Volume 10': True,
         'Ask Price 1': True,
@@ -117,9 +117,9 @@ if __name__ == "__main__":
         'Ask Price 3': True,
         'Ask Price 4': True,
         'Ask Price 5': True,
-        'Ask Price 6': True,
-        'Ask Price 7': True,
-        'Ask Price 8': True,
+        # 'Ask Price 6': True,
+        # 'Ask Price 7': True,
+        # 'Ask Price 8': True,
         # 'Ask Price 9': True,
         # 'Ask Price 10': True,
         'Ask Volume 1': True,
@@ -127,9 +127,9 @@ if __name__ == "__main__":
         'Ask Volume 3': True,
         'Ask Volume 4': True,
         'Ask Volume 5': True,
-        'Ask Volume 6': True,
-        'Ask Volume 7': True,
-        'Ask Volume 8': True,
+        # 'Ask Volume 6': True,
+        # 'Ask Volume 7': True,
+        # 'Ask Volume 8': True,
         # 'Ask Volume 9': True,
         # 'Ask Volume 10': True,
     }
