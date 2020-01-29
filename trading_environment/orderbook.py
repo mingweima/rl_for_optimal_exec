@@ -224,12 +224,8 @@ class OrderBook:
 
     def getAsksQuantity(self, level):
         qty = 0
-
-        try:
-            for o in self.asks[level - 1]:
-                qty += o['SIZE']
-        except:
-            qty = 0
+        for o in self.asks[level - 1]:
+            qty += o['SIZE']
         return qty
 
     def getBidsQuantity(self, level):
@@ -237,6 +233,34 @@ class OrderBook:
         for o in self.bids[level - 1]:
             qty += o['SIZE']
         return qty
+
+    def sum_asks_qty(self, level):
+        qty = 0
+        for level in range(1, level + 1):
+            for o in self.asks[level - 1]:
+                qty += o['SIZE']
+        return qty
+
+    def sum_bids_qty(self, level):
+        qty = 0
+        for level in range(1, level + 1):
+            for o in self.bids[level - 1]:
+                qty += o['SIZE']
+        return qty
+
+    def bids_vwap(self, level):
+        p = 0
+        for level in range(1, level + 1):
+            for o in self.bids[level - 1]:
+                p += o['SIZE'] * o['PRICE']
+        return p / self.sum_bids_qty(level)
+
+    def asks_vwap(self, level):
+        p = 0
+        for level in range(1, level + 1):
+            for o in self.asks[level - 1]:
+                p += o['SIZE'] * o['PRICE']
+        return p / self.sum_asks_qty(level)
 
     def getTotalBidsQuantity(self):
         qty = 0
@@ -279,6 +303,7 @@ class OrderBook:
             return (self.bids[0][0]['PRICE'] + self.asks[0][0]['PRICE'])/2
         else:
             return -1
+
 
     def getBidAskSpread(self, level):
         """

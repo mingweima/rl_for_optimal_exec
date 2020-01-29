@@ -161,10 +161,24 @@ class Simulator:
             obs.append((self.current_loc - self.initial_loc) / self.trading_steps)
         if 'Remaining Inventory' in self.ob_dict.keys():
             obs.append(self.inventory / self.initial_inventory)
+
+        for i in np.arange(1, 11):
+            if 'Bid L{} VWAP'.format(i) in self.ob_dict.keys():
+                obs.append((self.OrderBook.bids_vwap(i) - self.price_mean) / self.price_std)
+            if 'Ask L{} VWAP'.format(i) in self.ob_dict.keys():
+                obs.append((self.OrderBook.asks_vwap(i) - self.price_mean) / self.price_std)
+            if 'Bid L{} Volume'.format(i) in self.ob_dict.keys():
+                obs.append((self.OrderBook.sum_bids_qty(i) - self.volume_mean * i) / (self.volume_std * np.sqrt(i)))
+            if 'Ask L{} Volume'.format(i) in self.ob_dict.keys():
+                obs.append((self.OrderBook.sum_asks_qty(i) - self.volume_mean * i) / (self.volume_std * np.sqrt(i)))
+
         for i in np.arange(1, 11):
             if 'Bid Ask Spread {}'.format(i) in self.ob_dict.keys():
                 obs.append(self.OrderBook.getBidAskSpread(i))
+
         for i in np.arange(1, 11):
+            if 'Bid Ask Spread {}'.format(i) in self.ob_dict.keys():
+                obs.append(self.OrderBook.getBidAskSpread(i))
             if 'Bid Price {}'.format(i) in self.ob_dict.keys():
                 obs.append((self.OrderBook.getBidsPrice(i) - self.price_mean) / self.price_std)
             if 'Ask Price {}'.format(i) in self.ob_dict.keys():

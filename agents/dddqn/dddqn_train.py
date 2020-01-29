@@ -12,7 +12,6 @@ import numpy as np
 from numpy.random import seed
 import pandas as pd
 import matplotlib.pyplot as plt
-import matplotlib.pyplot as plt
 from keras.backend.tensorflow_backend import set_session
 from sklearn.preprocessing import OneHotEncoder
 
@@ -129,6 +128,7 @@ def dddqn_train(hyperparameters, ac_dict, ob_dict, train_months, test_months):
         for day in train_date[month]:
             for session in ['morning', 'afternoon']:
                 env_train.reset(month, day, session)
+                print(env_train.reset(month, day, session))
                 total_reward = 0
                 bar.update(1)
                 for step in np.arange(1, 25):
