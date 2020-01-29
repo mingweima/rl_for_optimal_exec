@@ -485,8 +485,6 @@ def dddqn_train(hyperparameters, ac_dict, ob_dict, train_months, test_months):
         print(f'{datetime.datetime.now()} '
               f'Loop = {loop}, '
               f'Avg R = {round(np.average(total_reward_list), 3)}, '
-              f'Max R = {round(np.max(total_reward_list), 3)}, '
-              f'Min R = {round(np.min(total_reward_list), 3)}, '
               f'Loss = {round(np.average(losses), 3)}, '
               f'Explore P = {explore_probability}')
 
@@ -494,8 +492,6 @@ def dddqn_train(hyperparameters, ac_dict, ob_dict, train_months, test_months):
         print(f'{datetime.datetime.now()} '
               f'Loop = {loop}, '
               f'Avg R = {round(np.average(total_reward_list), 3)}, '
-              f'Max R = {round(np.max(total_reward_list), 3)}, '
-              f'Min R = {round(np.min(total_reward_list), 3)}, '
               f'Loss = {round(np.average(losses), 3)}, '
               f'Explore P = {explore_probability}\n', file=train_f)
         train_f.close()
