@@ -17,9 +17,9 @@ if __name__ == "__main__":
     parser.add_argument('--learning_rate', type=float, default=0.005)
     parser.add_argument('--explore_stop', type=float, default=0.05)
     parser.add_argument('--decay_rate', type=float, default=0.1)
-    parser.add_argument('--loop_update', type=int, default=3)
+    parser.add_argument('--target_network_update', type=int, default=300)
     parser.add_argument('--memory_size', type=int, default=100000)
-    parser.add_argument('--network_update', type=int, default=30)
+    parser.add_argument('--network_update', type=int, default=100)
     parser.add_argument('--ticker', type=str, default='HSBA')
     parser.add_argument('--lstm_lookback', type=int, default=24)
     parser.add_argument('--liquidate_volume', type=float, default=0.03)
@@ -32,7 +32,7 @@ if __name__ == "__main__":
         'learning_rate': args.learning_rate,
         'explore_stop': args.explore_stop,
         'decay_rate': args.decay_rate,
-        'loop_update': args.loop_update,
+        'target_network_update': args.target_network_update,
         'memory_size': args.memory_size,
         'network_update': args.network_update,
         'lstm_lookback': args.lstm_lookback,
@@ -146,9 +146,9 @@ if __name__ == "__main__":
     print("Initial Learning Rate:           ", args.learning_rate)
     print("Final Exploration Probability:   ", args.explore_stop)
     print("Exploration Decay:               ", args.decay_rate)
-    print("Target Network Update Period:    ", args.loop_update)
+    print("Target Network Update (day):     ", args.target_network_update)
     print("Replay Buffer Size:              ", args.memory_size)
-    print("Network Update Period (episode): ", args.network_update)
+    print("Network Update Period (day):     ", args.network_update)
     print("LSTM Lookback:                   ", args.lstm_lookback)
     print("============================================================")
     print("Observation Space:               ", ob_dict)
