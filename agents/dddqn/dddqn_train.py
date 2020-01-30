@@ -1,7 +1,6 @@
 import logging, os
 logging.disable(logging.WARNING)
 os.environ["TF_CPP_MIN_LOG_LEVEL"] = "3"
-
 import datetime
 import time
 import pickle
@@ -30,15 +29,15 @@ def dddqn_train(hyperparameters, ac_dict, ob_dict, train_months, test_months):
     liquidate_volume = hyperparameters['liquidate_volume']
 
     if ticker == 'BARC':
-        initial_shares = liquidate_volume * 31.42 * 1e6
+        initial_shares = 8234905 * liquidate_volume
     elif ticker == 'HSBA':
-        initial_shares = liquidate_volume * 17.67 * 1e6
+        initial_shares = 8636840 * liquidate_volume
     elif ticker == 'ULVR':
-        initial_shares = liquidate_volume * 2.72 * 1e6
+        initial_shares = 674985 * liquidate_volume
     elif ticker == 'RDSa':
-        initial_shares = liquidate_volume * 10.21 * 1e6
+        initial_shares = 1665777 * liquidate_volume
     elif ticker == 'RR':
-        initial_shares = liquidate_volume * 4.78 * 1e6
+        initial_shares = 1568776 * liquidate_volume
     else:
         raise Exception('Unknown Ticker')
 
