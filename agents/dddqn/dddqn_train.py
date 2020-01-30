@@ -282,23 +282,24 @@ def dddqn_train(hyperparameters, ac_dict, ob_dict, train_months, test_months):
 
     memory = Memory(max_size=memory_size)
 
-    bar = tqdm(range(num_of_training_days * 2), leave=False)
-    bar.set_description('Pretraining')
 
-    for month in train_date.keys():
-        for day in train_date[month]:
-            for session in ['morning', 'afternoon']:
-                state = np.array(env_train.reset(month, day, session))
-                while True:
-                    choice = random.randint(1, len(possible_actions)) - 1
-                    action = possible_actions[choice]
-                    next_state, reward, done, _ = env_train.step(np.argmax(action))
-                    memory.add((state, action, reward, next_state, done))
-                    state = next_state
-                    if done:
-                        bar.update(1)
-                        break
-    bar.close()
+    while len(memory.buffer) < batch_size:
+        bar = tqdm(range(num_of_training_days * 2), leave=False)
+        bar.set_description('Pretraining')
+        for month in train_date.keys():
+            for day in train_date[month]:
+                for session in ['morning', 'afternoon']:
+                    state = np.array(env_train.reset(month, day, session))
+                    while True:
+                        choice = random.randint(1, len(possible_actions)) - 1
+                        action = possible_actions[choice]
+                        next_state, reward, done, _ = env_train.step(np.argmax(action))
+                        memory.add((state, action, reward, next_state, done))
+                        state = next_state
+                        if done:
+                            bar.update(1)
+                            break
+        bar.close()
 
     # writer = tf.summary.FileWriter('./tensorboard', DQNetwork.get_graph())
 
