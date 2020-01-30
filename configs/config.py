@@ -13,7 +13,7 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument('--agent', type=str, default='dddqn')
     parser.add_argument('--total_loop', type=int, default=200)
-    parser.add_argument('--batch_size', type=int, default=2000)
+    parser.add_argument('--batch_size', type=int, default=1000)
     parser.add_argument('--learning_rate', type=float, default=0.005)
     parser.add_argument('--explore_stop', type=float, default=0.05)
     parser.add_argument('--decay_rate', type=float, default=0.02)
@@ -21,7 +21,7 @@ if __name__ == "__main__":
     parser.add_argument('--memory_size', type=int, default=100000)
     parser.add_argument('--network_update', type=int, default=30)
     parser.add_argument('--ticker', type=str, default='HSBA')
-    parser.add_argument('--lstm_lookback', type=int, default=24)
+    parser.add_argument('--lstm_lookback', type=int, default=12)
     parser.add_argument('--liquidate_volume', type=float, default=0.05)
 
     args = parser.parse_args()
@@ -39,8 +39,8 @@ if __name__ == "__main__":
         'liquidate_volume': args.liquidate_volume
     }
 
-    train_months = ['2016-01-01_2016-01-31',
-                    '2016-02-01_2016-02-29',]
+    train_months = ['2016-01-01_2016-01-31',]
+                    # '2016-02-01_2016-02-29',
                     # '2016-03-01_2016-03-31',
                     # '2016-04-01_2016-04-30',
                     # '2016-05-01_2016-05-31',
@@ -57,8 +57,8 @@ if __name__ == "__main__":
                     # '2017-05-01_2017-05-31',
                     # '2017-06-01_2017-06-30']
 
-    test_months = ['2017-07-01_2017-07-31',
-                    '2017-08-01_2017-08-31',]
+    test_months = ['2017-07-01_2017-07-31',]
+                    # '2017-08-01_2017-08-31',
                     # '2017-09-01_2017-09-30',
                     # '2017-10-01_2017-10-31',
                     # '2017-11-01_2017-11-30',
@@ -74,9 +74,9 @@ if __name__ == "__main__":
                    # '2018-10-01_2018-10-31',
                    # '2018-11-01_2018-11-30']
 
-    ac_dict = {0: 0, 1: 0.25, 2: 0.5, 3: 0.6, 4: 7, 5: 0.8, 6: 0.9, 7: 1,
-               8: 1.1, 9: 1.2, 10: 1.3, 11: 1.4, 12: 1.5, 13: 1.75, 14: 2, 15: 2.25, 16: 2.5, 17: 2.75, 18: 3}
-    # ac_dict = {0: 1, 1: 0.9, 2: 1.1, 3: 0.8, 4: 1.2, 5: 0.7, 6: 1.3, 7: 0.6, 8: 1.4, 9: 0.5, 10: 1.5}
+    # ac_dict = {0: 0, 1: 0.25, 2: 0.5, 3: 0.6, 4: 7, 5: 0.8, 6: 0.9, 7: 1,
+    #            8: 1.1, 9: 1.2, 10: 1.3, 11: 1.4, 12: 1.5, 13: 1.75, 14: 2, 15: 2.25, 16: 2.5, 17: 2.75, 18: 3}
+    ac_dict = {0: 1, 1: 0.9, 2: 1.1, 3: 0.8, 4: 1.2, 5: 0.7, 6: 1.3, 7: 0.6, 8: 1.4, 9: 0.5, 10: 1.5}
     # ac_dict = {0: 1, 1: 0.9}
     # Please always set Elapsed Time and Remaining Inventory True, otherwise AC Model will break down
     # ob_dict = {
