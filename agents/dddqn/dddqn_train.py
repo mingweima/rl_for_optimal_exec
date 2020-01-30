@@ -254,6 +254,7 @@ def dddqn_train(hyperparameters, ac_dict, ob_dict, train_months, test_months):
     print('Batch Size: {}'.format(batch_size), file=config_f)
     print('Final Exploration Probability: {}'.format(explore_stop), file=config_f)
     print('Initial Learning Rate: {}'.format(initial_learning_rate), file=config_f)
+    print('Exploration Decay Rate: {}'.format(decay_rate), file=config_f)
     print('Update Target Network Period (day): {}'.format(target_network_update), file=config_f)
     print('Update Network Period (day): {}'.format(network_update), file=config_f)
     print('Observation Space: ', ob_dict, file=config_f)
