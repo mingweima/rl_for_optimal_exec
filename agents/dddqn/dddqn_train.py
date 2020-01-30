@@ -29,15 +29,15 @@ def dddqn_train(hyperparameters, ac_dict, ob_dict, train_months, test_months):
     liquidate_volume = hyperparameters['liquidate_volume']
 
     if ticker == 'BARC':
-        initial_shares = 8234905 * liquidate_volume
+        initial_shares = 31.42e6 * liquidate_volume
     elif ticker == 'HSBA':
-        initial_shares = 8636840 * liquidate_volume
+        initial_shares = 1.67e6 * liquidate_volume
     elif ticker == 'ULVR':
-        initial_shares = 674985 * liquidate_volume
+        initial_shares = 2.72e6 * liquidate_volume
     elif ticker == 'RDSa':
-        initial_shares = 1665777 * liquidate_volume
+        initial_shares = 10.21e6 * liquidate_volume
     elif ticker == 'RR':
-        initial_shares = 1568776 * liquidate_volume
+        initial_shares = 4.78e6 * liquidate_volume
     else:
         raise Exception('Unknown Ticker')
 
