@@ -22,7 +22,7 @@ class OrderBook:
         for ask_order in initial_orders[1]:
             self.handleLimitOrder(ask_order)
         base_price = initial_orders[0][-1]['PRICE']
-        self.handleLimitOrder({'TYPE': 0, 'ORDER_ID': -1, 'PRICE': base_price, 'SIZE': 8000000, 'BUY_SELL_FLAG': 'BUY'})
+        self.handleLimitOrder({'TYPE': 0, 'ORDER_ID': -1, 'PRICE': base_price, 'SIZE': 1e8, 'BUY_SELL_FLAG': 'BUY'})
 
     def update(self, historical_orders):
         self.bids = []
@@ -32,7 +32,7 @@ class OrderBook:
         for ask_order in historical_orders[1]:
             self.handleLimitOrder(ask_order)
         base_price = 0.99 * historical_orders[0][-1]['PRICE']
-        self.handleLimitOrder({'TYPE': 0, 'ORDER_ID': -1, 'PRICE': base_price, 'SIZE': 8000000, 'BUY_SELL_FLAG': 'BUY'})
+        self.handleLimitOrder({'TYPE': 0, 'ORDER_ID': -1, 'PRICE': base_price, 'SIZE': 1e8, 'BUY_SELL_FLAG': 'BUY'})
 
     def handleLimitOrder(self, input_order):
         """
@@ -97,7 +97,7 @@ class OrderBook:
 
             # Handles the corresponding limit order.
             execution_price, executed_size = self.handleLimitOrder(order)
-            # implementation_shortfall = (execution_price - lowest_ask_price) * executed_size
+            implementation_shortfall = (execution_price - lowest_ask_price) * executed_size
 
         else:
             highest_bid_price = self.bids[0][0]['PRICE']
@@ -105,13 +105,13 @@ class OrderBook:
 
             # Handles the corresponding limit order.
             execution_price, executed_size = self.handleLimitOrder(order)
-            # implementation_shortfall = (highest_bid_price - execution_price) * executed_size
+            implementation_shortfall = (highest_bid_price - execution_price) * executed_size
 
         # Size of the order cannot exceed the size of LOB.
         if executed_size != abs(action):
             raise ValueError("Size of the Market Order cannot exceed the size of LOB! ")
 
-        return execution_price
+        return execution_price, implementation_shortfall
 
 
     def executeOrder(self, order):
