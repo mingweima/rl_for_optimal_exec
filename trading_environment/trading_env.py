@@ -109,6 +109,8 @@ class Simulator:
             order_size = - self.inventory
         elif self.current_loc >= 47:
             order_size = - self.inventory
+        elif action == -2:
+            order_size = - round(self.initial_inventory / self.trading_steps)
         else:
             action = self.ac_dict[action]
             order_size = - round(self.initial_inventory * action / self.trading_steps)

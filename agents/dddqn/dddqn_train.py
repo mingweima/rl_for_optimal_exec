@@ -132,8 +132,8 @@ def dddqn_train(hyperparameters, ac_dict, ob_dict, train_months, test_months):
                 env_train.reset(month, day, session)
                 total_reward = 0
                 bar.update(1)
-                for step in np.arange(1, 25):
-                    state, reward, done, _ = env_train.step(0)
+                for _ in np.arange(1, 25):
+                    state, reward, done, _ = env_train.step(-2)
                     total_reward += reward
                 rewards.append(total_reward)
                 # print('{}, {} Total Reward: '.format(day, session), total_reward)
@@ -156,8 +156,8 @@ def dddqn_train(hyperparameters, ac_dict, ob_dict, train_months, test_months):
                 env_test.reset(month, day, session)
                 total_reward = 0
                 bar.update(1)
-                for step in np.arange(1, 25):
-                    state, reward, done, _ = env_test.step(0)
+                for _ in np.arange(1, 25):
+                    state, reward, done, _ = env_test.step(-2)
                     total_reward += reward
                 rewards.append(total_reward)
                 # print('{}, {} Total Reward: '.format(day, session), total_reward)
