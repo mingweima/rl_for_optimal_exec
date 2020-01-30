@@ -110,7 +110,8 @@ class OrderBook:
         # Size of the order cannot exceed the size of LOB.
         if executed_size != abs(action):
             raise ValueError("Size of the Market Order cannot exceed the size of LOB! ")
-
+        print(action)
+        print(execution_price)
         return execution_price, implementation_shortfall
 
 

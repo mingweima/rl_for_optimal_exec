@@ -120,12 +120,10 @@ class Simulator:
 
         if order_size != 0:
             vwap, _ = self.OrderBook.handleMarketOrder(order_size)
-            print(vwap)
         else:
             vwap = 0
 
         implementation_shortfall = - (order_size / self.initial_inventory) * (vwap - self.arrival_price)
-        print('Arrival: ', self.arrival_price)
 
         # Calculate the reward
         if self.reward_function == 'implementation_shortfall':
