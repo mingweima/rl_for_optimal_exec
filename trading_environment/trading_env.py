@@ -71,7 +71,6 @@ class Simulator:
         self.current_loc = 24
         self.OrderBook = OrderBook(self.get_historical_order())
         self.arrival_price = self.OrderBook.get_hothead_vwap(-self.initial_inventory)
-        print('Arrival : ', self.arrival_price, -self.initial_inventory)
         self.OrderBook = OrderBook(self.get_historical_order())
 
 
@@ -122,7 +121,6 @@ class Simulator:
 
         if order_size != 0:
             vwap, _ = self.OrderBook.handleMarketOrder(order_size)
-            print('Hothead ', vwap, order_size)
         else:
             vwap = 0
 
