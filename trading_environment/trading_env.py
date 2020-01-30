@@ -70,7 +70,7 @@ class Simulator:
 
         self.current_loc = 24
         self.OrderBook = OrderBook(self.get_historical_order())
-
+        print('Arrival Inventory: ', self.initial_inventory)
         self.arrival_price = self.OrderBook.get_hothead_vwap(-self.initial_inventory)
         # self.arrival_price = self.OrderBook.getMidPrice()
 
@@ -107,6 +107,7 @@ class Simulator:
 
         # Place the agent's order to the limit order book
         if action == -1:
+            print('Hothead: ', self.inventory)
             order_size = - self.inventory
         elif self.current_loc >= 47:
             order_size = - self.inventory
