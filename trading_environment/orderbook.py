@@ -303,6 +303,9 @@ class OrderBook:
         else:
             return -1
 
+    def get_hothead_vwap(self, shares):
+        vwap, _ = self.handleMarketOrder(shares)
+        return vwap
 
     def getBidAskSpread(self, level):
         """
