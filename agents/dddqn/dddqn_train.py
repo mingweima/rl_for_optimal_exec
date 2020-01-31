@@ -240,7 +240,7 @@ def dddqn_train(hyperparameters, ac_dict, ob_dict, train_months, test_months):
     decay_rate = hyperparameters['decay_rate']  # exponential decay rate for exploration prob
 
     # Q learning hyperparameters
-    gamma = 0.99  # Discounting rate
+    gamma = 0.5  # Discounting rate
     target_network_update = hyperparameters['target_network_update']
     network_update = hyperparameters['network_update']
 
