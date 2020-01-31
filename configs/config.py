@@ -14,7 +14,7 @@ if __name__ == "__main__":
     parser.add_argument('--agent', type=str, default='dddqn')
     parser.add_argument('--total_loop', type=int, default=200)
     parser.add_argument('--batch_size', type=int, default=1000)
-    parser.add_argument('--learning_rate', type=float, default=0.001)
+    parser.add_argument('--learning_rate', type=float, default=0.01)
     parser.add_argument('--explore_stop', type=float, default=0.05)
     parser.add_argument('--decay_rate', type=float, default=0.01)
     parser.add_argument('--target_network_update', type=int, default=3)
