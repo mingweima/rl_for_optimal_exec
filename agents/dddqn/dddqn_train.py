@@ -240,7 +240,7 @@ def dddqn_train(hyperparameters, ac_dict, ob_dict, train_months, test_months):
     decay_rate = hyperparameters['decay_rate']  # exponential decay rate for exploration prob
 
     # Q learning hyperparameters
-    gamma = 0.5  # Discounting rate
+    gamma = 0.99  # Discounting rate
     target_network_update = hyperparameters['target_network_update']
     network_update = hyperparameters['network_update']
 
@@ -318,14 +318,14 @@ def dddqn_train(hyperparameters, ac_dict, ob_dict, train_months, test_months):
         if explore_probability < explore_stop:
             explore_probability = explore_stop
 
-        # if explore_probability > exp_exp_tradeoff:
-        #     # Make a random action (exploration)
-        #     choice = random.randint(1, len(possible_actions)) - 1
-        #     action = possible_actions[choice]
         if explore_probability > exp_exp_tradeoff:
-            Ps = sess.run(DQNetwork.output_softmax, feed_dict={DQNetwork.inputs_: state.reshape((1, *state.shape))})[0]
-            choice = np.random.choice(action_size, 1, p=Ps)[0]
+            # Make a random action (exploration)
+            choice = random.randint(1, len(possible_actions)) - 1
             action = possible_actions[choice]
+        # if explore_probability > exp_exp_tradeoff:
+        #     Ps = sess.run(DQNetwork.output_softmax, feed_dict={DQNetwork.inputs_: state.reshape((1, *state.shape))})[0]
+        #     choice = np.random.choice(action_size, 1, p=Ps)[0]
+        #     action = possible_actions[choice]
         else:
             # Get action from Q-network (exploitation)
             # Estimate the Qs values state
