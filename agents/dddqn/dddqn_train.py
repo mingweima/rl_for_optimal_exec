@@ -31,7 +31,7 @@ def dddqn_train(hyperparameters, ac_dict, ob_dict, train_months, test_months):
     if ticker == 'BARC':
         initial_shares = 31.42e6 * liquidate_volume
     elif ticker == 'HSBA':
-        initial_shares = 1.67e6 * liquidate_volume
+        initial_shares = 22.17e6 * liquidate_volume
     elif ticker == 'ULVR':
         initial_shares = 2.72e6 * liquidate_volume
     elif ticker == 'RDSa':
