@@ -314,6 +314,7 @@ def dddqn_train(hyperparameters, ac_dict, ob_dict, train_months, test_months):
         exp_exp_tradeoff = np.random.rand()
 
         # Here we'll use an improved version of our epsilon greedy strategy used in Q-learning notebook
+        explore_probability = explore_start * np.exp( - decay_rate * decay_step)
         explore_probability = explore_start - decay_rate * decay_step
         if explore_probability < explore_stop:
             explore_probability = explore_stop
