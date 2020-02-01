@@ -255,7 +255,7 @@ def dddqn_train(hyperparameters, ac_dict, ob_dict, train_months, test_months):
     print('Final Exploration Probability: {}'.format(explore_stop), file=config_f)
     print('Initial Learning Rate: {}'.format(initial_learning_rate), file=config_f)
     print('Exploration Decay Rate: {}'.format(decay_rate), file=config_f)
-    print('Update Target Network Period (day): {}'.format(target_network_update), file=config_f)
+    print('Update Target Network Period (loop): {}'.format(target_network_update), file=config_f)
     print('Update Network Period (day): {}'.format(network_update), file=config_f)
     print('Observation Space: ', ob_dict, file=config_f)
     config_f.close()
@@ -477,6 +477,12 @@ def dddqn_train(hyperparameters, ac_dict, ob_dict, train_months, test_months):
 
         bar.close()
 
+        print(f'{datetime.datetime.now()} '
+              f'Loop = {loop}, '
+              f'Avg R = {round(np.average(total_reward_list), 3)}, '
+              f'Loss = {round(np.average(losses), 3)}, '
+              f'Explore P = {explore_probability}')
+
         if loop_indx % target_network_update == 0:
             update_target = update_target_graph()
             sess.run(update_target)
@@ -499,12 +505,6 @@ def dddqn_train(hyperparameters, ac_dict, ob_dict, train_months, test_months):
             test_avg_reward.append(avg_re)
             avg_re_per_loop.append(np.mean(total_reward_list))
             loss_per_loop.append(np.average(losses))
-
-        print(f'{datetime.datetime.now()} '
-              f'Loop = {loop}, '
-              f'Avg R = {round(np.average(total_reward_list), 3)}, '
-              f'Loss = {round(np.average(losses), 3)}, '
-              f'Explore P = {explore_probability}')
 
         train_f = open(dirpath + '/training.txt', 'a+')
         print(f'{datetime.datetime.now()} '
