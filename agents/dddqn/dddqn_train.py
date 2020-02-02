@@ -148,7 +148,7 @@ def dddqn_train(hyperparameters, ac_dict, ob_dict, train_months, test_months):
     print('Test Set', file=almgren_chriss_f)
     bar = tqdm(range(num_of_test_days * 2), leave=False)
     bar.set_description('AC Test Set')
-    env_test = Simulator(test_dict, test_date, ac_dict, ob_dict, initial_shares, look_back)
+    env_test = Simulator(train_dict, train_date, ac_dict, ob_dict, initial_shares, look_back)
     rewards = []
     for month in test_date.keys():
         for day in test_date[month]:
