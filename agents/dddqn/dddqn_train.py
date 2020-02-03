@@ -481,7 +481,7 @@ def dddqn_train(hyperparameters, ac_dict, ob_dict, train_months, test_months):
         print(f'{datetime.datetime.now()} '
               f'Loop = {loop}, '
               f'Avg R = {round(np.average(total_reward_list), 3)}, '
-              f'Loss = {np.average(losses)}, '
+              f'Loss = {losses}, '
               f'Explore P = {explore_probability}')
 
         if loop_indx % target_network_update == 0:
