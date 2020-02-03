@@ -540,12 +540,14 @@ def dddqn_train(hyperparameters, ac_dict, ob_dict, train_months, test_months):
     test_plot = reward_plot.twinx()
     test_plot.plot(test_avg_reward, color='r', linestyle='dashed')
     plt.savefig(dirpath + '/reward.png')
+    plt.show()
 
     fig2 = plt.figure()
     loss_plot = fig2.add_subplot(111)
     loss_plot.plot(loss_per_loop)
     loss_plot.set_title('Loss')
     plt.savefig(dirpath + '/loss.png')
+    plt.show()
 
     print('============================================================')
     test_f = open(dirpath + '/test.txt', 'a+')
