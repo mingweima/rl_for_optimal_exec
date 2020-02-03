@@ -392,7 +392,7 @@ def dddqn_train(hyperparameters, ac_dict, ob_dict, train_months, test_months):
         bar.set_description('Running Loop {}'.format(loop))
 
         num_of_day = 0
-        for month in months:
+        for month in months[-1:]:
             days = train_date[month]
             np.random.shuffle(days)
             for day in days[-1:]:
@@ -430,7 +430,8 @@ def dddqn_train(hyperparameters, ac_dict, ob_dict, train_months, test_months):
                             memory.add((state, action, reward, next_state, done))
                             state = next_state
 
-                if num_of_day % network_update == 0:
+                # if num_of_day % network_update == 0:
+                if True:
                     ### Training Network
                     # Obtain random mini-batch from memory
                     batch = memory.sample(batch_size)
@@ -540,14 +541,12 @@ def dddqn_train(hyperparameters, ac_dict, ob_dict, train_months, test_months):
     test_plot = reward_plot.twinx()
     test_plot.plot(test_avg_reward, color='r', linestyle='dashed')
     plt.savefig(dirpath + '/reward.png')
-    plt.show()
 
     fig2 = plt.figure()
     loss_plot = fig2.add_subplot(111)
     loss_plot.plot(loss_per_loop)
     loss_plot.set_title('Loss')
     plt.savefig(dirpath + '/loss.png')
-    plt.show()
 
     print('============================================================')
     test_f = open(dirpath + '/test.txt', 'a+')
