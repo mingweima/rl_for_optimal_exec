@@ -395,7 +395,7 @@ def dddqn_train(hyperparameters, ac_dict, ob_dict, train_months, test_months):
         for month in months:
             days = train_date[month]
             np.random.shuffle(days)
-            for day in days:
+            for day in days[-1:]:
                 num_of_day += 1
                 for session in ['morning', 'afternoon']:
                     bar.update(1)
