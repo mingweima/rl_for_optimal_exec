@@ -505,8 +505,8 @@ def dddqn_train(hyperparameters, ac_dict, ob_dict, train_months, test_months):
             # test_f.close()
             # print('Loop {}, Test Average Reward: '.format(loop_indx), round(avg_re, 3))
             # test_avg_reward.append(avg_re)
-            # avg_re_per_loop.append(np.mean(total_reward_list))
-            # loss_per_loop.append(np.average(losses))
+            avg_re_per_loop.append(np.mean(total_reward_list))
+            loss_per_loop.append(np.average(losses))
 
         train_f = open(dirpath + '/training.txt', 'a+')
         print(f'{datetime.datetime.now()} '
