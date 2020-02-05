@@ -392,10 +392,10 @@ def dddqn_train(hyperparameters, ac_dict, ob_dict, train_months, test_months):
         bar.set_description('Running Loop {}'.format(loop))
 
         num_of_day = 0
-        for month in months[-1:]:
+        for month in months:
             days = train_date[month]
             np.random.shuffle(days)
-            for day in days[-1:]:
+            for day in days:
                 num_of_day += 1
                 for session in ['morning']:
                     bar.update(1)
@@ -429,6 +429,45 @@ def dddqn_train(hyperparameters, ac_dict, ob_dict, train_months, test_months):
                         else:
                             memory.add((state, action, reward, next_state, done))
                             state = next_state
+
+                        ### Training Network
+                        # Obtain random mini-batch from memory
+                        batch = memory.sample(batch_size)
+                        states_mb = np.array([each[0] for each in batch], ndmin=3)
+                        actions_mb = np.array([each[1] for each in batch])
+                        rewards_mb = np.array([each[2] for each in batch])
+                        next_states_mb = np.array([each[3] for each in batch], ndmin=3)
+                        dones_mb = np.array([each[4] for each in batch])
+                        target_Qs_batch = []
+                        ### DOUBLE DQN Logic
+                        # Use DQNNetwork to select the action to take at next_state (a') (action with the highest Q-value)
+                        # Use TargetNetwork to calculate the Q_val of Q(s',a')
+                        # Get Q values for next_state
+                        q_next_state = sess.run(DQNetwork.output, feed_dict={DQNetwork.inputs_: next_states_mb})
+                        # Calculate Qtarget for all actions that state
+                        q_target_next_state = sess.run(TargetNetwork.output,
+                                                       feed_dict={TargetNetwork.inputs_: next_states_mb})
+                        # Set Q_target = r if the episode ends at s+1, otherwise set Q_target = r + gamma * Qtarget(s',a')
+                        for i in range(0, len(batch)):
+                            terminal = dones_mb[i]
+
+                            # We got a'
+                            action = np.argmax(q_next_state[i])
+
+                            # If we are in a terminal state, only equals reward
+                            if terminal:
+                                target_Qs_batch.append(rewards_mb[i])
+
+                            else:
+                                # Take the Qtarget for action a'
+                                target = rewards_mb[i] + gamma * q_target_next_state[i][action]
+                                target_Qs_batch.append(target)
+                        targets_mb = np.array([each for each in target_Qs_batch])
+                        _, loss = sess.run([DQNetwork.optimizer, DQNetwork.loss],
+                                           feed_dict={DQNetwork.inputs_: states_mb,
+                                                      DQNetwork.target_Q: targets_mb,
+                                                      DQNetwork.actions_: actions_mb})
+                        losses.append(loss)
 
                 # if num_of_day % network_update == 0:
                 if True:
