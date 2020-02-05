@@ -40,7 +40,7 @@ class DDDQNNet:
             self.value = tf.keras.layers.Dense(1)(self.value_fc)
 
             # The one that calculate A(s,a)
-            self.advantage_fc = tf.keras.layers.LSTM(32, activation = 'None')(self.conv_first1)
+            self.advantage_fc = tf.keras.layers.LSTM(32, activation='None')(self.conv_first1)
             self.advantage_fc = tf.keras.layers.LeakyReLU(alpha=0.01)(self.advantage_fc)
             self.advantage = tf.keras.layers.Dense(self.action_size)(self.advantage_fc)
 
