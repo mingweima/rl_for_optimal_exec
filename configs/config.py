@@ -13,11 +13,11 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument('--agent', type=str, default='dddqn')
     parser.add_argument('--total_loop', type=int, default=300)
-    parser.add_argument('--batch_size', type=int, default=1000)
+    parser.add_argument('--batch_size', type=int, default=128)
     parser.add_argument('--learning_rate', type=float, default=0.005)
     parser.add_argument('--explore_stop', type=float, default=0.05)
     parser.add_argument('--decay_rate', type=float, default=0.01)
-    parser.add_argument('--target_network_update', type=int, default=3)
+    parser.add_argument('--target_network_update', type=int, default=1)
     parser.add_argument('--memory_size', type=int, default=10000)
     parser.add_argument('--network_update', type=int, default=1)
     parser.add_argument('--ticker', type=str, default='HSBA')
@@ -105,41 +105,41 @@ if __name__ == "__main__":
         # 'Bid Ask Spread 8': True,
         # 'Bid Ask Spread 9': True,
         # 'Bid Ask Spread 10': True,
-        # 'Bid Price 1': True,
-        # 'Bid Price 2': True,
-        # 'Bid Price 3': True,
-        # 'Bid Price 4': True,
-        # 'Bid Price 5': True,
+        'Bid Price 1': True,
+        'Bid Price 2': True,
+        'Bid Price 3': True,
+        'Bid Price 4': True,
+        'Bid Price 5': True,
         # 'Bid Price 6': True,
         # 'Bid Price 7': True,
         # 'Bid Price 8': True,
         # 'Bid Price 9': True,
         # 'Bid Price 10': True,
-        # 'Bid Volume 1': True,
-        # 'Bid Volume 2': True,
-        # 'Bid Volume 3': True,
-        # 'Bid Volume 4': True,
-        # 'Bid Volume 5': True,
+        'Bid Volume 1': True,
+        'Bid Volume 2': True,
+        'Bid Volume 3': True,
+        'Bid Volume 4': True,
+        'Bid Volume 5': True,
         # 'Bid Volume 6': True,
         # 'Bid Volume 7': True,
         # 'Bid Volume 8': True,
         # 'Bid Volume 9': True,
         # 'Bid Volume 10': True,
-        # 'Ask Price 1': True,
-        # 'Ask Price 2': True,
-        # 'Ask Price 3': True,
-        # 'Ask Price 4': True,
-        # 'Ask Price 5': True,
+        'Ask Price 1': True,
+        'Ask Price 2': True,
+        'Ask Price 3': True,
+        'Ask Price 4': True,
+        'Ask Price 5': True,
         # 'Ask Price 6': True,
         # 'Ask Price 7': True,
         # 'Ask Price 8': True,
         # 'Ask Price 9': True,
         # 'Ask Price 10': True,
-        # 'Ask Volume 1': True,
-        # 'Ask Volume 2': True,
-        # 'Ask Volume 3': True,
-        # 'Ask Volume 4': True,
-        # 'Ask Volume 5': True,
+        'Ask Volume 1': True,
+        'Ask Volume 2': True,
+        'Ask Volume 3': True,
+        'Ask Volume 4': True,
+        'Ask Volume 5': True,
         # 'Ask Volume 6': True,
         # 'Ask Volume 7': True,
         # 'Ask Volume 8': True,
