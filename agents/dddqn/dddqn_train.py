@@ -557,7 +557,7 @@ def dddqn_train(hyperparameters, ac_dict, ob_dict, train_months, test_months):
               f'Explore P = {explore_probability}\n', file=train_f)
         train_f.close()
 
-        if loop_indx % 50 == 0:
+        if loop_indx % 10 == 0:
             fig1 = plt.figure()
             reward_plot = fig1.add_subplot(111)
             reward_plot.plot(avg_re_per_loop)
