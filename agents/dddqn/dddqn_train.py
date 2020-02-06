@@ -408,6 +408,7 @@ def dddqn_train(hyperparameters, ac_dict, ob_dict, train_months, test_months):
                     state = env_train.reset(month, day, session)
                     state = np.array(state)
                     while step < max_steps:
+                        total_step += 1
                         step += 1
                         # With ϵ select a random action atat, otherwise select a = argmaxQ(st,a)
                         try:
@@ -510,6 +511,10 @@ def dddqn_train(hyperparameters, ac_dict, ob_dict, train_months, test_months):
                                                     DQNetwork.target_Q: targets_mb,
                                                     DQNetwork.actions_: actions_mb})
                         losses.append(loss)
+
+                        if total_step % target_network_update == 0:
+                            update_target = update_target_graph()
+                            sess.run(update_target)
                 # Write TF Summaries
                 #     summary = sess.run(write_op, feed_dict={DQNetwork.inputs_: states_mb,
                 #                                         DQNetwork.target_Q: targets_mb,
@@ -526,28 +531,25 @@ def dddqn_train(hyperparameters, ac_dict, ob_dict, train_months, test_months):
               f'Loss = {round(np.average(losses), 3)}, '
               f'Explore P = {explore_probability}')
 
-        if loop_indx % target_network_update == 0:
-            update_target = update_target_graph()
-            sess.run(update_target)
-            bar = tqdm(range(num_of_test_days * 2), leave=False)
-            bar.set_description("Testing Results")
-            reward_list = []
-            for month in test_date.keys():
-                for day in test_date[month]:
-                    for session in ['morning', 'afternoon']:
-                        bar.update(1)
-                        check_reward = te_performance(month, day, session)
-                        reward_list.append(check_reward)
-            bar.close()
-            avg_re = np.average(reward_list)
-            test_f = open(dirpath + '/test.txt', 'a+')
-            print('Loop {}, Test Average Reward: '.format(loop_indx), round(avg_re, 3), '\n', file=test_f)
-            test_f.close()
-            print('Loop {}, Test Average Reward: '.format(loop_indx), round(avg_re, 3))
-            test_avg_reward.append(avg_re)
+        bar = tqdm(range(num_of_test_days * 2), leave=False)
+        bar.set_description("Testing Results")
+        reward_list = []
+        for month in test_date.keys():
+            for day in test_date[month]:
+                for session in ['morning', 'afternoon']:
+                    bar.update(1)
+                    check_reward = te_performance(month, day, session)
+                reward_list.append(check_reward)
+        bar.close()
+        avg_re = np.average(reward_list)
+        test_f = open(dirpath + '/test.txt', 'a+')
+        print('Loop {}, Test Average Reward: '.format(loop_indx), round(avg_re, 3), '\n', file=test_f)
+        test_f.close()
+        print('Loop {}, Test Average Reward: '.format(loop_indx), round(avg_re, 3))
+        test_avg_reward.append(avg_re)
 
-            avg_re_per_loop.append(np.mean(total_reward_list))
-            loss_per_loop.append(np.average(losses))
+        avg_re_per_loop.append(np.mean(total_reward_list))
+        loss_per_loop.append(np.average(losses))
 
         train_f = open(dirpath + '/training.txt', 'a+')
         print(f'{datetime.datetime.now()} '

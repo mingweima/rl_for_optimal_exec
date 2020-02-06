@@ -17,7 +17,7 @@ if __name__ == "__main__":
     parser.add_argument('--learning_rate', type=float, default=0.005)
     parser.add_argument('--explore_stop', type=float, default=0.05)
     parser.add_argument('--decay_rate', type=float, default=0.05)
-    parser.add_argument('--target_network_update', type=int, default=1)
+    parser.add_argument('--target_network_update', type=int, default=1000)
     parser.add_argument('--memory_size', type=int, default=10000)
     parser.add_argument('--network_update', type=int, default=1)
     parser.add_argument('--ticker', type=str, default='HSBA')
