@@ -174,6 +174,7 @@ if __name__ == "__main__":
     print("Number of Test Months:           ", args.num_of_test_months)
     print("============================================================")
     print("Observation Space:               ", ob_dict)
+    print("Action Space:                    ", ac_dict)
     print("============================================================")
 
     if args.agent == 'dddqn' or args.agent == 'DDDQN':
