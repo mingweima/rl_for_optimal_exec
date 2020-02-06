@@ -260,6 +260,8 @@ def dddqn_train(hyperparameters, ac_dict, ob_dict, train_months, test_months):
     print('Observation Space: ', ob_dict, file=config_f)
     print('Number of Train Months: {}'.format(hyperparameters['num_of_train_months']), file=config_f)
     print('Number of Test Months: {}'.format(hyperparameters['num_of_test_months']), file=config_f)
+    print('Observation Space: \n', ob_dict, file=config_f)
+    print('Action Space: \n', ac_dict, file=config_f)
     config_f.close()
 
     ### MODIFY THIS TO FALSE IF YOU JUST WANT TO SEE THE TRAINED AGENT
