@@ -11,7 +11,7 @@ from agents.dddqn.dddqn_train import dddqn_train
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
-    parser.add_argument('--agent', type=str, default='dddqn')
+    parser.add_argument('--agent', type=str, default='dddqn')t
     parser.add_argument('--total_loop', type=int, default=100)
     parser.add_argument('--batch_size', type=int, default=128)
     parser.add_argument('--learning_rate', type=float, default=0.005)
@@ -23,7 +23,7 @@ if __name__ == "__main__":
     parser.add_argument('--ticker', type=str, default='HSBA')
     parser.add_argument('--lstm_lookback', type=int, default=24)
     parser.add_argument('--liquidate_volume', type=float, default=0.05)
-    parser.add_argument('--num_of_train_months', type=int, default=1)
+    parser.add_argument('--num_of_train_months', type=int, default=11)
     parser.add_argument('--num_of_test_months', type=int, default=1)
 
     args = parser.parse_args()
@@ -43,30 +43,32 @@ if __name__ == "__main__":
         'num_of_test_months': args.num_of_test_months
     }
 
-    train_months = ['2016-01-01_2016-01-31',
-                    '2016-02-01_2016-02-29',
-                    '2016-03-01_2016-03-31',
-                    '2016-04-01_2016-04-30',
-                    '2016-05-01_2016-05-31',
-                    '2016-06-01_2016-06-30',
-                    '2016-07-01_2016-07-31',
-                    '2016-08-01_2016-08-31',
-                    '2016-09-01_2016-09-30',
-                    '2016-10-01_2016-10-31',
-                    '2016-11-01_2016-11-30',
+    train_months = [
+    #                 '2016-01-01_2016-01-31',
+    #                 '2016-02-01_2016-02-29',
+    #                 '2016-03-01_2016-03-31',
+    #                 '2016-04-01_2016-04-30',
+    #                 '2016-05-01_2016-05-31',
+    #                 '2016-06-01_2016-06-30',
+    #                 '2016-07-01_2016-07-31',
+    #                 '2016-08-01_2016-08-31',
+    #                 '2016-09-01_2016-09-30',
+    #                 '2016-10-01_2016-10-31',
+    #                 '2016-11-01_2016-11-30',
                     '2017-01-01_2017-01-31',
                     '2017-02-01_2017-02-28',
                     '2017-03-01_2017-03-31',
                     '2017-04-01_2017-04-30',
                     '2017-05-01_2017-05-31',
-                    '2017-06-01_2017-06-30']
+                    '2017-06-01_2017-06-30',
+                    '2017-07-01_2017-07-31',
+                    '2017-08-01_2017-08-31',
+                    '2017-09-01_2017-09-30',
+                    '2017-10-01_2017-10-31',
+                    '2017-11-01_2017-11-30',]
     train_months = train_months[:args.num_of_train_months]
 
-    test_months = ['2017-07-01_2017-07-31',
-                   '2017-08-01_2017-08-31',
-                   '2017-09-01_2017-09-30',
-                   '2017-10-01_2017-10-31',
-                   '2017-11-01_2017-11-30',
+    test_months = [
                    '2018-01-01_2018-01-31',
                    '2018-02-01_2018-02-28',
                    '2018-03-01_2018-03-31',
