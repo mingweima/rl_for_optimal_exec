@@ -42,7 +42,7 @@ def dddqn_train(hyperparameters, ac_dict, ob_dict, train_months, test_months):
         raise Exception('Unknown Ticker')
 
     t = time.strftime('%Y-%m-%d_%H:%M:%I', time.localtime(time.time()))
-    dirpath = os.getcwd() + '/recordings/{}/dddqn_loop{}_bs{}_mem{}_{}'.format(ticker,
+    dirpath = os.getcwd() + '/recordings/{}/loop{}_bs{}_mem{}_{}'.format(ticker,
                                                                                hyperparameters['total_loop'],
                                                                                  hyperparameters['batch_size'],
                                                                                  hyperparameters['memory_size'],
