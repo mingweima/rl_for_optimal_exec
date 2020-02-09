@@ -80,13 +80,13 @@ if __name__ == "__main__":
 
     train_months = months[:args.num_of_train_months]
 
-    test_months = months[args.num_of_train_months:args.num_of_test_months + args.num_of_test_months]
+    test_months = months[args.num_of_train_months:args.num_of_train_months + args.num_of_test_months]
 
     # ac_dict = {0: 0, 1: 0.25, 2: 0.5, 3: 0.6, 4: 7, 5: 0.8, 6: 0.9, 7: 1,
     #            8: 1.1, 9: 1.2, 10: 1.3, 11: 1.4, 12: 1.5, 13: 1.75, 14: 2, 15: 2.25, 16: 2.5, 17: 2.75, 18: 3}
 
     ac_dict = {0: 0, 1: 0.25, 2: 0.5, 3: 0.75, 4: 0.9, 5: 1, 6: 1.1, 7: 1.25,
-               8: 1.5, 9: 1.75, 10: 2, 11: 2.5, 12: 3, 13: 3.5, 14: 4}
+               8: 1.5, 9: 1.75, 10: 2, 11: 2.5, 12: 3, 13: 3.5, 14: 4, 15: 4.5, 16: 5}
     # ac_dict = {0: 1, 1: 0.9, 2: 1.1, 3: 0.8, 4: 1.2, 5: 0.7, 6: 1.3, 7: 0.6, 8: 1.4, 9: 0.5, 10: 1.5}
     # ac_dict = {0: 0, 1: 0.25, 2: 0.5, 3: 0.75, 4: 1, 5: 1.25, 6: 1.5, 7: 1.75, 8: 2}
     # ac_dict = {0: 0, 1: 1}
