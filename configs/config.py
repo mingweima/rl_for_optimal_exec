@@ -24,7 +24,7 @@ if __name__ == "__main__":
     parser.add_argument('--lstm_lookback', type=int, default=24)
     parser.add_argument('--liquidate_volume', type=float, default=0.05)
     parser.add_argument('--num_of_train_months', type=int, default=8)
-    parser.add_argument('--num_of_test_months', type=int, default=3)
+    parser.add_argument('--num_of_test_months', type=int, default=8)
 
     args = parser.parse_args()
     hyperparameters = {
