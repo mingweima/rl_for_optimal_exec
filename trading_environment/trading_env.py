@@ -185,11 +185,9 @@ class Simulator:
                 # obs.append((self.OrderBook.getBidsPrice(i) - self.price_mean) / self.price_std)
                 bp = 100 * (self.OrderBook.getBidsPrice(i) - self.arrival_price) / self.arrival_price
                 obs.append(bp)
-                print(bp)
             if 'Ask Price {}'.format(i) in self.ob_dict.keys():
                 ap = 100 * (self.OrderBook.getAsksPrice(i) - self.arrival_price) / self.arrival_price
                 obs.append(ap)
-                print(ap)
                 # obs.append((self.OrderBook.getAsksPrice(i) - self.price_mean) / self.price_std)
             if 'Bid Volume {}'.format(i) in self.ob_dict.keys():
                 # obs.append((self.OrderBook.getBidsQuantity(i) - self.volume_mean) / self.volume_std)
