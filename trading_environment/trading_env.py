@@ -73,8 +73,8 @@ class Simulator:
         # self.arrival_price = self.OrderBook.get_hothead_vwap(-self.initial_inventory)
         # self.OrderBook = OrderBook(self.get_historical_order())
 
-        self.arrival_price = self.OrderBook.get_base_ask_price()
-        # self.arrival_price = self.OrderBook.getMidPrice()
+        # self.arrival_price = self.OrderBook.get_base_ask_price()
+        self.arrival_price = self.OrderBook.getMidPrice()
         return self.observation_sequence[-self.look_back:]
 
     def get_historical_order(self):
@@ -184,19 +184,23 @@ class Simulator:
             if 'Bid Ask Spread {}'.format(i) in self.ob_dict.keys():
                 obs.append(self.OrderBook.getBidAskSpread(i))
             if 'Bid Price {}'.format(i) in self.ob_dict.keys():
-                obs.append((self.OrderBook.getBidsPrice(i) - self.price_mean) / self.price_std)
+                # obs.append((self.OrderBook.getBidsPrice(i) - self.price_mean) / self.price_std)
+                bp = self.OrderBook.getBidsPrice(i) - self.arrival_price
+                obs.append(bp)
+                print(bp)
             if 'Ask Price {}'.format(i) in self.ob_dict.keys():
-                obs.append((self.OrderBook.getAsksPrice(i) - self.price_mean) / self.price_std)
+                ap = self.OrderBook.getAsksPrice(i) - self.arrival_price
+                obs.append(ap)
+                print(ap)
+                # obs.append((self.OrderBook.getAsksPrice(i) - self.price_mean) / self.price_std)
             if 'Bid Volume {}'.format(i) in self.ob_dict.keys():
                 # obs.append((self.OrderBook.getBidsQuantity(i) - self.volume_mean) / self.volume_std)
                 bv = (self.OrderBook.getBidsQuantity(i) - (self.initial_inventory / 24)) / (self.initial_inventory / 24)
                 obs.append(bv)
-                print(bv)
             if 'Ask Volume {}'.format(i) in self.ob_dict.keys():
                 # obs.append((self.OrderBook.getAsksQuantity(i) - self.volume_mean) / self.volume_std)
                 av = (self.OrderBook.getAsksQuantity(i) - (self.initial_inventory / 24)) / (self.initial_inventory / 24)
                 obs.append(av)
-                print(av)
 
         return np.asarray(obs)
 
