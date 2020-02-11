@@ -13,7 +13,7 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument('--agent', type=str, default='dddqn')
     parser.add_argument('--total_loop', type=int, default=100)
-    parser.add_argument('--batch_size', type=int, default=512)
+    parser.add_argument('--batch_size', type=int, default=128)
     parser.add_argument('--learning_rate', type=float, default=0.005)
     parser.add_argument('--explore_stop', type=float, default=0.05)
     parser.add_argument('--decay_rate', type=float, default=0.05)
@@ -23,8 +23,8 @@ if __name__ == "__main__":
     parser.add_argument('--ticker', type=str, default='HSBA')
     parser.add_argument('--lstm_lookback', type=int, default=24)
     parser.add_argument('--liquidate_volume', type=float, default=0.05)
-    parser.add_argument('--num_of_train_months', type=int, default=22)
-    parser.add_argument('--num_of_test_months', type=int, default=11)
+    parser.add_argument('--num_of_train_months', type=int, default=6)
+    parser.add_argument('--num_of_test_months', type=int, default=5)
 
     args = parser.parse_args()
     hyperparameters = {
