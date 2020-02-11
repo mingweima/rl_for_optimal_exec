@@ -193,7 +193,7 @@ def dddqn_train(hyperparameters, ac_dict, ob_dict, train_months, test_months):
     bar.close()
 
     for f in [None, almgren_chriss_f]:
-        print('Hothead Average: ', np.average(rewards), file=f)
+        print('Hothead Average: ', round(np.average(rewards), 3), file=f)
         print('============================================================', file=f)
 
     def te_performance(month, day, session):
