@@ -28,76 +28,62 @@ def dddqn_train(hyperparameters, ac_dict, ob_dict, train_months, test_months):
     look_back = hyperparameters['lstm_lookback']
     liquidate_volume = hyperparameters['liquidate_volume']
 
-    if ticker == 'BARC':
-        initial_shares = 31.42e6 * liquidate_volume
-    elif ticker == 'HSBA':
-        initial_shares = 22.17e6 * liquidate_volume
-    elif ticker == 'ULVR':
-        initial_shares = 2.72e6 * liquidate_volume
-    elif ticker == 'RDSa':
-        initial_shares = 10.21e6 * liquidate_volume
-    elif ticker == 'RR':
-        initial_shares = 4.78e6 * liquidate_volume
-    else:
-        raise Exception('Unknown Ticker')
+    initial_shares = {
+        'BARC': 31.42e6 * liquidate_volume,
+        'HSBA': 22.17e6 * liquidate_volume,
+        'ULVR': 2.72e6 * liquidate_volume,
+        'RDSa': 10.21e6 * liquidate_volume,
+        'RR': 4.78e6 * liquidate_volume
+    }
 
     t = time.strftime('%Y-%m-%d_%H:%M:%I', time.localtime(time.time()))
-    dirpath = os.getcwd() + '/recordings/{}/loop{}_{}'.format(ticker, hyperparameters['total_loop'], t)
+    dirpath = os.getcwd() + '/recordings/all/loop{}_{}'.format(hyperparameters['total_loop'], t)
 
     if not os.path.exists(dirpath):
         os.mkdir(dirpath)
     almgren_chriss_f = open(dirpath + '/almgren_chriss.txt', 'w+')
 
-    train_dict = {}
-    train_date = {}
-    for month in train_months:
-        train_dict[month] = {}
-        with open(os.getcwd() + '/trading_environment/data/{}/{}.txt'.format(ticker, month), 'rb') as df_train:
-            data = pickle.load(df_train, encoding='iso-8859-1')
-        date = pd.to_datetime(data['Date-Time'].dt.strftime('%Y/%m/%d'))
-        unique_date = pd.unique(date)
-        train_date[month] = unique_date
-        for day in unique_date:
-            train_dict[month][day] = {}
-            for session in ['morning', 'afternoon']:
-                with open(os.getcwd() +
+    train_env = {}
+    for ticker in initial_shares.keys():
+        train_date = {}
+        train_dict = {}
+        for month in train_months:
+            train_dict[month] = {}
+            with open(os.getcwd() + '/trading_environment/data/{}/{}.txt'.format(ticker, month), 'rb') as df_train:
+                data = pickle.load(df_train, encoding='iso-8859-1')
+            date = pd.to_datetime(data['Date-Time'].dt.strftime('%Y/%m/%d'))
+            unique_date = pd.unique(date)
+            train_date[month] = unique_date
+            for day in unique_date:
+                train_dict[month][day] = {}
+                for session in ['morning', 'afternoon']:
+                    with open(os.getcwd() +
                           '/trading_environment/data/{}/{}_{}_{}.txt'.format(ticker, month, day, session), 'rb') as df:
-                    data = pickle.load(df, encoding='iso-8859-1')
-                    train_dict[month][day][session] = data
+                        data = pickle.load(df, encoding='iso-8859-1')
+                        train_dict[month][day][session] = data
+        train_env[ticker] = Simulator(train_dict, train_date, ac_dict, ob_dict, initial_shares[ticker], look_back)
     num_of_training_days = sum(len(v) for _, v in train_date.items())
 
-    test_dict = {}
-    test_date = {}
-    for month in test_months:
-        test_dict[month] = {}
-        with open(os.getcwd() + '/trading_environment/data/{}/{}.txt'.format(ticker, month), 'rb') as df_test:
-            data = pickle.load(df_test, encoding='iso-8859-1')
-        date = pd.to_datetime(data['Date-Time'].dt.strftime('%Y/%m/%d'))
-        unique_date = pd.unique(date)
-        test_date[month] = unique_date
-        for day in unique_date:
-            test_dict[month][day] = {}
-            for session in ['morning', 'afternoon']:
-                with open(os.getcwd() +
+    test_env = {}
+    for ticker in initial_shares.keys():
+        test_date = {}
+        test_dict = {}
+        for month in test_months:
+            test_dict[month] = {}
+            with open(os.getcwd() + '/trading_environment/data/{}/{}.txt'.format(ticker, month), 'rb') as df_test:
+                data = pickle.load(df_test, encoding='iso-8859-1')
+            date = pd.to_datetime(data['Date-Time'].dt.strftime('%Y/%m/%d'))
+            unique_date = pd.unique(date)
+            test_date[month] = unique_date
+            for day in unique_date:
+                test_dict[month][day] = {}
+                for session in ['morning', 'afternoon']:
+                    with open(os.getcwd() +
                           '/trading_environment/data/{}/{}_{}_{}.txt'.format(ticker, month, day, session), 'rb') as df:
-                    data = pickle.load(df, encoding='iso-8859-1')
-                    test_dict[month][day][session] = data
+                        data = pickle.load(df, encoding='iso-8859-1')
+                        test_dict[month][day][session] = data
+        test_env[ticker] = Simulator(test_dict, test_date, ac_dict, ob_dict, initial_shares[ticker], look_back)
     num_of_test_days = sum(len(v) for _, v in test_date.items())
-
-    # # Normalization Treatment
-    # env_train = Simulator(train_dict, train_date, ac_dict, ob_dict, initial_shares, look_back)
-    # volumes = []
-    # for month in train_date.keys():
-    #     for day in train_date[month]:
-    #         for session in ['morning', 'afternoon']:
-    #             env_train.reset(month, day, session)
-    #             for _ in np.arange(1, 25):
-    #                 state, reward, done, _ = env_train.step(-2)
-    #                 volume = env_train.
-    #             volumes.append(env_train.volume_mean / initial_shares)
-    #             # print('{}, {} Total Reward: '.format(day, session), total_reward)
-    #             print('{}, {} 20-level Volume Mean: '.format(day, session), env_train.volume_mean / initial_shares)
-    # print('Train AC Average: ', round(np.average(volumes), 3))
 
     for f in [None, almgren_chriss_f]:
         print('Training Set Num of Days: ', num_of_training_days, file=f)
@@ -136,21 +122,19 @@ def dddqn_train(hyperparameters, ac_dict, ob_dict, train_months, test_months):
     bar = tqdm(range(num_of_training_days * 2), leave=False)
     bar.set_description('AC Training Set')
     print('Training Set', file=almgren_chriss_f)
-    env_train = Simulator(train_dict, train_date, ac_dict, ob_dict, initial_shares, look_back)
     rewards = []
     for month in train_date.keys():
         for day in train_date[month]:
             for session in ['morning', 'afternoon']:
-                env_train.reset(month, day, session)
-                total_reward = 0
                 bar.update(1)
-                for _ in np.arange(1, 25):
-                    state, reward, done, _ = env_train.step(-2)
-                    total_reward += reward
-                rewards.append(total_reward)
-                # print('{}, {} Total Reward: '.format(day, session), total_reward)
-                print('{}, {} Total Reward: '.format(day, session), total_reward, file=almgren_chriss_f)
-
+                for ticker in initial_shares.keys():
+                    train_env[ticker].reset(month, day, session)
+                    total_reward = 0
+                    for _ in np.arange(1, 25):
+                        state, reward, done, _ = train_env[ticker].step(-2)
+                        total_reward += reward
+                    rewards.append(total_reward)
+                    print(ticker, ', {}, {} Total Reward: '.format(day, session), round(total_reward, 3), file=almgren_chriss_f)
     bar.close()
 
     for f in [None, almgren_chriss_f]:
@@ -160,20 +144,20 @@ def dddqn_train(hyperparameters, ac_dict, ob_dict, train_months, test_months):
     print('Test Set', file=almgren_chriss_f)
     bar = tqdm(range(num_of_test_days * 2), leave=False)
     bar.set_description('AC Test Set')
-    env_test = Simulator(test_dict, train_date, ac_dict, ob_dict, initial_shares, look_back)
     rewards = []
     for month in test_date.keys():
         for day in test_date[month]:
             for session in ['morning', 'afternoon']:
-                env_test.reset(month, day, session)
-                total_reward = 0
                 bar.update(1)
-                for _ in np.arange(1, 25):
-                    state, reward, done, _ = env_test.step(-2)
-                    total_reward += reward
-                rewards.append(total_reward)
+                for ticker in initial_shares.keys():
+                    test_env[ticker].reset(month, day, session)
+                    total_reward = 0
+                    for _ in np.arange(1, 25):
+                        state, reward, done, _ = test_env[ticker].step(-2)
+                        total_reward += reward
+                    rewards.append(total_reward)
                 # print('{}, {} Total Reward: '.format(day, session), total_reward)
-                print('{}, {} Total Reward: '.format(day, session), round(total_reward, 3), file=almgren_chriss_f)
+                    print(ticker, ', {}, {} Total Reward: '.format(day, session), round(total_reward, 3), file=almgren_chriss_f)
     bar.close()
 
     for f in [None, almgren_chriss_f]:
@@ -194,29 +178,30 @@ def dddqn_train(hyperparameters, ac_dict, ob_dict, train_months, test_months):
     for month in test_date.keys():
         for day in test_date[month]:
             for session in ['morning', 'afternoon']:
-                env_test.reset(month, day, session)
-                total_reward = 0
-                state, reward, done, _ = env_test.step(-1)
-                total_reward += reward
-                rewards.append(total_reward)
                 bar.update(1)
+                for ticker in initial_shares.keys():
+                    test_env[ticker].reset(month, day, session)
+                    total_reward = 0
+                    state, reward, done, _ = test_env[ticker].step(-1)
+                    total_reward += reward
+                    rewards.append(total_reward)
                 # print('{}, {} Total Reward: '.format(day, session), total_reward)
-                print('{}, {} Total Reward: '.format(day, session), round(total_reward, 3), file=almgren_chriss_f)
+                    print(ticker, ', {}, {} Total Reward: '.format(day, session), round(total_reward, 3), file=almgren_chriss_f)
     bar.close()
 
     for f in [None, almgren_chriss_f]:
         print('Hothead Average: ', round(np.average(rewards), 3), file=f)
         print('============================================================', file=f)
 
-    def te_performance(month, day, session):
-        state = env_test.reset(month, day, session)
+    def te_performance(month, day, session, ticker):
+        state = test_env[ticker].reset(month, day, session)
         state = np.array(state)
         all_reward = []
         while True:
             Qs = sess.run(DQNetwork.output_softmax, feed_dict={DQNetwork.inputs_: state.reshape((1, *state.shape))})
             choice = np.argmax(Qs)
             action = possible_actions[int(choice)]
-            next_state, reward, done, _ = env_test.step(np.argmax(action))
+            next_state, reward, done, _ = test_env[ticker].step(np.argmax(action))
             all_reward.append(reward)
             if done:
                 break
@@ -230,7 +215,7 @@ def dddqn_train(hyperparameters, ac_dict, ob_dict, train_months, test_months):
 
     print('Training Network!')
 
-    state = env_train.reset(list(train_date.keys())[0], train_date[list(train_date.keys())[0]][0], 'morning')
+    state = train_env[list(initial_shares.keys())[0]].reset(list(train_date.keys())[0], train_date[list(train_date.keys())[0]][0], 'morning')
     state = np.array(state)
     # state = state.reshape(state.shape + (1,))
 
@@ -261,6 +246,7 @@ def dddqn_train(hyperparameters, ac_dict, ob_dict, train_months, test_months):
 
     config_f = open(dirpath + '/config.txt', 'w+')
     print('Hyperparameters', file=config_f)
+    print('Ticker: ', initial_shares.keys(), file=config_f)
     print('Memory Size: {}'.format(memory_size), file=config_f)
     print('Total Shares to Liquidate: {}'.format(liquidate_volume), file=config_f)
     print('Total Loop: {}'.format(total_loop), file=config_f)
@@ -306,16 +292,17 @@ def dddqn_train(hyperparameters, ac_dict, ob_dict, train_months, test_months):
         for month in train_date.keys():
             for day in train_date[month]:
                 for session in ['morning', 'afternoon']:
-                    state = np.array(env_train.reset(month, day, session))
-                    while True:
-                        choice = random.randint(1, len(possible_actions)) - 1
-                        action = possible_actions[choice]
-                        next_state, reward, done, _ = env_train.step(np.argmax(action))
-                        memory.add((state, action, reward, next_state, done))
-                        state = next_state
-                        if done:
-                            bar.update(1)
-                            break
+                    for ticker in initial_shares.keys():
+                        state = np.array(train_env[ticker].reset(month, day, session))
+                        while True:
+                            choice = random.randint(1, len(possible_actions)) - 1
+                            action = possible_actions[choice]
+                            next_state, reward, done, _ = train_env[ticker].step(np.argmax(action))
+                            memory.add((state, action, reward, next_state, done))
+                            state = next_state
+                            if done:
+                                break
+                    bar.update(1)
         bar.close()
 
     # writer = tf.summary.FileWriter('./tensorboard', DQNetwork.get_graph())
@@ -385,15 +372,12 @@ def dddqn_train(hyperparameters, ac_dict, ob_dict, train_months, test_months):
     loss_per_loop = []
     test_avg_reward = []
 
-
     train_f = open(dirpath + '/training.txt', 'a+')
     test_f = open(dirpath + '/test.txt', 'a+')
     print('Training Network!\n', file=train_f)
     print('Training Network!\n', file=test_f)
     train_f.close()
     test_f.close()
-
-
 
     for loop in range(1, total_loop + 1):
         loop_indx += 1
@@ -416,118 +400,81 @@ def dddqn_train(hyperparameters, ac_dict, ob_dict, train_months, test_months):
                 num_of_day += 1
                 for session in ['morning', 'afternoon']:
                     bar.update(1)
-                    step = 0
-                    episode_rewards = []
-                    state = env_train.reset(month, day, session)
-                    state = np.array(state)
-                    while step < max_steps:
-                        total_step += 1
-                        step += 1
-                        # With ϵ select a random action atat, otherwise select a = argmaxQ(st,a)
-                        try:
-                            action, explore_probability = predict_action(explore_start,
+                    for ticker in initial_shares[ticker]:
+                        step = 0
+                        episode_rewards = []
+                        state = train_env[ticker].reset(month, day, session)
+                        state = np.array(state)
+                        while step < max_steps:
+                            total_step += 1
+                            step += 1
+                            # With ϵ select a random action atat, otherwise select a = argmaxQ(st,a)
+                            try:
+                                action, explore_probability = predict_action(explore_start,
                                                                     explore_stop,
                                                                     decay_rate,
                                                                     decay_step,
                                                                     state,
                                                                     possible_actions)
-                        except:
-                            raise Exception('Model Output Nan Probability!')
-                        # Do the action
-                        next_state, reward, done, _ = env_train.step(np.argmax(action))
-                        next_state = np.array(next_state)
-                        episode_rewards.append(reward)
-                        # If the game is finished
-                        if done:
-                            # Set step = max_steps to end the episode
-                            step = max_steps
-                            memory.add((state, action, reward, next_state, done))
-                            total_reward = np.sum(episode_rewards)
-                            total_reward_list.append(total_reward)
-                        else:
-                            memory.add((state, action, reward, next_state, done))
-                            state = next_state
-
-                        ### Training Network
-                        # Obtain random mini-batch from memory
-                        batch = memory.sample(batch_size)
-                        states_mb = np.array([each[0] for each in batch], ndmin=3)
-                        actions_mb = np.array([each[1] for each in batch])
-                        rewards_mb = np.array([each[2] for each in batch])
-                        next_states_mb = np.array([each[3] for each in batch], ndmin=3)
-                        dones_mb = np.array([each[4] for each in batch])
-                        target_Qs_batch = []
-                        ### DOUBLE DQN Logic
-                        # Use DQNNetwork to select the action to take at next_state (a') (action with the highest Q-value)
-                        # Use TargetNetwork to calculate the Q_val of Q(s',a')
-                        # Get Q values for next_state
-                        q_next_state = sess.run(DQNetwork.output, feed_dict={DQNetwork.inputs_: next_states_mb})
-                        # Calculate Qtarget for all actions that state
-                        q_target_next_state = sess.run(TargetNetwork.output,
-                                                       feed_dict={TargetNetwork.inputs_: next_states_mb})
-                        # Set Q_target = r if the episode ends at s+1, otherwise set Q_target = r + gamma * Qtarget(s',a')
-                        for i in range(0, len(batch)):
-                            terminal = dones_mb[i]
-
-                            # We got a'
-                            action = np.argmax(q_next_state[i])
-
-                            # If we are in a terminal state, only equals reward
-                            if terminal:
-                                target_Qs_batch.append(rewards_mb[i])
-
+                            except:
+                                raise Exception('Model Output Nan Probability!')
+                            # Do the action
+                            next_state, reward, done, _ = train_env[ticker].step(np.argmax(action))
+                            next_state = np.array(next_state)
+                            episode_rewards.append(reward)
+                            # If the game is finished
+                            if done:
+                                # Set step = max_steps to end the episode
+                                step = max_steps
+                                memory.add((state, action, reward, next_state, done))
+                                total_reward = np.sum(episode_rewards)
+                                total_reward_list.append(total_reward)
                             else:
-                                # Take the Qtarget for action a'
-                                target = rewards_mb[i] + gamma * q_target_next_state[i][action]
-                                target_Qs_batch.append(target)
-                        targets_mb = np.array([each for each in target_Qs_batch])
-                        _, loss = sess.run([DQNetwork.optimizer, DQNetwork.loss],
+                                memory.add((state, action, reward, next_state, done))
+                                state = next_state
+
+                            ### Training Network
+                            # Obtain random mini-batch from memory
+                            batch = memory.sample(batch_size)
+                            states_mb = np.array([each[0] for each in batch], ndmin=3)
+                            actions_mb = np.array([each[1] for each in batch])
+                            rewards_mb = np.array([each[2] for each in batch])
+                            next_states_mb = np.array([each[3] for each in batch], ndmin=3)
+                            dones_mb = np.array([each[4] for each in batch])
+                            target_Qs_batch = []
+                            ### DOUBLE DQN Logic
+                            # Use DQNNetwork to select the action to take at next_state (a') (action with the highest Q-value)
+                            # Use TargetNetwork to calculate the Q_val of Q(s',a')
+                            # Get Q values for next_state
+                            q_next_state = sess.run(DQNetwork.output, feed_dict={DQNetwork.inputs_: next_states_mb})
+                            # Calculate Qtarget for all actions that state
+                            q_target_next_state = sess.run(TargetNetwork.output,
+                                                       feed_dict={TargetNetwork.inputs_: next_states_mb})
+                            # Set Q_target = r if the episode ends at s+1, otherwise set Q_target = r + gamma * Qtarget(s',a')
+                            for i in range(0, len(batch)):
+                                terminal = dones_mb[i]
+
+                                # We got a'
+                                action = np.argmax(q_next_state[i])
+
+                                # If we are in a terminal state, only equals reward
+                                if terminal:
+                                    target_Qs_batch.append(rewards_mb[i])
+
+                                else:
+                                    # Take the Qtarget for action a'
+                                    target = rewards_mb[i] + gamma * q_target_next_state[i][action]
+                                    target_Qs_batch.append(target)
+                            targets_mb = np.array([each for each in target_Qs_batch])
+                            _, loss = sess.run([DQNetwork.optimizer, DQNetwork.loss],
                                            feed_dict={DQNetwork.inputs_: states_mb,
                                                       DQNetwork.target_Q: targets_mb,
                                                       DQNetwork.actions_: actions_mb})
-                        losses.append(loss)
+                            losses.append(loss)
 
-                        ### Training Network
-                        # Obtain random mini-batch from memory
-                        batch = memory.sample(batch_size)
-                        states_mb = np.array([each[0] for each in batch], ndmin=3)
-                        actions_mb = np.array([each[1] for each in batch])
-                        rewards_mb = np.array([each[2] for each in batch])
-                        next_states_mb = np.array([each[3] for each in batch], ndmin=3)
-                        dones_mb = np.array([each[4] for each in batch])
-                        target_Qs_batch = []
-                        ### DOUBLE DQN Logic
-                        # Use DQNNetwork to select the action to take at next_state (a') (action with the highest Q-value)
-                        # Use TargetNetwork to calculate the Q_val of Q(s',a')
-                        # Get Q values for next_state
-                        q_next_state = sess.run(DQNetwork.output, feed_dict={DQNetwork.inputs_: next_states_mb})
-                        # Calculate Qtarget for all actions that state
-                        q_target_next_state = sess.run(TargetNetwork.output, feed_dict={TargetNetwork.inputs_: next_states_mb})
-                        # Set Q_target = r if the episode ends at s+1, otherwise set Q_target = r + gamma * Qtarget(s',a')
-                        for i in range(0, len(batch)):
-                            terminal = dones_mb[i]
-
-                            # We got a'
-                            action = np.argmax(q_next_state[i])
-
-                            # If we are in a terminal state, only equals reward
-                            if terminal:
-                                target_Qs_batch.append(rewards_mb[i])
-
-                            else:
-                                # Take the Qtarget for action a'
-                                target = rewards_mb[i] + gamma * q_target_next_state[i][action]
-                                target_Qs_batch.append(target)
-                        targets_mb = np.array([each for each in target_Qs_batch])
-                        _, loss = sess.run([DQNetwork.optimizer, DQNetwork.loss],
-                                        feed_dict={DQNetwork.inputs_: states_mb,
-                                                    DQNetwork.target_Q: targets_mb,
-                                                    DQNetwork.actions_: actions_mb})
-                        losses.append(loss)
-
-                        if total_step % target_network_update == 0:
-                            update_target = update_target_graph()
-                            sess.run(update_target)
+                            if total_step % target_network_update == 0:
+                                update_target = update_target_graph()
+                                sess.run(update_target)
                 # Write TF Summaries
                 #     summary = sess.run(write_op, feed_dict={DQNetwork.inputs_: states_mb,
                 #                                         DQNetwork.target_Q: targets_mb,
@@ -551,8 +498,9 @@ def dddqn_train(hyperparameters, ac_dict, ob_dict, train_months, test_months):
             for day in test_date[month]:
                 for session in ['morning', 'afternoon']:
                     bar.update(1)
-                    check_reward = te_performance(month, day, session)
-                reward_list.append(check_reward)
+                    for ticker in initial_shares.keys():
+                        check_reward = te_performance(month, day, session, ticker)
+                        reward_list.append(check_reward)
         bar.close()
         avg_re = np.average(reward_list)
         test_f = open(dirpath + '/test.txt', 'a+')
@@ -608,10 +556,11 @@ def dddqn_train(hyperparameters, ac_dict, ob_dict, train_months, test_months):
     for month in test_date.keys():
         for day in test_date[month]:
             for session in ['morning', 'afternoon']:
-                check_reward = te_performance(month, day, session)
-                print('{} Total Reward: '.format(day), check_reward, file=test_f)
-                print('{} Total Reward: '.format(day), check_reward)
-                reward_list.append(check_reward)
+                for ticker in initial_shares.keys():
+                    check_reward = te_performance(month, day, session, ticker)
+                    print(ticker, ', {} Total Reward: '.format(day), check_reward, file=test_f)
+                    print(ticker, ', {} Total Reward: '.format(day), check_reward)
+                    reward_list.append(check_reward)
 
     test_list_f = open(dirpath + '/test_list_f.txt', 'wb')
     pickle.dump(reward_list, test_list_f)
