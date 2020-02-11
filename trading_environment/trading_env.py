@@ -184,6 +184,7 @@ class Simulator:
             if 'Bid Price {}'.format(i) in self.ob_dict.keys():
                 # obs.append((self.OrderBook.getBidsPrice(i) - self.price_mean) / self.price_std)
                 bp = (self.OrderBook.getBidsPrice(i) - self.arrival_price) / self.arrival_price
+                print(self.arrival_price)
                 obs.append(bp)
                 print(bp)
             if 'Ask Price {}'.format(i) in self.ob_dict.keys():
