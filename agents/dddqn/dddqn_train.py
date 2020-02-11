@@ -400,7 +400,7 @@ def dddqn_train(hyperparameters, ac_dict, ob_dict, train_months, test_months):
                 num_of_day += 1
                 for session in ['morning', 'afternoon']:
                     bar.update(1)
-                    for ticker in initial_shares[ticker]:
+                    for ticker in initial_shares.keys():
                         step = 0
                         episode_rewards = []
                         state = train_env[ticker].reset(month, day, session)
