@@ -188,9 +188,15 @@ class Simulator:
             if 'Ask Price {}'.format(i) in self.ob_dict.keys():
                 obs.append((self.OrderBook.getAsksPrice(i) - self.price_mean) / self.price_std)
             if 'Bid Volume {}'.format(i) in self.ob_dict.keys():
-                obs.append((self.OrderBook.getBidsQuantity(i) - self.volume_mean) / self.volume_std)
+                # obs.append((self.OrderBook.getBidsQuantity(i) - self.volume_mean) / self.volume_std)
+                bv = (self.OrderBook.getBidsQuantity(i) - (self.initial_inventory / 24)) / (self.initial_inventory / 24)
+                obs.append(bv)
+                print(bv)
             if 'Ask Volume {}'.format(i) in self.ob_dict.keys():
-                obs.append((self.OrderBook.getAsksQuantity(i) - self.volume_mean) / self.volume_std)
+                # obs.append((self.OrderBook.getAsksQuantity(i) - self.volume_mean) / self.volume_std)
+                av = (self.OrderBook.getAsksQuantity(i) - (self.initial_inventory / 24)) / (self.initial_inventory / 24)
+                obs.append(av)
+                print(av)
 
         return np.asarray(obs)
 
