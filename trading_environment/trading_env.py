@@ -58,9 +58,12 @@ class Simulator:
         self.inventory = self.initial_inventory
 
         self.initial_loc = 24
-        self.current_loc = 0
+        self.current_loc = 24
+        self.OrderBook = OrderBook(self.get_historical_order())
+        self.arrival_price = self.OrderBook.getMidPrice()
 
         # Initialize the observation sequence
+        self.current_loc = 0
         self.observation_sequence = []
         self.OrderBook = OrderBook(self.get_historical_order())
         while self.current_loc <= 24:
@@ -70,11 +73,6 @@ class Simulator:
 
         self.current_loc = 24
         self.OrderBook = OrderBook(self.get_historical_order())
-        # self.arrival_price = self.OrderBook.get_hothead_vwap(-self.initial_inventory)
-        # self.OrderBook = OrderBook(self.get_historical_order())
-
-        # self.arrival_price = self.OrderBook.get_base_ask_price()
-        self.arrival_price = self.OrderBook.getMidPrice()
         return self.observation_sequence[-self.look_back:]
 
     def get_historical_order(self):
