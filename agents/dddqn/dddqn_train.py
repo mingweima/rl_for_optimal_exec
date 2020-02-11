@@ -88,8 +88,6 @@ def dddqn_train(hyperparameters, ac_dict, ob_dict, train_months, test_months):
     num_of_test_days = sum(len(v) for _, v in test_date.items())
 
     # Normalization Treatment
-    bar = tqdm(range(num_of_training_days * 2), leave=False)
-    bar.set_description('AC Training Set')
     env_train = Simulator(train_dict, train_date, ac_dict, ob_dict, initial_shares, look_back)
     volumes = []
     for month in train_date.keys():
@@ -97,13 +95,11 @@ def dddqn_train(hyperparameters, ac_dict, ob_dict, train_months, test_months):
             for session in ['morning', 'afternoon']:
                 env_train.reset(month, day, session)
                 print(env_train.volume_mean / initial_shares)
-                bar.update(1)
                 for _ in np.arange(1, 25):
                     state, reward, done, _ = env_train.step(-2)
                 volumes.append(env_train.volume_mean / initial_shares)
                 # print('{}, {} Total Reward: '.format(day, session), total_reward)
                 print('{}, {} 20-level Volume Mean: '.format(day, session), env_train.volume_mean / initial_shares, file=almgren_chriss_f)
-    bar.close()
     print('Train AC Average: ', round(np.average(volumes), 3))
 
     for f in [None, almgren_chriss_f]:
