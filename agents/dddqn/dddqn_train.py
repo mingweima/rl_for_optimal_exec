@@ -98,7 +98,7 @@ def dddqn_train(hyperparameters, ac_dict, ob_dict, train_months, test_months):
                 #     state, reward, done, _ = env_train.step(-2)
                 volumes.append(env_train.volume_mean / initial_shares)
                 # print('{}, {} Total Reward: '.format(day, session), total_reward)
-                print('{}, {} 20-level Volume Mean: '.format(day, session), env_train.volume_mean / initial_shares, file=almgren_chriss_f)
+                print('{}, {} 20-level Volume Mean: '.format(day, session), env_train.volume_mean / initial_shares)
     print('Train AC Average: ', round(np.average(volumes), 3))
 
     for f in [None, almgren_chriss_f]:
