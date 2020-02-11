@@ -39,21 +39,21 @@ class Simulator:
         # Initialize the OrderBook
         self.data = self.data_dict[month][day][session]
 
-        mid_price_list = []
-        volume_list = []
-
-        # 24 steps of normalization (2 hours)
-        for interval in range(24):
-            LOB = np.array(self.data.loc[interval])
-            mid_price = (LOB[1] + LOB[3]) / 2
-            if mid_price:
-                mid_price_list.append(mid_price)
-            volume = (sum(LOB[4 * j + 2] for j in range(10)) + sum(LOB[4 * j + 4] for j in range(10))) / 20
-            if volume:
-                volume_list.append(volume)
-
-        self.price_mean, self.price_std, self.volume_mean, self.volume_std = \
-            np.average(mid_price_list), np.std(mid_price_list), np.average(volume_list), np.std(volume_list)
+        # mid_price_list = []
+        # volume_list = []
+        #
+        # # 24 steps of normalization (2 hours)
+        # for interval in range(24):
+        #     LOB = np.array(self.data.loc[interval])
+        #     mid_price = (LOB[1] + LOB[3]) / 2
+        #     if mid_price:
+        #         mid_price_list.append(mid_price)
+        #     volume = (sum(LOB[4 * j + 2] for j in range(10)) + sum(LOB[4 * j + 4] for j in range(10))) / 20
+        #     if volume:
+        #         volume_list.append(volume)
+        #
+        # self.price_mean, self.price_std, self.volume_mean, self.volume_std = \
+        #     np.average(mid_price_list), np.std(mid_price_list), np.average(volume_list), np.std(volume_list)
 
         self.inventory = self.initial_inventory
 
@@ -122,7 +122,8 @@ class Simulator:
         else:
             vwap = 0
 
-        implementation_shortfall = - 10000 * (order_size / self.initial_inventory) * (vwap - self.arrival_price) / self.arrival_price
+        implementation_shortfall = - 10000 * (order_size / self.initial_inventory) * \
+                                   (vwap - self.arrival_price) / self.arrival_price
 
         # Calculate the reward
         if self.reward_function == 'implementation_shortfall':
