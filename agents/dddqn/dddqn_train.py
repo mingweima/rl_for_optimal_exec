@@ -29,11 +29,11 @@ def dddqn_train(hyperparameters, ac_dict, ob_dict, train_months, test_months):
     liquidate_volume = hyperparameters['liquidate_volume']
 
     initial_shares = {
-        'BARC': 31.42e6 * liquidate_volume,
-        'HSBA': 22.17e6 * liquidate_volume,
-        'ULVR': 2.72e6 * liquidate_volume,
+        # 'BARC': 31.42e6 * liquidate_volume,
+        # 'HSBA': 22.17e6 * liquidate_volume,
+        # 'ULVR': 2.72e6 * liquidate_volume,
         'RDSa': 10.21e6 * liquidate_volume,
-        'RR': 4.78e6 * liquidate_volume
+        # 'RR': 4.78e6 * liquidate_volume
     }
 
     t = time.strftime('%Y-%m-%d_%H:%M:%I', time.localtime(time.time()))
