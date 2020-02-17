@@ -61,7 +61,7 @@ class Simulator:
         self.current_loc = 24
         self.OrderBook = OrderBook(self.get_historical_order())
         # self.arrival_price = self.OrderBook.getMidPrice()
-        self.arrival_price = self.OrderBook.get_hothead_vwap(self.initial_inventory)
+        self.arrival_price = self.OrderBook.get_hothead_vwap(-self.initial_inventory)
 
         # Initialize the observation sequence
         self.current_loc = 0
