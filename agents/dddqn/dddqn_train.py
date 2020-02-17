@@ -135,6 +135,7 @@ def dddqn_train(hyperparameters, ac_dict, ob_dict, train_months, test_months):
                         total_reward += reward
                     rewards.append(total_reward)
                     print(ticker, ', {}, {} Total Reward: '.format(day, session), round(total_reward, 3), file=almgren_chriss_f)
+                    print(ticker, ', {}, {} Total Reward: '.format(day, session), round(total_reward, 3))
     bar.close()
 
     for f in [None, almgren_chriss_f]:
@@ -158,6 +159,7 @@ def dddqn_train(hyperparameters, ac_dict, ob_dict, train_months, test_months):
                     rewards.append(total_reward)
                 # print('{}, {} Total Reward: '.format(day, session), total_reward)
                     print(ticker, ', {}, {} Total Reward: '.format(day, session), round(total_reward, 3), file=almgren_chriss_f)
+                    print(ticker, ', {}, {} Total Reward: '.format(day, session), round(total_reward, 3))
     bar.close()
 
     for f in [None, almgren_chriss_f]:
@@ -187,6 +189,7 @@ def dddqn_train(hyperparameters, ac_dict, ob_dict, train_months, test_months):
                     rewards.append(total_reward)
                 # print('{}, {} Total Reward: '.format(day, session), total_reward)
                     print(ticker, ', {}, {} Total Reward: '.format(day, session), round(total_reward, 3), file=almgren_chriss_f)
+                    print(ticker, ', {}, {} Total Reward: '.format(day, session), round(total_reward, 3))
     bar.close()
 
     for f in [None, almgren_chriss_f]:
