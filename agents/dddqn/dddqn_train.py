@@ -249,6 +249,7 @@ def dddqn_train(hyperparameters, ac_dict, ob_dict, train_months, test_months):
     print('Ticker: ', initial_shares.keys(), file=config_f)
     print('Memory Size: {}'.format(memory_size), file=config_f)
     print('Total Shares to Liquidate: {}'.format(liquidate_volume), file=config_f)
+    print('LSTM Lookback: {}'.format(look_back), file=config_f)
     print('Total Loop: {}'.format(total_loop), file=config_f)
     print('Batch Size: {}'.format(batch_size), file=config_f)
     print('Final Exploration Probability: {}'.format(explore_stop), file=config_f)
