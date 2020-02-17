@@ -28,6 +28,9 @@ class DDDQNNet:
             self.actions_ = tf.placeholder(tf.float32, [None, action_size], name="actions_")
             self.target_Q = tf.placeholder(tf.float32, [None], name="target")
 
+            if self.prioritized:
+                self.ISWeights = tf.placeholder(tf.float32, [None, 1], name='IS_weights')
+
             # define network
             # Input is 100x120x4
             self.conv_first1 = tf.keras.layers.LSTM(64, return_sequences=True)(self.inputs_)
@@ -58,6 +61,12 @@ class DDDQNNet:
             self.absolute_errors = tf.abs(self.target_Q - self.Q)  # for updating Sumtree
 
             self.loss = tf.reduce_mean(tf.squared_difference(self.target_Q, self.Q))
+
+            if self.prioritized:
+                self.abs_errors = tf.reduce_sum(tf.abs(self.target_Q - self.Q), axis=1)  # for updating Sumtree
+                self.loss = tf.reduce_mean(self.ISWeights * tf.squared_difference(self.target_Q, self.Q))
+            else:
+                self.loss = tf.reduce_mean(tf.squared_difference(self.target_Q, self.Q))
 
             self.optimizer = tf.train.AdamOptimizer(self.learning_rate, beta1=0.9, beta2=0.999, epsilon=1e-8).minimize(
                 self.loss)
