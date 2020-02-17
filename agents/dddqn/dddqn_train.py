@@ -119,14 +119,14 @@ def dddqn_train(hyperparameters, ac_dict, ob_dict, train_months, test_months):
     max_steps = 100000  # Max possible steps in an episode
     batch_size = hyperparameters['batch_size']
 
-    bar = tqdm(range(num_of_training_days * 2), leave=False)
-    bar.set_description('AC Training Set')
+    # bar = tqdm(range(num_of_training_days * 2), leave=False)
+    # bar.set_description('AC Training Set')
     print('Training Set', file=almgren_chriss_f)
     rewards = []
     for month in train_date.keys():
         for day in train_date[month]:
             for session in ['morning', 'afternoon']:
-                bar.update(1)
+                # bar.update(1)
                 for ticker in initial_shares.keys():
                     train_env[ticker].reset(month, day, session)
                     total_reward = 0
@@ -136,20 +136,20 @@ def dddqn_train(hyperparameters, ac_dict, ob_dict, train_months, test_months):
                     rewards.append(total_reward)
                     print(ticker, ', {}, {} Total Reward: '.format(day, session), round(total_reward, 3), file=almgren_chriss_f)
                     print(ticker, ', {}, {} Total Reward: '.format(day, session), round(total_reward, 3))
-    bar.close()
+    # bar.close()
 
     for f in [None, almgren_chriss_f]:
         print('Train AC Average: ', round(np.average(rewards), 3), file=f)
         print('============================================================', file=f)
 
     print('Test Set', file=almgren_chriss_f)
-    bar = tqdm(range(num_of_test_days * 2), leave=False)
-    bar.set_description('AC Test Set')
+    # bar = tqdm(range(num_of_test_days * 2), leave=False)
+    # bar.set_description('AC Test Set')
     rewards = []
     for month in test_date.keys():
         for day in test_date[month]:
             for session in ['morning', 'afternoon']:
-                bar.update(1)
+                # bar.update(1)
                 for ticker in initial_shares.keys():
                     test_env[ticker].reset(month, day, session)
                     total_reward = 0
@@ -160,7 +160,7 @@ def dddqn_train(hyperparameters, ac_dict, ob_dict, train_months, test_months):
                 # print('{}, {} Total Reward: '.format(day, session), total_reward)
                     print(ticker, ', {}, {} Total Reward: '.format(day, session), round(total_reward, 3), file=almgren_chriss_f)
                     print(ticker, ', {}, {} Total Reward: '.format(day, session), round(total_reward, 3))
-    bar.close()
+    # bar.close()
 
     for f in [None, almgren_chriss_f]:
         print('Test AC Average: ', round(np.average(rewards), 3), file=f)
@@ -173,14 +173,14 @@ def dddqn_train(hyperparameters, ac_dict, ob_dict, train_months, test_months):
     for f in [None, almgren_chriss_f]:
         print('============================================================', file=f)
         print('Running Hothead!', file=f)
-    bar = tqdm(range(num_of_test_days * 2), leave=False)
-    bar.set_description('Hothead Test Set')
+    # bar = tqdm(range(num_of_test_days * 2), leave=False)
+    # bar.set_description('Hothead Test Set')
     # Hothead
     rewards = []
     for month in test_date.keys():
         for day in test_date[month]:
             for session in ['morning', 'afternoon']:
-                bar.update(1)
+                # bar.update(1)
                 for ticker in initial_shares.keys():
                     test_env[ticker].reset(month, day, session)
                     total_reward = 0
@@ -190,7 +190,7 @@ def dddqn_train(hyperparameters, ac_dict, ob_dict, train_months, test_months):
                 # print('{}, {} Total Reward: '.format(day, session), total_reward)
                     print(ticker, ', {}, {} Total Reward: '.format(day, session), round(total_reward, 3), file=almgren_chriss_f)
                     print(ticker, ', {}, {} Total Reward: '.format(day, session), round(total_reward, 3))
-    bar.close()
+    # bar.close()
 
     for f in [None, almgren_chriss_f]:
         print('Hothead Average: ', round(np.average(rewards), 3), file=f)
