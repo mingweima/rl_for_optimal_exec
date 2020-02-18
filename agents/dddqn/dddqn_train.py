@@ -127,27 +127,34 @@ def dddqn_train(hyperparameters, ac_dict, ob_dict, train_months, test_months):
         res = []
         ps = []
         acs = []
+        dones = []
         for month in train_date.keys():
             for day in train_date[month]:
                 for session in ['morning', 'afternoon']:
                     bar.update(1)
                     train_env[ticker].reset(month, day, session)
                     total_reward = 0
-                    for _ in np.arange(1, 25):
+                    while True:
                         state, reward, done, info = train_env[ticker].step(-2)
                         total_reward += reward
                         res.append(reward)
                         acs.append(info['size'])
                         ps.append(info['price'])
+                        if done:
+                            dones.append(len(res) - 1)
+                            break
                     rewards.append(total_reward)
-                    print(ticker, ', {}, {} Total Reward: '.format(day, session), round(total_reward, 3), file=almgren_chriss_f)
-                    # print(ticker, ', {}, {} Total Reward: '.format(day, session), round(total_reward, 3))
+                    print(ticker, ', {}, {} Total Reward: '.format(day, session), round(total_reward, 3),
+                          file=almgren_chriss_f)
         fig = plt.figure(figsize=(40, 20))
         reward_plot = fig.add_subplot(311)
         reward_plot.plot(res)
         reward_plot.set_title('Reward')
         ac_plot = fig.add_subplot(312)
-        ac_plot.bar(range(len(acs)), acs)
+        color = ['b'] * len(acs)
+        for indx in dones:
+            color[indx] = 'r'
+        ac_plot.bar(range(len(acs)), acs, color=color)
         ac_plot.set_title('Action')
         p_plot = fig.add_subplot(313)
         p_plot.set_title('Price')
@@ -167,27 +174,35 @@ def dddqn_train(hyperparameters, ac_dict, ob_dict, train_months, test_months):
         res = []
         ps = []
         acs = []
+        dones = []
         for month in test_date.keys():
             for day in test_date[month]:
                 for session in ['morning', 'afternoon']:
                     bar.update(1)
                     test_env[ticker].reset(month, day, session)
                     total_reward = 0
-                    for _ in np.arange(1, 25):
+                    while True:
                         state, reward, done, info = test_env[ticker].step(-2)
                         total_reward += reward
                         res.append(reward)
                         acs.append(info['size'])
                         ps.append(info['price'])
+                        if done:
+                            dones.append(len(res) - 1)
+                            break
                     rewards.append(total_reward)
-                    print(ticker, ', {}, {} Total Reward: '.format(day, session), round(total_reward, 3), file=almgren_chriss_f)
-                    # print(ticker, ', {}, {} Total Reward: '.format(day, session), round(total_reward, 3))
+                    print(ticker, ', {}, {} Total Reward: '.format(day, session), round(total_reward, 3),
+                          file=almgren_chriss_f)
+
         fig = plt.figure(figsize=(40, 20))
         reward_plot = fig.add_subplot(311)
         reward_plot.plot(res)
         reward_plot.set_title('Reward')
         ac_plot = fig.add_subplot(312)
-        ac_plot.bar(range(len(acs)), acs)
+        color = ['b'] * len(acs)
+        for indx in dones:
+            color[indx] = 'r'
+        ac_plot.bar(range(len(acs)), acs, color=color)
         ac_plot.set_title('Action')
         p_plot = fig.add_subplot(313)
         p_plot.set_title('Price')
@@ -592,6 +607,7 @@ def dddqn_train(hyperparameters, ac_dict, ob_dict, train_months, test_months):
                 res = []
                 ps = []
                 acs = []
+                dones = []
                 for month in test_date.keys():
                     for day in test_date[month]:
                         for session in ['morning', 'afternoon']:
@@ -607,6 +623,7 @@ def dddqn_train(hyperparameters, ac_dict, ob_dict, train_months, test_months):
                                 acs.append(info['size'])
                                 ps.append(info['price'])
                                 if done:
+                                    dones.append(len(res) - 1)
                                     break
                                 else:
                                     next_state = np.array(next_state)
@@ -616,7 +633,10 @@ def dddqn_train(hyperparameters, ac_dict, ob_dict, train_months, test_months):
                 reward_plot.plot(res)
                 reward_plot.set_title('Reward')
                 ac_plot = fig.add_subplot(312)
-                ac_plot.bar(range(len(acs)), acs)
+                color = ['b'] * len(acs)
+                for indx in dones:
+                    color[indx] = 'r'
+                ac_plot.bar(range(len(acs)), acs, color=color)
                 ac_plot.set_title('Action')
                 p_plot = fig.add_subplot(313)
                 p_plot.set_title('Price')
