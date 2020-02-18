@@ -124,7 +124,7 @@ class Simulator:
         else:
             vwap = 0
 
-        implementation_shortfall = - 10000 * (order_size / self.initial_inventory) * \
+        implementation_shortfall = - 1000 * (order_size / self.initial_inventory) * \
                                    (vwap - self.arrival_price) / self.arrival_price
 
         # Calculate the reward
