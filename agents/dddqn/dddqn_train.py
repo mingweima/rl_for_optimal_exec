@@ -31,8 +31,8 @@ def dddqn_train(hyperparameters, ac_dict, ob_dict, train_months, test_months):
     initial_shares = {
         # 'BARC': 31.42e6 * liquidate_volume,
         # 'HSBA': 22.17e6 * liquidate_volume,
-        'ULVR': 2.63e6 * liquidate_volume,
-        'RDSa': 10.21e6 * liquidate_volume,
+        # 'ULVR': 2.63e6 * liquidate_volume,
+        # 'RDSa': 10.21e6 * liquidate_volume,
         'RR': 4.78e6 * liquidate_volume
     }
 
@@ -622,7 +622,7 @@ def dddqn_train(hyperparameters, ac_dict, ob_dict, train_months, test_months):
                 p_plot.set_title('Price')
                 p_plot.plot(ps)
                 plt.savefig(dirpath + '/loop{}_{}.png'.format(loop_indx, ticker))
-            
+
 
     fig1 = plt.figure()
     reward_plot = fig1.add_subplot(111)
