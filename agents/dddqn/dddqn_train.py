@@ -588,6 +588,42 @@ def dddqn_train(hyperparameters, ac_dict, ob_dict, train_months, test_months):
             loss_plot.set_title('Loss')
             plt.savefig(dirpath + '/loss_{}.png'.format(loop_indx))
 
+            for ticker in initial_shares.keys():
+                res = []
+                ps = []
+                acs = []
+                for month in test_date.keys():
+                    for day in test_date[month]:
+                        for session in ['morning', 'afternoon']:
+                            state = test_env[ticker].reset(month, day, session)
+                            state = np.array(state)
+                            while True:
+                                Qs = sess.run(DQNetwork.output_softmax,
+                                              feed_dict={DQNetwork.inputs_: state.reshape((1, *state.shape))})
+                                choice = np.argmax(Qs)
+                                action = possible_actions[int(choice)]
+                                next_state, reward, done, info = test_env[ticker].step(np.argmax(action))
+                                res.append(reward)
+                                acs.append(info['size'])
+                                ps.append(info['price'])
+                                if done:
+                                    break
+                                else:
+                                    next_state = np.array(next_state)
+                                    state = next_state
+                fig = plt.figure(figsize=(40, 20))
+                reward_plot = fig.add_subplot(311)
+                reward_plot.plot(res)
+                reward_plot.set_title('Reward')
+                ac_plot = fig.add_subplot(312)
+                ac_plot.bar(range(len(acs)), acs)
+                ac_plot.set_title('Action')
+                p_plot = fig.add_subplot(313)
+                p_plot.set_title('Price')
+                p_plot.plot(ps)
+                plt.savefig(dirpath + '/loop{}_{}.png'.format(loop_indx, ticker))
+            
+
     fig1 = plt.figure()
     reward_plot = fig1.add_subplot(111)
     reward_plot.plot(avg_re_per_loop)
