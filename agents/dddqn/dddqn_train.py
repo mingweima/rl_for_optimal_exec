@@ -119,20 +119,6 @@ def dddqn_train(hyperparameters, ac_dict, ob_dict, train_months, test_months):
     max_steps = 100000  # Max possible steps in an episode
     batch_size = hyperparameters['batch_size']
 
-    fig1 = plt.figure()
-    reward_plot = fig1.add_subplot(111)
-    reward_plot.plot(avg_re_per_loop)
-    reward_plot.set_title('Blue: Training Set Reward; Red: Test Set Reward')
-    test_plot = reward_plot.twinx()
-    test_plot.plot(test_avg_reward, color='r', linestyle='dashed')
-    plt.savefig(dirpath + '/reward_{}.png'.format(loop_indx))
-
-    fig2 = plt.figure()
-    loss_plot = fig2.add_subplot(111)
-    loss_plot.plot(loss_per_loop)
-    loss_plot.set_title('Loss')
-    plt.savefig(dirpath + '/loss_{}.png'.format(loop_indx))
-
     bar = tqdm(range(num_of_training_days * 2 * len(list(initial_shares.keys()))), leave=False)
     bar.set_description('AC Training Set')
     print('Training Set', file=almgren_chriss_f)
