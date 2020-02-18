@@ -119,48 +119,91 @@ def dddqn_train(hyperparameters, ac_dict, ob_dict, train_months, test_months):
     max_steps = 100000  # Max possible steps in an episode
     batch_size = hyperparameters['batch_size']
 
-    # bar = tqdm(range(num_of_training_days * 2), leave=False)
-    # bar.set_description('AC Training Set')
+    fig1 = plt.figure()
+    reward_plot = fig1.add_subplot(111)
+    reward_plot.plot(avg_re_per_loop)
+    reward_plot.set_title('Blue: Training Set Reward; Red: Test Set Reward')
+    test_plot = reward_plot.twinx()
+    test_plot.plot(test_avg_reward, color='r', linestyle='dashed')
+    plt.savefig(dirpath + '/reward_{}.png'.format(loop_indx))
+
+    fig2 = plt.figure()
+    loss_plot = fig2.add_subplot(111)
+    loss_plot.plot(loss_per_loop)
+    loss_plot.set_title('Loss')
+    plt.savefig(dirpath + '/loss_{}.png'.format(loop_indx))
+
+    bar = tqdm(range(num_of_training_days * 2 * len(list(initial_shares.keys()))), leave=False)
+    bar.set_description('AC Training Set')
     print('Training Set', file=almgren_chriss_f)
     rewards = []
-    for month in train_date.keys():
-        for day in train_date[month]:
-            for session in ['morning', 'afternoon']:
-                # bar.update(1)
-                for ticker in initial_shares.keys():
+    for ticker in initial_shares.keys():
+        res = []
+        ps = []
+        acs = []
+        for month in train_date.keys():
+            for day in train_date[month]:
+                for session in ['morning', 'afternoon']:
+                    bar.update(1)
                     train_env[ticker].reset(month, day, session)
                     total_reward = 0
                     for _ in np.arange(1, 25):
-                        state, reward, done, _ = train_env[ticker].step(-2)
+                        state, reward, done, info = train_env[ticker].step(-2)
                         total_reward += reward
+                        res.append(reward)
+                        acs.append(info['size'])
+                        ps.append(info['price'])
                     rewards.append(total_reward)
                     print(ticker, ', {}, {} Total Reward: '.format(day, session), round(total_reward, 3), file=almgren_chriss_f)
-                    print(ticker, ', {}, {} Total Reward: '.format(day, session), round(total_reward, 3))
-    # bar.close()
+                    # print(ticker, ', {}, {} Total Reward: '.format(day, session), round(total_reward, 3))
+        fig = plt.figure()
+        reward_plot = fig.add_subplot(211)
+        reward_plot.plot(res)
+        reward_plot.set_title('AC_train_{}'.format(ticker))
+        ac_plot = reward_plot.twinx()
+        ac_plot.plot(acs, color='r')
+        p_plot = fig.add_subplot(212)
+        p_plot.plot(ps)
+        plt.savefig(dirpath + 'AC_train_{}.png'.format(ticker))
+    bar.close()
 
     for f in [None, almgren_chriss_f]:
         print('Train AC Average: ', round(np.average(rewards), 3), file=f)
         print('============================================================', file=f)
 
     print('Test Set', file=almgren_chriss_f)
-    # bar = tqdm(range(num_of_test_days * 2), leave=False)
-    # bar.set_description('AC Test Set')
+    bar = tqdm(range(num_of_test_days * 2 * len(list(initial_shares.keys()))), leave=False)
+    bar.set_description('AC Test Set')
     rewards = []
-    for month in test_date.keys():
-        for day in test_date[month]:
-            for session in ['morning', 'afternoon']:
-                # bar.update(1)
-                for ticker in initial_shares.keys():
+    for ticker in initial_shares.keys():
+        res = []
+        ps = []
+        acs = []
+        for month in test_date.keys():
+            for day in test_date[month]:
+                for session in ['morning', 'afternoon']:
+                    bar.update(1)
                     test_env[ticker].reset(month, day, session)
                     total_reward = 0
                     for _ in np.arange(1, 25):
-                        state, reward, done, _ = test_env[ticker].step(-2)
+                        state, reward, done, info = test_env[ticker].step(-2)
                         total_reward += reward
+                        res.append(reward)
+                        acs.append(info['size'])
+                        ps.append(info['price'])
                     rewards.append(total_reward)
-                # print('{}, {} Total Reward: '.format(day, session), total_reward)
                     print(ticker, ', {}, {} Total Reward: '.format(day, session), round(total_reward, 3), file=almgren_chriss_f)
-                    print(ticker, ', {}, {} Total Reward: '.format(day, session), round(total_reward, 3))
-    # bar.close()
+                    # print(ticker, ', {}, {} Total Reward: '.format(day, session), round(total_reward, 3))
+        fig = plt.figure()
+        reward_plot = fig.add_subplot(211)
+        reward_plot.plot(res)
+        reward_plot.set_title('AC_test_{}'.format(ticker))
+        ac_plot = reward_plot.twinx()
+        ac_plot.plot(acs, color='r')
+        p_plot = fig.add_subplot(212)
+        p_plot.plot(ps)
+        plt.savefig(dirpath + 'AC_test_{}.png'.format(ticker))
+    bar.close()
 
     for f in [None, almgren_chriss_f]:
         print('Test AC Average: ', round(np.average(rewards), 3), file=f)
@@ -173,24 +216,38 @@ def dddqn_train(hyperparameters, ac_dict, ob_dict, train_months, test_months):
     for f in [None, almgren_chriss_f]:
         print('============================================================', file=f)
         print('Running Hothead!', file=f)
-    # bar = tqdm(range(num_of_test_days * 2), leave=False)
-    # bar.set_description('Hothead Test Set')
+    bar = tqdm(range(num_of_test_days * 2 * len(list(initial_shares.keys()))), leave=False)
+    bar.set_description('Hothead Test Set')
     # Hothead
     rewards = []
-    for month in test_date.keys():
-        for day in test_date[month]:
-            for session in ['morning', 'afternoon']:
-                # bar.update(1)
-                for ticker in initial_shares.keys():
+    for ticker in initial_shares.keys():
+        res = []
+        ps = []
+        acs = []
+        for month in test_date.keys():
+            for day in test_date[month]:
+                for session in ['morning', 'afternoon']:
+                    bar.update(1)
                     test_env[ticker].reset(month, day, session)
                     total_reward = 0
-                    state, reward, done, _ = test_env[ticker].step(-1)
+                    state, reward, done, info = test_env[ticker].step(-1)
                     total_reward += reward
+                    res.append(reward)
+                    acs.append(info['size'])
+                    ps.append(info['price'])
                     rewards.append(total_reward)
-                # print('{}, {} Total Reward: '.format(day, session), total_reward)
                     print(ticker, ', {}, {} Total Reward: '.format(day, session), round(total_reward, 3), file=almgren_chriss_f)
-                    print(ticker, ', {}, {} Total Reward: '.format(day, session), round(total_reward, 3))
-    # bar.close()
+                    # print(ticker, ', {}, {} Total Reward: '.format(day, session), round(total_reward, 3))
+        fig = plt.figure()
+        reward_plot = fig.add_subplot(211)
+        reward_plot.plot(res)
+        reward_plot.set_title('Hothead_test_{}'.format(ticker))
+        ac_plot = reward_plot.twinx()
+        ac_plot.plot(acs, color='r')
+        p_plot = fig.add_subplot(212)
+        p_plot.plot(ps)
+        plt.savefig(dirpath + 'Hothead_test_{}.png'.format(ticker))
+    bar.close()
 
     for f in [None, almgren_chriss_f]:
         print('Hothead Average: ', round(np.average(rewards), 3), file=f)

@@ -104,6 +104,7 @@ class Simulator:
                 done (boolean): whether this trajectory has ended or not
                 info: any additional info
         """
+        price = self.OrderBook.getMidPrice()
 
         # Place the agent's order to the limit order book
         if action == -1:
@@ -139,7 +140,8 @@ class Simulator:
 
         info = {'step': self.current_loc - 23,
                 'shortfall': implementation_shortfall,
-                'size': - order_size}
+                'size': - order_size,
+                'price': price}
 
         # Update the time
         self.current_loc += 1
