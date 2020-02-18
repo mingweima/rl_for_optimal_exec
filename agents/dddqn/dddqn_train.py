@@ -147,7 +147,7 @@ def dddqn_train(hyperparameters, ac_dict, ob_dict, train_months, test_months):
         reward_plot.plot(res)
         reward_plot.set_title('Reward')
         ac_plot = fig.add_subplot(312)
-        ac_plot.bar(acs, color='r')
+        ac_plot.bar(range(len(acs)), acs)
         ac_plot.set_title('Action')
         p_plot = fig.add_subplot(313)
         p_plot.set_title('Price')
@@ -187,7 +187,7 @@ def dddqn_train(hyperparameters, ac_dict, ob_dict, train_months, test_months):
         reward_plot.plot(res)
         reward_plot.set_title('Reward')
         ac_plot = fig.add_subplot(312)
-        ac_plot.bar(acs, color='r')
+        ac_plot.bar(range(len(acs)), acs)
         ac_plot.set_title('Action')
         p_plot = fig.add_subplot(313)
         p_plot.set_title('Price')
@@ -233,7 +233,7 @@ def dddqn_train(hyperparameters, ac_dict, ob_dict, train_months, test_months):
         reward_plot.plot(res)
         reward_plot.set_title('Reward')
         ac_plot = fig.add_subplot(312)
-        ac_plot.bar(acs, color='r')
+        ac_plot.bar(range(len(acs)), acs)
         ac_plot.set_title('Action')
         p_plot = fig.add_subplot(313)
         p_plot.set_title('Price')
@@ -253,7 +253,7 @@ def dddqn_train(hyperparameters, ac_dict, ob_dict, train_months, test_months):
             Qs = sess.run(DQNetwork.output_softmax, feed_dict={DQNetwork.inputs_: state.reshape((1, *state.shape))})
             choice = np.argmax(Qs)
             action = possible_actions[int(choice)]
-            next_state, reward, done, _ = test_env[ticker].step(np.argmax(action))
+            next_state, reward, done, info = test_env[ticker].step(np.argmax(action))
             all_reward.append(reward)
             if done:
                 break
