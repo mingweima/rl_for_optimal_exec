@@ -633,6 +633,7 @@ def dddqn_train(hyperparameters, ac_dict, ob_dict, train_months, test_months):
                                     next_state = np.array(next_state)
                                     state = next_state
                                     step += 1
+                file.close()
                 fig = plt.figure(figsize=(40, 20))
                 reward_plot = fig.add_subplot(311)
                 reward_plot.plot(res)
