@@ -73,8 +73,10 @@ class Simulator:
             self.OrderBook.update(self.get_historical_order())
             self.observation_sequence.append(self.observation())
             for level in np.arange(1, 11):
-                self.bid_price_sequence[level - 1].append(self.OrderBook.getBidsPrice(level))
-                self.ask_price_sequence[level - 1].append(self.OrderBook.getAsksPrice(level))
+                if 'Bid Price {}'.format(i) in self.ob_dict.keys():
+                    self.bid_price_sequence[level - 1].append(self.OrderBook.getBidsPrice(level))
+                if 'Ask Price {}'.format(i) in self.ob_dict.keys():
+                    self.ask_price_sequence[level - 1].append(self.OrderBook.getAsksPrice(level))
             self.current_loc += 1
 
         self.current_loc = 24
