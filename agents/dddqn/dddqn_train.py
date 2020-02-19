@@ -608,11 +608,13 @@ def dddqn_train(hyperparameters, ac_dict, ob_dict, train_months, test_months):
                 ps = []
                 acs = []
                 dones = []
+                file = open(dirpath + '/loop{}_{}.txt'.format(loop_indx, ticker), 'a+')
                 for month in test_date.keys():
                     for day in test_date[month]:
                         for session in ['morning', 'afternoon']:
                             state = test_env[ticker].reset(month, day, session)
                             state = np.array(state)
+                            step = 1
                             while True:
                                 Qs = sess.run(DQNetwork.output_softmax,
                                               feed_dict={DQNetwork.inputs_: state.reshape((1, *state.shape))})
@@ -622,12 +624,15 @@ def dddqn_train(hyperparameters, ac_dict, ob_dict, train_months, test_months):
                                 res.append(reward)
                                 acs.append(info['size'])
                                 ps.append(info['price'])
+                                print(ticker, ', day: {}, {}, step: {}, reward: {}, size: {}, price: {} '.format(
+                                    day, session, step, reward, info['size'], info['price']), file=file)
                                 if done:
                                     dones.append(len(res) - 1)
                                     break
                                 else:
                                     next_state = np.array(next_state)
                                     state = next_state
+                                    step += 1
                 fig = plt.figure(figsize=(40, 20))
                 reward_plot = fig.add_subplot(311)
                 reward_plot.plot(res)
