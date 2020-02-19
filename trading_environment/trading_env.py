@@ -66,10 +66,15 @@ class Simulator:
         # Initialize the observation sequence
         self.current_loc = 0
         self.observation_sequence = []
+        self.bid_price_sequence = [[]] * 10
+        self.ask_price_sequence = [[]] * 10
         self.OrderBook = OrderBook(self.get_historical_order())
         while self.current_loc <= 24:
             self.OrderBook.update(self.get_historical_order())
             self.observation_sequence.append(self.observation())
+            for level in np.arange(1, 11):
+                self.bid_price_sequence[level - 1].append(self.OrderBook.getBidsPrice(level))
+                self.ask_price_sequence[level - 1].append(self.OrderBook.getAsksPrice(level))
             self.current_loc += 1
 
         self.current_loc = 24
@@ -148,6 +153,9 @@ class Simulator:
 
         # Update the LOB. (for OMI data)
         self.OrderBook.update(self.get_historical_order())
+        for level in np.arange(1, 11):
+            self.bid_price_sequence[level - 1].append(self.OrderBook.getBidsPrice(level))
+            self.ask_price_sequence[level - 1].append(self.OrderBook.getAsksPrice(level))
 
         # Take an observation of the current state
         obs = self.observation()
@@ -187,10 +195,12 @@ class Simulator:
                 obs.append(self.OrderBook.getBidAskSpread(i))
             if 'Bid Price {}'.format(i) in self.ob_dict.keys():
                 # obs.append((self.OrderBook.getBidsPrice(i) - self.price_mean) / self.price_std)
-                bp = 100 * (self.OrderBook.getBidsPrice(i) - self.arrival_price) / self.arrival_price
+                price = np.average(self.bid_price_sequence[i - 1][-10:])
+                bp = 100 * (price - self.arrival_price) / self.arrival_price
                 obs.append(bp)
             if 'Ask Price {}'.format(i) in self.ob_dict.keys():
-                ap = 100 * (self.OrderBook.getAsksPrice(i) - self.arrival_price) / self.arrival_price
+                price = np.average(self.bid_price_sequence[i - 1][-10:])
+                ap = 100 * (price - self.arrival_price) / self.arrival_price
                 obs.append(ap)
                 # obs.append((self.OrderBook.getAsksPrice(i) - self.price_mean) / self.price_std)
             if 'Bid Volume {}'.format(i) in self.ob_dict.keys():
