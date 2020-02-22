@@ -2,7 +2,6 @@ import logging, os
 logging.disable(logging.WARNING)
 os.environ["TF_CPP_MIN_LOG_LEVEL"] = "3"
 import datetime
-import datetime
 import time
 import pickle
 import random
@@ -210,15 +209,20 @@ def dddqn_train(hyperparameters, ac_dict, ob_dict, train_months, test_months):
         p_plot.set_title('Price')
         p_plot.plot(ps)
         plt.savefig(dirpath + '/AC_test_{}.png'.format(ticker))
+
+        AC_list_f = open(dirpath + '/{}_ACtest_res.txt'.format(ticker), 'wb')
+        pickle.dump(res, AC_list_f)
+        AC_list_f.close()
+        AC_list_f = open(dirpath + '/ticker_ACtest_acs.txt'.format(ticker), 'wb')
+        pickle.dump(acs, AC_list_f)
+        AC_list_f.close()
+
     bar.close()
 
     for f in [None, almgren_chriss_f]:
         print('Test AC Average: ', round(np.average(rewards), 3), file=f)
         print('============================================================', file=f)
 
-    AC_list_f = open(dirpath + '/AC_list_f.txt', 'wb')
-    pickle.dump(rewards, AC_list_f)
-    AC_list_f.close()
 
     for f in [None, almgren_chriss_f]:
         print('============================================================', file=f)
@@ -329,6 +333,7 @@ def dddqn_train(hyperparameters, ac_dict, ob_dict, train_months, test_months):
     print('Observation Space: ', ob_dict, file=config_f)
     print('Number of Train Months: {}'.format(hyperparameters['num_of_train_months']), file=config_f)
     print('Number of Test Months: {}'.format(hyperparameters['num_of_test_months']), file=config_f)
+    print('Price Smooth: ', price_smooth, file=config_f)
     print('Observation Space: \n', ob_dict, file=config_f)
     print('Action Space: \n', ac_dict, file=config_f)
     config_f.close()
@@ -578,7 +583,6 @@ def dddqn_train(hyperparameters, ac_dict, ob_dict, train_months, test_months):
         test_f.close()
         print('Loop {}, Test Average Reward: '.format(loop_indx), round(avg_re, 3))
         test_avg_reward.append(avg_re)
-        saver.save(sess, dirpath + '/loop{}_model.ckpt'.format(loop_indx))
 
         avg_re_per_loop.append(np.mean(total_reward_list))
         loss_per_loop.append(np.average(losses))
@@ -591,7 +595,10 @@ def dddqn_train(hyperparameters, ac_dict, ob_dict, train_months, test_months):
               f'Explore P = {explore_probability}\n', file=train_f)
         train_f.close()
 
-        if loop_indx % 10 == 0:
+        if loop_indx % 1 == 0:
+            bar = tqdm(range(num_of_test_days * 2 * len(list(initial_shares.keys()))), leave=False)
+            bar.set_description("Testing Results")
+
             fig1 = plt.figure()
             reward_plot = fig1.add_subplot(111)
             reward_plot.plot(avg_re_per_loop)
@@ -615,6 +622,7 @@ def dddqn_train(hyperparameters, ac_dict, ob_dict, train_months, test_months):
                 for month in test_date.keys():
                     for day in test_date[month]:
                         for session in ['morning', 'afternoon']:
+                            bar.update(1)
                             state = test_env[ticker].reset(month, day, session)
                             state = np.array(state)
                             step = 1
@@ -652,6 +660,15 @@ def dddqn_train(hyperparameters, ac_dict, ob_dict, train_months, test_months):
                 p_plot.plot(ps)
                 plt.savefig(dirpath + '/loop{}_{}.png'.format(loop_indx, ticker))
 
+                test_list_f = open(dirpath + '/loop{}_{}_test_res.txt'.format(loop_indx, ticker), 'wb')
+                pickle.dump(res, test_list_f)
+                test_list_f.close()
+                test_list_f = open(dirpath + '/loop{}_{}_test_acs.txt'.format(loop_indx, ticker), 'wb')
+                pickle.dump(acs, test_list_f)
+                test_list_f.close()
+
+            bar.close()
+
     fig1 = plt.figure()
     reward_plot = fig1.add_subplot(111)
     reward_plot.plot(avg_re_per_loop)
@@ -678,10 +695,6 @@ def dddqn_train(hyperparameters, ac_dict, ob_dict, train_months, test_months):
                     print(ticker, ', {} Total Reward: '.format(day), check_reward, file=test_f)
                     print(ticker, ', {} Total Reward: '.format(day), check_reward)
                     reward_list.append(check_reward)
-
-    test_list_f = open(dirpath + '/test_list_f.txt', 'wb')
-    pickle.dump(reward_list, test_list_f)
-    test_list_f.close()
 
     print('Test Average Reward: ', round(np.average(reward_list), 3))
     print('Test Average Reward: ', round(np.average(reward_list), 3), file=test_f)
