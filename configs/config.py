@@ -25,6 +25,7 @@ if __name__ == "__main__":
     parser.add_argument('--liquidate_volume', type=float, default=0.05)
     parser.add_argument('--num_of_train_months', type=int, default=5)
     parser.add_argument('--num_of_test_months', type=int, default=2)
+    parser.add_argument('--price_smooth', type=int, default=1)
 
     args = parser.parse_args()
     hyperparameters = {
@@ -40,7 +41,8 @@ if __name__ == "__main__":
         'lstm_lookback': args.lstm_lookback,
         'liquidate_volume': args.liquidate_volume,
         'num_of_train_months': args.num_of_train_months,
-        'num_of_test_months': args.num_of_test_months
+        'num_of_test_months': args.num_of_test_months,
+        'price_smooth': args.price_smooth
     }
 
     months = [
@@ -177,6 +179,7 @@ if __name__ == "__main__":
     print("LSTM Lookback:                   ", args.lstm_lookback)
     print("Number of Train Months:          ", args.num_of_train_months)
     print("Number of Test Months:           ", args.num_of_test_months)
+    print("Price Smooth:                    ", args.price_smooth)
     print("============================================================")
     print("Observation Space:               ", ob_dict)
     print("Action Space:                    ", ac_dict)

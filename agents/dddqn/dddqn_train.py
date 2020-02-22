@@ -28,6 +28,7 @@ def dddqn_train(hyperparameters, ac_dict, ob_dict, train_months, test_months):
     ticker = hyperparameters['ticker']
     look_back = hyperparameters['lstm_lookback']
     liquidate_volume = hyperparameters['liquidate_volume']
+    price_smooth = hyperparameters['price_smooth']
 
     initial_shares = {
         # 'BARC': 31.42e6 * liquidate_volume,
@@ -62,7 +63,7 @@ def dddqn_train(hyperparameters, ac_dict, ob_dict, train_months, test_months):
                           '/trading_environment/data/{}/{}_{}_{}.txt'.format(ticker, month, day, session), 'rb') as df:
                         data = pickle.load(df, encoding='iso-8859-1')
                         train_dict[month][day][session] = data
-        train_env[ticker] = Simulator(train_dict, train_date, ac_dict, ob_dict, initial_shares[ticker], look_back)
+        train_env[ticker] = Simulator(train_dict, train_date, ac_dict, ob_dict, initial_shares[ticker], look_back, price_smooth)
     num_of_training_days = sum(len(v) for _, v in train_date.items())
 
     test_env = {}
@@ -83,7 +84,7 @@ def dddqn_train(hyperparameters, ac_dict, ob_dict, train_months, test_months):
                           '/trading_environment/data/{}/{}_{}_{}.txt'.format(ticker, month, day, session), 'rb') as df:
                         data = pickle.load(df, encoding='iso-8859-1')
                         test_dict[month][day][session] = data
-        test_env[ticker] = Simulator(test_dict, test_date, ac_dict, ob_dict, initial_shares[ticker], look_back)
+        test_env[ticker] = Simulator(test_dict, test_date, ac_dict, ob_dict, initial_shares[ticker], look_back, price_smooth)
     num_of_test_days = sum(len(v) for _, v in test_date.items())
 
     for f in [None, almgren_chriss_f]:
@@ -577,6 +578,7 @@ def dddqn_train(hyperparameters, ac_dict, ob_dict, train_months, test_months):
         test_f.close()
         print('Loop {}, Test Average Reward: '.format(loop_indx), round(avg_re, 3))
         test_avg_reward.append(avg_re)
+        saver.save(sess, dirpath + '/loop{}_model.ckpt'.format(loop_indx))
 
         avg_re_per_loop.append(np.mean(total_reward_list))
         loss_per_loop.append(np.average(losses))
@@ -649,7 +651,6 @@ def dddqn_train(hyperparameters, ac_dict, ob_dict, train_months, test_months):
                 p_plot.set_title('Price')
                 p_plot.plot(ps)
                 plt.savefig(dirpath + '/loop{}_{}.png'.format(loop_indx, ticker))
-
 
     fig1 = plt.figure()
     reward_plot = fig1.add_subplot(111)

@@ -10,9 +10,10 @@ class Simulator:
     orders and reacting to the actions of the agent.
     """
 
-    def __init__(self, data_dict, date_dict, ac_dict, ob_dict, initial_shares, look_back):
+    def __init__(self, data_dict, date_dict, ac_dict, ob_dict, initial_shares, look_back, price_smooth):
         self.data_dict = data_dict
         self.date_dict = date_dict
+        self.price_smooth = price_smooth
 
         self.hothead = 'False'
         self.trading_steps = STEPS
@@ -66,8 +67,8 @@ class Simulator:
         # Initialize the observation sequence
         self.current_loc = 0
         self.observation_sequence = []
-        self.bid_price_sequence = [[]] * 10
-        self.ask_price_sequence = [[]] * 10
+        self.bid_price_sequence = [[]] * self.price_smooth
+        self.ask_price_sequence = [[]] * self.price_smooth
         self.OrderBook = OrderBook(self.get_historical_order())
         while self.current_loc <= 24:
             self.OrderBook.update(self.get_historical_order())
@@ -199,11 +200,11 @@ class Simulator:
                 obs.append(self.OrderBook.getBidAskSpread(i))
             if 'Bid Price {}'.format(i) in self.ob_dict.keys():
                 # obs.append((self.OrderBook.getBidsPrice(i) - self.price_mean) / self.price_std)
-                price = np.average(self.bid_price_sequence[i - 1][-10:])
+                price = np.average(self.bid_price_sequence[i - 1][-self.price_smooth:])
                 bp = 100 * (price - self.arrival_price) / self.arrival_price
                 obs.append(bp)
             if 'Ask Price {}'.format(i) in self.ob_dict.keys():
-                price = np.average(self.bid_price_sequence[i - 1][-10:])
+                price = np.average(self.bid_price_sequence[i - 1][-self.price_smooth:])
                 ap = 100 * (price - self.arrival_price) / self.arrival_price
                 obs.append(ap)
                 # obs.append((self.OrderBook.getAsksPrice(i) - self.price_mean) / self.price_std)
