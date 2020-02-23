@@ -67,8 +67,8 @@ class Simulator:
         # Initialize the observation sequence
         self.current_loc = 0
         self.observation_sequence = []
-        self.bid_price_sequence = [[]] * self.price_smooth
-        self.ask_price_sequence = [[]] * self.price_smooth
+        self.bid_price_sequence = [[]] * 10
+        self.ask_price_sequence = [[]] * 10
         self.OrderBook = OrderBook(self.get_historical_order())
         while self.current_loc <= 24:
             self.OrderBook.update(self.get_historical_order())
