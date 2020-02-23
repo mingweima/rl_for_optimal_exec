@@ -200,7 +200,6 @@ class Simulator:
                 obs.append(self.OrderBook.getBidAskSpread(i))
             if 'Bid Price {}'.format(i) in self.ob_dict.keys():
                 # obs.append((self.OrderBook.getBidsPrice(i) - self.price_mean) / self.price_std)
-                print(self.bid_price_sequence)
                 price = np.average(self.bid_price_sequence[i - 1][-self.price_smooth:])
                 bp = 100 * (price - self.arrival_price) / self.arrival_price
                 obs.append(bp)
