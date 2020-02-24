@@ -375,7 +375,7 @@ def dddqn_train(hyperparameters, ac_dict, ob_dict, train_months, test_months):
                             next_state, reward, done, _ = train_env[ticker].step(np.argmax(action))
                             memory.add((state, action, reward, next_state, done))
                             state = next_state
-                            print(state.shape)
+                            print(np.array(state).shape)
                             if done:
                                 break
                     bar.update(1)
