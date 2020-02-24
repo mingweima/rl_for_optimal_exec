@@ -222,7 +222,7 @@ class Simulator:
                 av = (self.OrderBook.getAsksQuantity(i) - (self.initial_inventory / 24)) / (self.initial_inventory / 24)
                 obs.append(av)
 
-        return np.asarray(obs)
+        return obs
 
     def render(self):
         pass
