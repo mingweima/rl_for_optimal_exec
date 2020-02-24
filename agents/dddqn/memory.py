@@ -8,6 +8,7 @@ class Memory:
 
     def add(self, experience):
         self.buffer.append(experience)
+        print(experience)
 
     def sample(self, batch_size):
         buffer_size = len(self.buffer)
