@@ -368,7 +368,7 @@ def dddqn_train(hyperparameters, ac_dict, ob_dict, train_months, test_months):
             for day in train_date[month]:
                 for session in ['morning', 'afternoon']:
                     for ticker in initial_shares.keys():
-                        state = np.array(train_env[ticker].reset(month, day, session))
+                        state = train_env[ticker].reset(month, day, session)
                         while True:
                             choice = random.randint(1, len(possible_actions)) - 1
                             action = possible_actions[choice]
