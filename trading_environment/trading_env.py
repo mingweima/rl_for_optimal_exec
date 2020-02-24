@@ -83,7 +83,7 @@ class Simulator:
         self.current_loc = 24
         self.OrderBook = OrderBook(self.get_historical_order())
         state = np.array(self.observation_sequence[-self.look_back:])
-        # state = state.reshape(state.shape + (1,))
+        state = state.reshape(state.shape + (1,))
         return state
 
     def get_historical_order(self):
@@ -169,7 +169,7 @@ class Simulator:
         self.observation_sequence.append(obs)
 
         state = np.array(self.observation_sequence[-self.look_back])
-        # state = state.reshape(state.shape + (1,))
+        state = state.reshape(state.shape + (1,))
 
         return state, reward, done, info
 
