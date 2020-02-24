@@ -300,6 +300,7 @@ def dddqn_train(hyperparameters, ac_dict, ob_dict, train_months, test_months):
 
     ### MODEL HYPERPARAMETERS
     state_size = state.shape  # Our input is a stack of 4 frames hence 110x84x4 (Width, height, channels)
+    print(state.shape)
     action_size = len(possible_actions)  # 8 possible actions
     initial_learning_rate = hyperparameters['learning_rate']  # Alpha (aka learning rate)
 
