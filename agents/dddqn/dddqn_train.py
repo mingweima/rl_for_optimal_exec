@@ -513,6 +513,7 @@ def dddqn_train(hyperparameters, ac_dict, ob_dict, train_months, test_months):
                             batch = memory.sample(batch_size)
                             states_mb = np.array([each[0] for each in batch])
                             print(states_mb)
+                            print(states_mb.shape)
                             # states_mb.reshape(np.concatenate(([batch_size], np.array(state_size))))
                             actions_mb = np.array([each[1] for each in batch])
                             rewards_mb = np.array([each[2] for each in batch])
