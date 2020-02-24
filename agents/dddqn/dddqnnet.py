@@ -28,9 +28,7 @@ class DDDQNNet:
             self.actions_ = tf.placeholder(tf.float32, [None, action_size], name="actions_")
             self.target_Q = tf.placeholder(tf.float32, [None], name="target")
 
-            # if self.prioritized:
-            #     self.ISWeights = tf.placeholder(tf.float32, [None, 1], name='IS_weights')
-
+            """
             # define network
             # Input is 100x120x4
             self.conv_first1 = tf.keras.layers.LSTM(64, return_sequences=True)(self.inputs_)
@@ -45,6 +43,30 @@ class DDDQNNet:
             # The one that calculate A(s,a)
             self.advantage_fc = tf.keras.layers.LSTM(32)(self.conv_first1)
             self.advantage_fc = tf.keras.layers.LeakyReLU(alpha=0.01)(self.advantage_fc)
+            self.advantage = tf.keras.layers.Dense(self.action_size)(self.advantage_fc)
+            """
+            self.conv_first1 = tf.keras.layers.Conv2D(16, (1, 2), strides=(1, 2))(self.inputs_)
+            self.conv_first1 = tf.keras.layers.LeakyReLU(alpha=0.01)(self.conv_first1)
+            self.conv_first1 = tf.keras.layers.Conv2D(16, (4, 1))(self.conv_first1)
+            self.conv_first1 = tf.keras.layers.LeakyReLU(alpha=0.01)(self.conv_first1)
+
+            self.conv_first1 = tf.keras.layers.Conv2D(32, (1, 11))(self.conv_first1)
+            self.conv_first1 = tf.keras.layers.LeakyReLU(alpha=0.01)(self.conv_first1)
+            self.conv_first1 = tf.keras.layers.Conv2D(32, (4, 1))(self.conv_first1)
+            self.conv_first1 = tf.keras.layers.LeakyReLU(alpha=0.01)(self.conv_first1)
+
+            self.conv_first1 = tf.keras.layers.Reshape((int(self.conv_first1.shape[1]),
+                                                        int(self.conv_first1.shape[-1])))(self.conv_first1)
+
+            ## Here we separate into two streams
+            # The one that calculate V(s)
+            self.value_fc = tf.keras.layers.CuDNNLSTM(32)(self.conv_first1)
+            #             self.value_fc = tf.keras.layers.LeakyReLU(alpha=0.01)(self.value_fc)
+            self.value = tf.keras.layers.Dense(1)(self.value_fc)
+
+            #             The one that calculate A(s,a)
+            self.advantage_fc = tf.keras.layers.CuDNNLSTM(32)(self.conv_first1)
+            #             self.advantage_fc = tf.keras.layers.LeakyReLU(alpha=0.01)(self.advantage_fc)
             self.advantage = tf.keras.layers.Dense(self.action_size)(self.advantage_fc)
 
             # Agregating layer
@@ -62,10 +84,6 @@ class DDDQNNet:
 
             self.loss = tf.reduce_mean(tf.squared_difference(self.target_Q, self.Q))
 
-            # if self.prioritized:
-            #     self.abs_errors = tf.reduce_sum(tf.abs(self.target_Q - self.Q), axis=1)  # for updating Sumtree
-            #     self.loss = tf.reduce_mean(self.ISWeights * tf.squared_difference(self.target_Q, self.Q))
-            # else:
 
             self.loss = tf.reduce_mean(tf.squared_difference(self.target_Q, self.Q))
 
