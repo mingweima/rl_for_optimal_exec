@@ -504,6 +504,7 @@ def dddqn_train(hyperparameters, ac_dict, ob_dict, train_months, test_months):
                                 # Set step = max_steps to end the episode
                                 step = max_steps
                                 memory.add((state, action, reward, next_state, done))
+                                print("State: ", state.shape)
                                 total_reward = np.sum(episode_rewards)
                                 total_reward_list.append(total_reward)
                             else:
