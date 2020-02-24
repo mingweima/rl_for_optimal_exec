@@ -375,7 +375,6 @@ def dddqn_train(hyperparameters, ac_dict, ob_dict, train_months, test_months):
                             next_state, reward, done, _ = train_env[ticker].step(np.argmax(action))
                             memory.add((state, action, reward, next_state, done))
                             state = next_state
-                            print(np.array(state).shape)
                             if done:
                                 break
                     bar.update(1)
@@ -512,7 +511,6 @@ def dddqn_train(hyperparameters, ac_dict, ob_dict, train_months, test_months):
                             ### Training Network
                             # Obtain random mini-batch from memory
                             batch = memory.sample(batch_size)
-                            print(batch)
                             print("Batch: ", batch.shape)
                             states_mb = np.array([each[0] for each in batch])
                             # print(states_mb)
