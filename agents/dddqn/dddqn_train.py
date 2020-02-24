@@ -300,7 +300,6 @@ def dddqn_train(hyperparameters, ac_dict, ob_dict, train_months, test_months):
 
     ### MODEL HYPERPARAMETERS
     state_size = state.shape  # Our input is a stack of 4 frames hence 110x84x4 (Width, height, channels)
-    print(state.shape)
     action_size = len(possible_actions)  # 8 possible actions
     initial_learning_rate = hyperparameters['learning_rate']  # Alpha (aka learning rate)
 
@@ -481,7 +480,6 @@ def dddqn_train(hyperparameters, ac_dict, ob_dict, train_months, test_months):
                         episode_rewards = []
                         state = train_env[ticker].reset(month, day, session)
                         state = np.array(state)
-                        print("State: ", state.shape)
                         while step < max_steps:
                             total_step += 1
                             step += 1
@@ -504,7 +502,6 @@ def dddqn_train(hyperparameters, ac_dict, ob_dict, train_months, test_months):
                                 # Set step = max_steps to end the episode
                                 step = max_steps
                                 memory.add((state, action, reward, next_state, done))
-                                print("State: ", state.shape)
                                 total_reward = np.sum(episode_rewards)
                                 total_reward_list.append(total_reward)
                             else:
@@ -515,9 +512,11 @@ def dddqn_train(hyperparameters, ac_dict, ob_dict, train_months, test_months):
                             # Obtain random mini-batch from memory
                             batch = memory.sample(batch_size)
                             states_mb = np.array([each[0] for each in batch])
+                            states_mb.reshape(np.concatenate(([batch_size], np.array(state_size))))
                             actions_mb = np.array([each[1] for each in batch])
                             rewards_mb = np.array([each[2] for each in batch])
                             next_states_mb = np.array([each[3] for each in batch])
+                            next_states_mb.reshape(np.concatenate(([batch_size], np.array(state_size))))
                             print(states_mb.shape)
                             dones_mb = np.array([each[4] for each in batch])
                             target_Qs_batch = []
