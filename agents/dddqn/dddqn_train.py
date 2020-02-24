@@ -506,6 +506,7 @@ def dddqn_train(hyperparameters, ac_dict, ob_dict, train_months, test_months):
                                 total_reward_list.append(total_reward)
                             else:
                                 memory.add((state, action, reward, next_state, done))
+                                print("Shape: ", state.shape)
                                 state = next_state
 
                             ### Training Network
