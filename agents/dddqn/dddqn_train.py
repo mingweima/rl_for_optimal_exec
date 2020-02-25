@@ -517,7 +517,6 @@ def dddqn_train(hyperparameters, ac_dict, ob_dict, train_months, test_months):
                             rewards_mb = np.array([each[2] for each in batch])
                             next_states_mb = np.array([each[3] for each in batch])
                             # next_states_mb.reshape(np.concatenate(([batch_size], np.array(state_size))))
-                            # print(states_mb.shape)
                             dones_mb = np.array([each[4] for each in batch])
                             target_Qs_batch = []
                             ### DOUBLE DQN Logic
