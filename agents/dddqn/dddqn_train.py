@@ -260,6 +260,11 @@ def dddqn_train(hyperparameters, ac_dict, ob_dict, train_months, test_months):
         p_plot.set_title('Price')
         p_plot.plot(ps)
         plt.savefig(dirpath + '/Hothead_test_{}.png'.format(ticker))
+
+        AC_list_f = open(dirpath + '/{}_Hothead_res.txt'.format(ticker), 'wb')
+        pickle.dump(res, AC_list_f)
+        AC_list_f.close()
+
     bar.close()
 
     for f in [None, almgren_chriss_f]:

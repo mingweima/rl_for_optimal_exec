@@ -25,7 +25,7 @@ if __name__ == "__main__":
     parser.add_argument('--liquidate_volume', type=float, default=0.05)
     parser.add_argument('--num_of_train_months', type=int, default=5)
     parser.add_argument('--num_of_test_months', type=int, default=2)
-    parser.add_argument('--price_smooth', type=int, default=1)
+    parser.add_argument('--price_smooth', type=int, default=10)
 
     args = parser.parse_args()
     hyperparameters = {
