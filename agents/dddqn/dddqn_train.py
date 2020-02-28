@@ -227,8 +227,8 @@ def dddqn_train(hyperparameters, ac_dict, ob_dict, train_months, test_months):
     for f in [None, almgren_chriss_f]:
         print('============================================================', file=f)
         print('Running Hothead!', file=f)
-    bar = tqdm(range(num_of_test_days * 2 * len(list(initial_shares.keys()))), leave=False)
-    bar.set_description('Hothead Test Set')
+    # bar = tqdm(range(num_of_test_days * 2 * len(list(initial_shares.keys()))), leave=False)
+    # bar.set_description('Hothead Test Set')
     # Hothead
     rewards = []
     for ticker in initial_shares.keys():
@@ -248,7 +248,7 @@ def dddqn_train(hyperparameters, ac_dict, ob_dict, train_months, test_months):
                     ps.append(info['price'])
                     rewards.append(total_reward)
                     print(ticker, ', {}, {} Total Reward: '.format(day, session), round(total_reward, 3), file=almgren_chriss_f)
-                    # print(ticker, ', {}, {} Total Reward: '.format(day, session), round(total_reward, 3))
+                    print(ticker, ', {}, {} Total Reward: '.format(day, session), round(total_reward, 3))
         fig = plt.figure(figsize=(40, 20))
         reward_plot = fig.add_subplot(311)
         reward_plot.plot(res)
@@ -265,7 +265,7 @@ def dddqn_train(hyperparameters, ac_dict, ob_dict, train_months, test_months):
         pickle.dump(res, AC_list_f)
         AC_list_f.close()
 
-    bar.close()
+    # bar.close()
 
     for f in [None, almgren_chriss_f]:
         print('Hothead Average: ', round(np.average(rewards), 3), file=f)
