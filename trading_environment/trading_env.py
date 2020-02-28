@@ -169,7 +169,8 @@ class Simulator:
         self.observation_sequence.append(obs)
 
         state = np.array(self.observation_sequence[-self.look_back:])
-        # state = list(state.reshape(state.shape + (1,)))
+        state = list(state.reshape(state.shape + (1,)))
+        # state = self.observation_sequence[-self.look_back:]
         return state, reward, done, info
 
     def observation(self):
