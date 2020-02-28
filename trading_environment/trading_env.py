@@ -85,7 +85,6 @@ class Simulator:
 
         state = np.array(self.observation_sequence[-self.look_back:])
         state = list(state.reshape(state.shape + (1,)))
-        print(np.array(state).shape)
         return state
 
     def get_historical_order(self):
