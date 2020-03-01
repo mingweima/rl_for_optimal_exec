@@ -28,7 +28,7 @@ class DDDQNNet:
             self.actions_ = tf.placeholder(tf.float32, [None, action_size], name="actions_")
             self.target_Q = tf.placeholder(tf.float32, [None], name="target")
 
-            """
+
             # define network
             # Input is 100x120x4
             self.conv_first1 = tf.keras.layers.LSTM(64, return_sequences=True)(self.inputs_)
@@ -44,8 +44,8 @@ class DDDQNNet:
             self.advantage_fc = tf.keras.layers.LSTM(32)(self.conv_first1)
             self.advantage_fc = tf.keras.layers.LeakyReLU(alpha=0.01)(self.advantage_fc)
             self.advantage = tf.keras.layers.Dense(self.action_size)(self.advantage_fc)
-            """
 
+            """
             self.conv_first1 = tf.keras.layers.Conv2D(16, (1, 2), strides=(1, 2))(self.inputs_)
             self.conv_first1 = tf.keras.layers.LeakyReLU(alpha=0.01)(self.conv_first1)
             self.conv_first1 = tf.keras.layers.Conv2D(16, (4, 1))(self.conv_first1)
@@ -69,7 +69,7 @@ class DDDQNNet:
             self.advantage_fc = tf.keras.layers.LSTM(32)(self.conv_first1)
             #             self.advantage_fc = tf.keras.layers.LeakyReLU(alpha=0.01)(self.advantage_fc)
             self.advantage = tf.keras.layers.Dense(self.action_size)(self.advantage_fc)
-
+            """
             # Agregating layer
             # Q(s,a) = V(s) + (A(s,a) - 1/|A| * sum A(s,a'))
             self.output = self.value + tf.subtract(self.advantage,
