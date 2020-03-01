@@ -61,8 +61,8 @@ class Simulator:
         self.initial_loc = 24
         self.current_loc = 24
         self.OrderBook = OrderBook(self.get_historical_order())
-        self.arrival_price = self.OrderBook.getMidPrice()
-        # self.arrival_price = self.OrderBook.get_hothead_vwap(-self.initial_inventory)
+        # self.arrival_price = self.OrderBook.getMidPrice()
+        self.arrival_price = self.OrderBook.get_hothead_vwap(-self.initial_inventory)
 
         # Initialize the observation sequence
         self.current_loc = 0
@@ -137,7 +137,7 @@ class Simulator:
             vwap = 0
 
         implementation_shortfall = - 1000 * (order_size / self.initial_inventory) * \
-                                   (vwap) / self.arrival_price
+                                   (vwap - self.arrival_price) / self.arrival_price
 
         # Calculate the reward
         if self.reward_function == 'implementation_shortfall':
