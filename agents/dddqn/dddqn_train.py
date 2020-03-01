@@ -105,13 +105,11 @@ def dddqn_train(hyperparameters, ac_dict, ob_dict, train_months, test_months):
                         difference = abs(ac_dict[action] - nj)
             return action
 
-        if step == num_of_steps:
+        if kappa == 0:
             nj = 1
-        elif kappa == 0:
-            nj = 1 / num_of_steps
         else:
             nj = 2 * np.sinh(0.5 * kappa) * np.cosh(kappa * (
-                    num_of_steps - (step - 0.5))) / np.sinh(kappa * num_of_steps)
+                    num_of_steps - (step - 0.5))) / np.sinh(kappa * num_of_steps) * num_of_steps
         action = closest_action(nj)
         print(action, nj, ac_dict[action])
         return action
