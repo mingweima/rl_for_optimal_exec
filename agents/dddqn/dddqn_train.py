@@ -113,6 +113,7 @@ def dddqn_train(hyperparameters, ac_dict, ob_dict, train_months, test_months):
             nj = 2 * np.sinh(0.5 * kappa) * np.cosh(kappa * (
                     num_of_steps - (step - 0.5))) / np.sinh(kappa * num_of_steps)
         action = closest_action(nj)
+        print(action, nj, ac_dict[action])
         return action
 
 
@@ -124,7 +125,6 @@ def dddqn_train(hyperparameters, ac_dict, ob_dict, train_months, test_months):
 
     kappas = [0, 1e-6, 1e-5, 1e-4, 1e-3, 1e-2, 1e-1, 1, 10, 100]
     for kappa in kappas:
-
         bar = tqdm(range(num_of_training_days * 2 * len(list(initial_shares.keys()))), leave=False)
         bar.set_description('AC Training Set, kappa = {}'.format(kappa))
         print('Training Set, kappa = {}'.format(kappa), file=almgren_chriss_f)
