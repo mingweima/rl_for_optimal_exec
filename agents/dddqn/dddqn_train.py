@@ -395,6 +395,7 @@ def dddqn_train(hyperparameters, ac_dict, ob_dict, train_months, test_months):
         ## EPSILON GREEDY STRATEGY
         # Choose action a from state s using epsilon greedy.
         ## First we randomize a number
+        state = np.array(state)
         exp_exp_tradeoff = np.random.rand()
 
         # Here we'll use an improved version of our epsilon greedy strategy used in Q-learning notebook
@@ -408,13 +409,13 @@ def dddqn_train(hyperparameters, ac_dict, ob_dict, train_months, test_months):
         #     choice = random.randint(1, len(possible_actions)) - 1
         #     action = possible_actions[choice]
         if explore_probability > exp_exp_tradeoff:
-            Ps = sess.run(DQNetwork.output_softmax, feed_dict={DQNetwork.inputs_: state.reshape((1, *state.shape))})[0]
+            Ps = sess.run(DQNetwork.output_softmax, feed_dict={DQNetwork.inputs_: state.reshape([1, *state.shape])})[0]
             choice = np.random.choice(action_size, 1, p=Ps)[0]
             action = possible_actions[choice]
         else:
             # Get action from Q-network (exploitation)
             # Estimate the Qs values state
-            Qs = sess.run(DQNetwork.output, feed_dict={DQNetwork.inputs_: state.reshape((1, *state.shape))})
+            Qs = sess.run(DQNetwork.output, feed_dict={DQNetwork.inputs_: state.reshape([1, *state.shape])})
 
             # Take the biggest Q value (= the best action)
             choice = np.argmax(Qs)
@@ -633,11 +634,11 @@ def dddqn_train(hyperparameters, ac_dict, ob_dict, train_months, test_months):
                         for session in ['morning', 'afternoon']:
                             bar.update(1)
                             state = test_env[ticker].reset(month, day, session)
-                            state = np.array(state)
                             step = 1
                             while True:
+                                state = np.array(state)
                                 Qs = sess.run(DQNetwork.output_softmax,
-                                              feed_dict={DQNetwork.inputs_: state.reshape((1, *state.shape))})
+                                              feed_dict={DQNetwork.inputs_: state.reshape([1, *state.shape])})
                                 choice = np.argmax(Qs)
                                 action = possible_actions[int(choice)]
                                 next_state, reward, done, info = test_env[ticker].step(np.argmax(action))
