@@ -194,7 +194,7 @@ def dddqn_train(hyperparameters, ac_dict, ob_dict, train_months, test_months):
                         while True:
                             action = almgren_chriss(kappa, ac_dict, step, NUM_OF_STEPS)
                             step += 1
-                            state, reward, done, info = train_env[ticker].step(action)
+                            state, reward, done, info = test_env[ticker].step(action)
                             total_reward += reward
                             res.append(reward)
                             acs.append(info['size'])
