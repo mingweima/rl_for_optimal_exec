@@ -130,7 +130,6 @@ class Simulator:
             order_size = - round(self.initial_inventory * action / self.trading_steps)
         if self.inventory + order_size < 0:
             order_size = - self.inventory
-        print(order_size)
 
         if order_size != 0:
             vwap, _ = self.OrderBook.handleMarketOrder(order_size)
