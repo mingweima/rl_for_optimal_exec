@@ -111,6 +111,7 @@ def dddqn_train(hyperparameters, ac_dict, ob_dict, train_months, test_months):
             nj = 2 * np.sinh(0.5 * kappa) * np.cosh(kappa * (
                     num_of_steps - (step - 0.5))) / np.sinh(kappa * num_of_steps)
         # action = closest_action(nj)
+        print(nj)
         return nj
 
 
