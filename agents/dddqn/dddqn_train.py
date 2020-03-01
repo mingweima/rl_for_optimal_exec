@@ -120,7 +120,7 @@ def dddqn_train(hyperparameters, ac_dict, ob_dict, train_months, test_months):
     max_steps = 100000  # Max possible steps in an episode
     batch_size = hyperparameters['batch_size']
 
-    kappas = [0, 0.005, 0.01, 0.015, 0.02]
+    kappas = [0]
     for kappa in kappas:
         bar = tqdm(range(num_of_training_days * 2 * len(list(initial_shares.keys()))), leave=False)
         bar.set_description('AC Training Set, kappa = {}'.format(kappa))
