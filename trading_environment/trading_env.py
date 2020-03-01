@@ -104,7 +104,7 @@ class Simulator:
 
         return [bids, asks]
 
-    def step(self, action):
+    def step(self, action, ac=False):
         """
         Placing an order into the limit order book according to the action
 
@@ -123,13 +123,14 @@ class Simulator:
             order_size = - self.inventory
         elif self.current_loc >= 47:
             order_size = - self.inventory
-        elif action == -2:
-            order_size = - round(self.initial_inventory / self.trading_steps)
+        elif ac:
+            order_size = - round(action * self.initial_inventory)
         else:
             action = self.ac_dict[action]
             order_size = - round(self.initial_inventory * action / self.trading_steps)
         if self.inventory + order_size < 0:
             order_size = - self.inventory
+        print(order_size)
 
         if order_size != 0:
             vwap, _ = self.OrderBook.handleMarketOrder(order_size)

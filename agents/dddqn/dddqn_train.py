@@ -95,24 +95,24 @@ def dddqn_train(hyperparameters, ac_dict, ob_dict, train_months, test_months):
         print('Running Almgren Chriss!', file=f)
 
     def almgren_chriss(kappa, ac_dict, step, num_of_steps):
-        def closest_action(nj):
-            action = 0
-            difference = abs(ac_dict[action] - nj)
-            for ac, proportion in ac_dict.items():
-                if type(ac) is int:
-                    if (proportion - nj) < difference:
-                        action = ac
-                        difference = abs(ac_dict[action] - nj)
-            return action
+        # def closest_action(nj):
+        #     action = 0
+        #     difference = abs(ac_dict[action] - nj)
+        #     for ac, proportion in ac_dict.items():
+        #         if type(ac) is int:
+        #             if (proportion - nj) < difference:
+        #                 action = ac
+        #                 difference = abs(ac_dict[action] - nj)
+        #     return action
 
         if kappa == 0:
-            nj = 1
+            nj = 1 / num_of_steps
         else:
             nj = 2 * np.sinh(0.5 * kappa) * np.cosh(kappa * (
-                    num_of_steps - (step - 0.5))) / np.sinh(kappa * num_of_steps) * num_of_steps
-        action = closest_action(nj)
-        print(action, nj, ac_dict[action])
-        return action
+                    num_of_steps - (step - 0.5))) / np.sinh(kappa * num_of_steps)
+        # action = closest_action(nj)
+        print(nj)
+        return nj
 
 
     ### TRAINING HYPERPARAMETERS
@@ -140,9 +140,9 @@ def dddqn_train(hyperparameters, ac_dict, ob_dict, train_months, test_months):
                         train_env[ticker].reset(month, day, session)
                         total_reward = 0
                         while True:
-                            action = almgren_chriss(kappa, ac_dict, step, NUM_OF_STEPS)
+                            nj = almgren_chriss(kappa, ac_dict, step, NUM_OF_STEPS)
                             step += 1
-                            state, reward, done, info = train_env[ticker].step(action)
+                            state, reward, done, info = train_env[ticker].step(nj, ac=True)
                             total_reward += reward
                             res.append(reward)
                             acs.append(info['size'])
@@ -192,7 +192,7 @@ def dddqn_train(hyperparameters, ac_dict, ob_dict, train_months, test_months):
                         while True:
                             action = almgren_chriss(kappa, ac_dict, step, NUM_OF_STEPS)
                             step += 1
-                            state, reward, done, info = test_env[ticker].step(action)
+                            state, reward, done, info = test_env[ticker].step(nj, ac=True)
                             total_reward += reward
                             res.append(reward)
                             acs.append(info['size'])
