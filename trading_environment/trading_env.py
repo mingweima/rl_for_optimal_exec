@@ -137,7 +137,7 @@ class Simulator:
             vwap = 0
 
         implementation_shortfall = - 1000 * (order_size / self.initial_inventory) * \
-                                   (vwap - self.arrival_price) / self.arrival_price
+                                   (vwap) / self.arrival_price
 
         # Calculate the reward
         if self.reward_function == 'implementation_shortfall':
