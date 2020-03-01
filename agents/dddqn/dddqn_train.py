@@ -484,7 +484,7 @@ def dddqn_train(hyperparameters, ac_dict, ob_dict, train_months, test_months):
                         step = 0
                         episode_rewards = []
                         state = train_env[ticker].reset(month, day, session)
-                        state = np.array(state)
+                        # state = np.array(state)
                         print(state)
                         print(state.shape)
                         while step < max_steps:
