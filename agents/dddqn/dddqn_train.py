@@ -662,7 +662,7 @@ def dddqn_train(hyperparameters, ac_dict, ob_dict, train_months, test_months):
                                     day, session, step, reward, info['size'], info['price']), file=file)
                                 if done:
                                     dones.append(len(res) - 1)
-                                    total_res.append(episode_res)
+                                    total_res = total_res + episode_res
                                     break
                                 else:
                                     next_state = np.array(next_state)
