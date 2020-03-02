@@ -618,20 +618,6 @@ def dddqn_train(hyperparameters, ac_dict, ob_dict, train_months, test_months):
             bar = tqdm(range(num_of_test_days * 2 * len(list(initial_shares.keys()))), leave=False)
             bar.set_description("Testing Results")
 
-            fig1 = plt.figure()
-            reward_plot = fig1.add_subplot(111)
-            reward_plot.plot(avg_re_per_loop)
-            reward_plot.set_title('Blue: Training Set Reward; Red: Test Set Reward')
-            test_plot = reward_plot.twinx()
-            test_plot.plot(test_avg_reward, color='r', linestyle='dashed')
-            plt.savefig(dirpath + '/reward_{}.png'.format(loop_indx))
-
-            fig2 = plt.figure()
-            loss_plot = fig2.add_subplot(111)
-            loss_plot.plot(loss_per_loop)
-            loss_plot.set_title('Loss')
-            plt.savefig(dirpath + '/loss_{}.png'.format(loop_indx))
-
             total_res = []
 
             for ticker in initial_shares.keys():
@@ -646,7 +632,7 @@ def dddqn_train(hyperparameters, ac_dict, ob_dict, train_months, test_months):
                             bar.update(1)
                             state = test_env[ticker].reset(month, day, session)
                             step = 1
-                            episode_res = []
+                            episode_res = 0
                             while True:
                                 state = np.array(state)
                                 Qs = sess.run(DQNetwork.output_softmax,
@@ -655,14 +641,14 @@ def dddqn_train(hyperparameters, ac_dict, ob_dict, train_months, test_months):
                                 action = possible_actions[int(choice)]
                                 next_state, reward, done, info = test_env[ticker].step(np.argmax(action))
                                 res.append(reward)
-                                episode_res.append(reward)
+                                episode_res += reward
                                 acs.append(info['size'])
                                 ps.append(info['price'])
                                 print(ticker, ', day: {}, {}, step: {}, reward: {}, size: {}, price: {} '.format(
                                     day, session, step, reward, info['size'], info['price']), file=file)
                                 if done:
                                     dones.append(len(res) - 1)
-                                    total_res = total_res + episode_res
+                                    total_res.append(episode_res)
                                     break
                                 else:
                                     next_state = np.array(next_state)
@@ -700,5 +686,21 @@ def dddqn_train(hyperparameters, ac_dict, ob_dict, train_months, test_months):
             print('Loop {}, Test Average Reward: '.format(loop_indx), round(avg_re, 3), '\n', file=test_f)
             test_f.close()
             print('Loop {}, Test Average Reward: '.format(loop_indx), round(avg_re, 3))
+
+
+            test_avg_reward.append(avg_re)
+            fig1 = plt.figure()
+            reward_plot = fig1.add_subplot(111)
+            reward_plot.plot(avg_re_per_loop)
+            reward_plot.set_title('Blue: Training Set Reward; Red: Test Set Reward')
+            test_plot = reward_plot.twinx()
+            test_plot.plot(test_avg_reward, color='r', linestyle='dashed')
+            plt.savefig(dirpath + '/reward_{}.png'.format(loop_indx))
+
+            fig2 = plt.figure()
+            loss_plot = fig2.add_subplot(111)
+            loss_plot.plot(loss_per_loop)
+            loss_plot.set_title('Loss')
+            plt.savefig(dirpath + '/loss_{}.png'.format(loop_indx))
     sess.close()
 
