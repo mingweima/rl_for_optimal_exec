@@ -138,9 +138,7 @@ def dddqn_train(hyperparameters, ac_dict, ob_dict, train_months, test_months):
                         bar.update(1)
                         train_env[ticker].reset(month, day, session)
                         total_reward = 0
-                        t = 0
                         while True:
-                            t += 1
                             nj = almgren_chriss(kappa, ac_dict, step, NUM_OF_STEPS)
                             step += 1
                             state, reward, done, info = train_env[ticker].step(nj, ac=True)
@@ -151,7 +149,6 @@ def dddqn_train(hyperparameters, ac_dict, ob_dict, train_months, test_months):
                             if done:
                                 dones.append(len(res) - 1)
                                 break
-                        print(t)
                         rewards.append(total_reward)
                         print(ticker, ', {}, {} Total Reward: '.format(day, session), round(total_reward, 3),
                             file=almgren_chriss_f)
