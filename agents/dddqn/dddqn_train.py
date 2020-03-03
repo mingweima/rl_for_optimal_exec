@@ -120,7 +120,7 @@ def dddqn_train(hyperparameters, ac_dict, ob_dict, train_months, test_months):
     max_steps = 100000  # Max possible steps in an episode
     batch_size = hyperparameters['batch_size']
 
-    kappas = [0]
+    kappas = [0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1, 1.1, 1.2, 1.3, 1.4, 1.5, 1.6, 1.7, 1.8, 1.9, 2.0]
     for kappa in kappas:
         bar = tqdm(range(num_of_training_days * 2 * len(list(initial_shares.keys()))), leave=False)
         bar.set_description('AC Training Set, kappa = {}'.format(kappa))
@@ -138,7 +138,9 @@ def dddqn_train(hyperparameters, ac_dict, ob_dict, train_months, test_months):
                         bar.update(1)
                         train_env[ticker].reset(month, day, session)
                         total_reward = 0
+                        t = 0
                         while True:
+                            t += 1
                             nj = almgren_chriss(kappa, ac_dict, step, NUM_OF_STEPS)
                             step += 1
                             state, reward, done, info = train_env[ticker].step(nj, ac=True)
@@ -149,6 +151,7 @@ def dddqn_train(hyperparameters, ac_dict, ob_dict, train_months, test_months):
                             if done:
                                 dones.append(len(res) - 1)
                                 break
+                        print(t)
                         rewards.append(total_reward)
                         print(ticker, ', {}, {} Total Reward: '.format(day, session), round(total_reward, 3),
                             file=almgren_chriss_f)

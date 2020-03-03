@@ -2,35 +2,51 @@ import pickle
 import numpy as np
 import matplotlib.pyplot as plt
 
-dirpath = '/Users/gongqili/recordings/all/loop100_2020-02-24_09:49:09'
+dirpath = '/Users/gongqili/recordings/all/loop100_2020-03-02_10:40:10'
 
 loop = 15
 
-file1 = open(dirpath + '/loop{}_ULVR_test_res.txt'.format(loop), 'rb')
-file2 = open(dirpath + '/loop{}_RR_test_res.txt'.format(loop), 'rb')
-file3 = open(dirpath + '/loop{}_RDSa_test_res.txt'.format(loop), 'rb')
-file4 = open(dirpath + '/ULVR_ACtest_res.txt', 'rb')
-file5 = open(dirpath + '/RR_ACtest_res.txt', 'rb')
-file6 = open(dirpath + '/RDSa_ACtest_res.txt', 'rb')
-ULVR_res = pickle.load(file1, encoding='iso-8859-1')
-RR_res = pickle.load(file2, encoding='iso-8859-1')
-RDSa_res = pickle.load(file3, encoding='iso-8859-1')
-ULVR_AC_res = pickle.load(file4, encoding='iso-8859-1')
-RR_AC_res = pickle.load(file5, encoding='iso-8859-1')
-RDSa_AC_res = pickle.load(file6, encoding='iso-8859-1')
-ULVR_sum = []
-ULVR_AC_sum = []
-for i in range(len(ULVR_res)):
-    ULVR_sum.append(np.sum(ULVR_res[:i]))
-for i in range(len(ULVR_AC_res)):
-    ULVR_AC_sum.append(np.sum(ULVR_AC_res[:i]))
+# file4 = open(dirpath + '/ULVR_ACtest_res.txt', 'rb')
+# file5 = open(dirpath + '/RR_ACtest_res.txt', 'rb')
+# file6 = open(dirpath + '/RDSa_ACtest_res.txt', 'rb')
+# ULVR_AC_res = pickle.load(file4, encoding='iso-8859-1')
+# RR_AC_res = pickle.load(file5, encoding='iso-8859-1')
+# RDSa_AC_res = pickle.load(file6, encoding='iso-8859-1')
+# for i in range(len(ULVR_AC_res)):
+#     ULVR_AC_sum.append(np.sum(ULVR_AC_res[:i]))
 
-plt.plot(ULVR_sum)
-plt.plot(ULVR_AC_sum)
-plt.show()
-print('ULVR: ', np.average(ULVR_res), np.std(ULVR_res), np.average(ULVR_res)/np.std(ULVR_res))
-print('RR: ', np.average(RR_res), np.std(RDSa_res), np.average(RR_res)/np.std(RDSa_res))
-print('RDSa: ', np.average(RDSa_res), np.std(RDSa_res), np.average(RDSa_res)/np.std(RDSa_res))
-print('ULVRAC: ', np.average(ULVR_AC_res), np.std(ULVR_AC_res), np.average(ULVR_AC_res)/np.std(ULVR_AC_res))
-print('RRAC: ', np.average(RR_AC_res), np.std(RR_AC_res), np.average(RR_AC_res)/np.std(RR_AC_res))
-print('RDaAC: ', np.average(RDSa_AC_res), np.std(RDSa_AC_res), np.average(RDSa_AC_res)/np.std(RDSa_AC_res))
+tickers = ['ULVR', 'RR', 'RDSa']
+for loop in np.arange(23, 24):
+    res = []
+    dones = []
+    for ticker in tickers:
+        file = open(dirpath + '/loop{}_{}_test_res.txt'.format(loop, ticker), 'rb')
+        re = pickle.load(file, encoding='iso-8859-1')
+        res.append(re)
+        file = open(dirpath + '/loop{}_{}_test_dones.txt'.format(loop, ticker), 'rb')
+        done = pickle.load(file, encoding='iso-8859-1')
+        dones.append(done)
+
+    ep_res = []
+    for i in range(len(tickers)):
+        for indx in range(len(dones[i])):
+            if indx == 0:
+                ep_re = res[i][ : dones[i][indx] + 1]
+                while len(ep_re) < 24:
+                    ep_re.append(0)
+                ep_res.append(ep_re)
+            else:
+                ep_re = res[i][dones[i][indx - 1] + 1 : dones[i][indx]]
+                while len(ep_re) < 24:
+                    ep_re.append(0)
+                ep_res.append(ep_re)
+
+    ep_res = list(np.array(ep_res).flatten())
+    accumulated_res = []
+    for i in range(len(ep_res)):
+        accumulated_res.append(np.sum(ep_res[:i]))
+    plt.plot(accumulated_res)
+    plt.title('Accumulated Profit over Hothead Agent')
+    plt.xlabel('Trading Steps')
+    plt.ylabel('Profit')
+    plt.show()
