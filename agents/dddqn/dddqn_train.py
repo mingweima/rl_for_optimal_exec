@@ -31,10 +31,10 @@ def dddqn_train(hyperparameters, ac_dict, ob_dict, train_months, test_months):
 
     initial_shares = {
         # 'BARC': 31.42e6 * liquidate_volume,
-        # 'HSBA': 22.17e6 * liquidate_volume,
+        'HSBA': 22.17e6 * liquidate_volume,
         'ULVR': 2.63e6 * liquidate_volume,
         'RDSa': 10.21e6 * liquidate_volume,
-        'RR': 4.78e6 * liquidate_volume
+        # 'RR': 4.78e6 * liquidate_volume
     }
 
     NUM_OF_STEPS = 24
@@ -120,7 +120,7 @@ def dddqn_train(hyperparameters, ac_dict, ob_dict, train_months, test_months):
     max_steps = 100000  # Max possible steps in an episode
     batch_size = hyperparameters['batch_size']
 
-    kappas = [0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1, 1.1, 1.2, 1.3, 1.4, 1.5, 1.6, 1.7, 1.8, 1.9, 2.0, 5, 10]
+    kappas = [0, 0.1, 0.2, 0.3, 0.4, 0.5]
     for kappa in kappas:
         bar = tqdm(range(num_of_training_days * 2 * len(list(initial_shares.keys()))), leave=False)
         bar.set_description('AC Training Set, kappa = {}'.format(kappa))

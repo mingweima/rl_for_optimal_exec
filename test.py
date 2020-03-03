@@ -5,6 +5,7 @@ import matplotlib.pyplot as plt
 dirpath = '/Users/gongqili/recordings/all/loop100_2020-03-02_10:40:10'
 AC_dirpath = '/Users/gongqili/recordings/all/loop100_2020-03-03_00:50:12'
 
+
 loop = 15
 
 # file4 = open(dirpath + '/ULVR_ACtest_res.txt', 'rb')
@@ -15,8 +16,26 @@ loop = 15
 # RDSa_AC_res = pickle.load(file6, encoding='iso-8859-1')
 # for i in range(len(ULVR_AC_res)):
 #     ULVR_AC_sum.append(np.sum(ULVR_AC_res[:i]))
-kappas = [0.2, 0.3, 0.4, 0.5]
+
+def downside_deviation(data):
+    d = []
+    for element in data:
+        if element > 0:
+            d.append(0)
+        else:
+            d.append(element)
+    return np.std(d)
+
+def sum_list(input, interval):
+    output = []
+    for i in range(int(len(input) / interval)):
+        output.append(np.sum(input[i: i+interval]))
+    return output
+
+kappas = [0, 0.1, 0.2, 0.3, 0.4, 0.5]
 tickers = ['ULVR', 'RR', 'RDSa']
+rl_res = {}
+ac_res = {}
 
 for ticker in tickers:
     AC_res = {}
@@ -44,6 +63,13 @@ for ticker in tickers:
                 ep_re.append(0)
             ep_res += ep_re
 
+    ep_res = sum_list(ep_res, 24)
+    rl_res[ticker] = ep_res
+    ac_res[ticker] = {}
+    for kappa in kappas:
+        AC_res[kappa] = sum_list(AC_res[kappa], 24)
+        ac_res[ticker][kappa] = AC_res[kappa]
+
     accumulated_res = []
     for i in range(len(ep_res)):
         accumulated_res.append(np.sum(ep_res[:i]))
@@ -58,12 +84,30 @@ for ticker in tickers:
     for kappa in kappas:
         plt.plot(accumulated_AC_res[kappa], label='AC Model, k = {}'.format(kappa))
     plt.title('Accumulated Profit over Hothead Agent, {}'.format(ticker))
-    plt.xlabel('Trading Steps')
+    plt.xlabel('Episodes')
     plt.ylabel('Profit')
     plt.legend()
     plt.show()
 
-    print('RL', np.average(ep_res), np.std(ep_res), np.average(ep_res)/np.std(ep_res))
+    # print('RL', np.average(ep_res), np.std(ep_res), downside_deviation(ep_res), np.average(ep_res)/np.std(ep_res),
+    #       np.average(ep_res)/downside_deviation(ep_res))
+    print('RL', np.average(ep_res), np.std(ep_res), np.average(ep_res) / np.std(ep_res))
     for kappa in kappas:
+        # print('AC kappa = {}'.format(kappa), np.average(AC_res[kappa]),
+        #       np.std(AC_res[kappa]), downside_deviation(AC_res[kappa]), np.average(AC_res[kappa])/np.std(AC_res[kappa]),
+        #       np.average(AC_res[kappa])/downside_deviation(AC_res[kappa]))
         print('AC kappa = {}'.format(kappa), np.average(AC_res[kappa]),
-              np.std(AC_res[kappa]), np.average(AC_res[kappa])/np.std(AC_res[kappa]))
+              np.std(AC_res[kappa]),
+              np.average(AC_res[kappa]) / np.std(AC_res[kappa]))
+
+for ticker in tickers:
+    data = [rl_res[ticker]]
+    label = ['DQN']
+    for kappa in kappas:
+        data.append(ac_res[ticker][kappa])
+        label.append('AC {}'.format(kappa))
+    plt.boxplot(data, whis=[0, 100])
+    plt.xticks(range(1, len(label) + 1), label)
+    plt.ylabel('Reward over Hothead')
+    plt.title(ticker)
+    plt.show()
