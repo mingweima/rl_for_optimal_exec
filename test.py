@@ -33,7 +33,7 @@ def sum_list(input, interval):
     return output
 
 kappas = [0, 0.1, 0.2, 0.3, 0.4, 0.5]
-tickers = ['RR']
+tickers = ['BARC']
 rl_res = {}
 ac_res = {}
 
