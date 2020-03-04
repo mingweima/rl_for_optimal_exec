@@ -2,8 +2,8 @@ import pickle
 import numpy as np
 import matplotlib.pyplot as plt
 
-dirpath = '/Users/gongqili/recordings/all/loop100_2020-03-02_10:40:10'
-AC_dirpath = '/Users/gongqili/recordings/all/loop100_2020-03-03_00:50:12'
+dirpath = '/Users/gongqili/recordings/all/loop100_2020-03-03_15:06:03'
+AC_dirpath = '/Users/gongqili/recordings/all/loop100_2020-03-03_15:06:03'
 
 
 loop = 15
@@ -33,7 +33,7 @@ def sum_list(input, interval):
     return output
 
 kappas = [0, 0.1, 0.2, 0.3, 0.4, 0.5]
-tickers = ['ULVR', 'RR', 'RDSa']
+tickers = ['ULVR']
 rl_res = {}
 ac_res = {}
 
