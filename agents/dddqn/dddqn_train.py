@@ -39,7 +39,7 @@ def dddqn_train(hyperparameters, ac_dict, ob_dict, train_months, test_months):
     initial_shares = {}
     initial_shares[ticker] = stocks[ticker]
 
-    NUM_OF_STEPS = 24
+    NUM_OF_STEPS = 36
 
     t = time.strftime('%Y-%m-%d_%H:%M:%I', time.localtime(time.time()))
     dirpath = os.getcwd() + '/recordings/all/loop{}_{}'.format(hyperparameters['total_loop'], t)

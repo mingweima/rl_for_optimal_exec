@@ -2,11 +2,11 @@ import pickle
 import numpy as np
 import matplotlib.pyplot as plt
 
-dirpath = '/Users/gongqili/recordings/all/loop100_2020-03-03_15:06:03'
-AC_dirpath = '/Users/gongqili/recordings/all/loop100_2020-03-03_15:06:03'
+dirpath = '/Users/gongqili/recordings/all/loop100_2020-03-04_18:15:06'
+AC_dirpath = '/Users/gongqili/recordings/all/loop100_2020-03-04_18:15:06'
 
 
-loop = 15
+loop = 35
 
 # file4 = open(dirpath + '/ULVR_ACtest_res.txt', 'rb')
 # file5 = open(dirpath + '/RR_ACtest_res.txt', 'rb')
@@ -16,7 +16,6 @@ loop = 15
 # RDSa_AC_res = pickle.load(file6, encoding='iso-8859-1')
 # for i in range(len(ULVR_AC_res)):
 #     ULVR_AC_sum.append(np.sum(ULVR_AC_res[:i]))
-
 def downside_deviation(data):
     d = []
     for element in data:
@@ -33,7 +32,7 @@ def sum_list(input, interval):
     return output
 
 kappas = [0, 0.1, 0.2, 0.3, 0.4, 0.5]
-tickers = ['HSBA']
+tickers = ['RDSa']
 rl_res = {}
 ac_res = {}
 

@@ -2,7 +2,7 @@ import numpy as np
 
 from trading_environment.orderbook import OrderBook
 
-STEPS = 24
+STEPS = 36
 
 class Simulator:
     """
@@ -58,8 +58,8 @@ class Simulator:
 
         self.inventory = self.initial_inventory
 
-        self.initial_loc = 24
-        self.current_loc = 24
+        self.initial_loc = 12
+        self.current_loc = 12
         self.OrderBook = OrderBook(self.get_historical_order())
         # self.arrival_price = self.OrderBook.getMidPrice()
         self.arrival_price = self.OrderBook.get_hothead_vwap(-self.initial_inventory)
@@ -70,7 +70,7 @@ class Simulator:
         self.bid_price_sequence = [[]] * 10
         self.ask_price_sequence = [[]] * 10
         self.OrderBook = OrderBook(self.get_historical_order())
-        while self.current_loc <= 24:
+        while self.current_loc <= 12:
             self.OrderBook.update(self.get_historical_order())
             for level in np.arange(1, 11):
                 if 'Bid Price {}'.format(level) in self.ob_dict.keys():
@@ -80,7 +80,7 @@ class Simulator:
             self.observation_sequence.append(self.observation())
             self.current_loc += 1
 
-        self.current_loc = 24
+        self.current_loc = 12
         self.OrderBook = OrderBook(self.get_historical_order())
 
         state = self.observation_sequence[-self.look_back:]
@@ -150,7 +150,7 @@ class Simulator:
 
         done = (self.inventory <= 0)
 
-        info = {'step': self.current_loc - 23,
+        info = {'step': self.current_loc - 12,
                 'shortfall': implementation_shortfall,
                 'size': - order_size,
                 'price': price}
