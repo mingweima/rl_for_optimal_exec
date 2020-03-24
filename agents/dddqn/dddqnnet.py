@@ -28,21 +28,20 @@ class DDDQNNet:
             self.actions_ = tf.placeholder(tf.float32, [None, action_size], name="actions_")
             self.target_Q = tf.placeholder(tf.float32, [None], name="target")
 
-
             # define network
             # Input is 100x120x4
-            self.conv_first1 = tf.keras.layers.LSTM(64, return_sequences=True)(self.inputs_)
-            self.conv_first1 = tf.keras.layers.LeakyReLU(alpha=0.01)(self.conv_first1)
+            self.conv_first1 = tf.keras.layers.GRU(64, return_sequences=True)(self.inputs_)
+            # self.conv_first1 = tf.keras.layers.LeakyReLU(alpha=0.01)(self.conv_first1)
 
             ## Here we separate into two streams
             # The one that calculate V(s)
-            self.value_fc = tf.keras.layers.LSTM(32)(self.conv_first1)
-            self.value_fc = tf.keras.layers.LeakyReLU(alpha=0.01)(self.value_fc)
+            self.value_fc = tf.keras.layers.GRU(32)(self.conv_first1)
+            # self.value_fc = tf.keras.layers.LeakyReLU(alpha=0.01)(self.value_fc)
             self.value = tf.keras.layers.Dense(1)(self.value_fc)
 
             # The one that calculate A(s,a)
-            self.advantage_fc = tf.keras.layers.LSTM(32)(self.conv_first1)
-            self.advantage_fc = tf.keras.layers.LeakyReLU(alpha=0.01)(self.advantage_fc)
+            self.advantage_fc = tf.keras.layers.GRU(32)(self.conv_first1)
+            # self.advantage_fc = tf.keras.layers.LeakyReLU(alpha=0.01)(self.advantage_fc)
             self.advantage = tf.keras.layers.Dense(self.action_size)(self.advantage_fc)
 
             """
