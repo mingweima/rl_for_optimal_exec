@@ -95,8 +95,9 @@ for month in months:
         session_data = data.loc[data['Date-Time'] >= day + pd.Timedelta('{}hours'.format(8))]
         session_data = session_data.iloc[[2000 * i for i in range(30)],]
         session_data.reset_index(drop=True, inplace=True)
+        start = session_data.loc[0][0]
         ext = session_data.loc[29][0]
-        print(ext)
+        print('Start: ', start, ' End: ', ext)
 
         pickle.dump(session_data, df_train)
         df_train.close()
