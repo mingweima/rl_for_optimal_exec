@@ -93,11 +93,13 @@ for month in months:
         df_train = open('/nfs/home/mingweim/rl_for_optimal_exec/trading_environment'
                         '/data/{}/{}_{}.txt'.format(ticker, month, day), 'wb')
         session_data = data.loc[data['Date-Time'] >= day + pd.Timedelta('{}hours'.format(8))]
+        if len(session_data['Date_Time']) < 480000:
+            print(len(session_data['Date_Time']))
+            print('Date: ', session_data.loc[0][0])
         session_data = session_data.iloc[[10000 * i for i in range(48)],]
         session_data.reset_index(drop=True, inplace=True)
         start = session_data.loc[0][0]
         ext = session_data.loc[29][0]
-        print('Start: ', start, ' End: ', ext)
 
         pickle.dump(session_data, df_train)
         df_train.close()
