@@ -94,7 +94,6 @@ for month in months:
         session_data.reset_index(drop=True, inplace=True)
         if len(session_data) < 480000:
             print(len(session_data))
-            print(session_data)
             print(session_data['Date-Time'][0])
             data.drop(data.loc[(data['Date-Time'] >= day)
                                & (data['Date-Time'] <= day + pd.Timedelta('{}hours'.format(16)))].index)
