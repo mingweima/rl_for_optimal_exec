@@ -90,7 +90,7 @@ for month in months:
     date = pd.to_datetime(data['Date-Time'].dt.strftime('%Y/%m/%d'))
     unique_date = pd.unique(date)
     for day in unique_date:
-        session_data = data.loc[data['Date-Time'] >= day + pd.Timedelta('{}hours'.format(8))]
+        session_data = data.iloc[data['Date-Time'] >= day + pd.Timedelta('{}hours'.format(8))]
         if len(session_data) < 480000:
             print(len(session_data))
             print(session_data['Date-Time'][0])
