@@ -43,7 +43,7 @@ months = ['2016-01-01_2016-01-31',
                     '2018-11-01_2018-11-30']
 
 for month in months:
-    bar = tqdm(range(6))
+    bar = tqdm(range(6), leave=False)
     bar.set_description('Reading Data -- {}'.format(month))
     path_name = '/nfs/home/mingweim/lob/{}/L2_{}.L_{}.csv.gz'.format(ticker, ticker, month)
 
