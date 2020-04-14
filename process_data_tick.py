@@ -104,7 +104,7 @@ for month in months:
             data.drop(data.loc[(data['Date-Time'] >= day)
                                & (data['Date-Time'] <= day + pd.Timedelta('{}hours'.format(16)))].index)
         else:
-            session_data = session_data.iloc[[10000 * i for i in range(48)],]
+            session_data = session_data.iloc[[10000 * i for i in range(49)],]
             session_data.reset_index(drop=True, inplace=True)
             df_train = open('/nfs/home/mingweim/rl_for_optimal_exec/trading_environment'
                             '/data/{}/{}_{}.txt'.format(ticker, month, day), 'wb')
