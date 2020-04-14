@@ -7,7 +7,7 @@ from agents.drqn.drqn_train import DRQNTrain
 from agents.dpg.dpg_train import DPG_Train
 from agents.a2c.a2c_train import A2CTrain
 from agents.almgren_chriss.almgren_chriss_train import AlmgrenChrissTrain
-from agents.dddqn.dddqn_train import dddqn_train
+from agents.dddqn.dddqn_train_tick import dddqn_train
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
