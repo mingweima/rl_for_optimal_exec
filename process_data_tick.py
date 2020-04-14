@@ -43,7 +43,7 @@ months = ['2016-01-01_2016-01-31',
                     '2018-11-01_2018-11-30']
 
 for month in months:
-    bar = tqdm(range(6), leave=False)
+    bar = tqdm(range(7), leave=False)
     bar.set_description('Reading Data -- {}'.format(month))
     path_name = '/nfs/home/mingweim/lob/{}/L2_{}.L_{}.csv.gz'.format(ticker, ticker, month)
 
@@ -71,9 +71,16 @@ for month in months:
                               & (data['Date-Time'] < pd.to_datetime('2016/7/15'))].index)
     data = data.drop(data.loc[(data['Date-Time'] >= pd.to_datetime('2018/4/5'))
                               & (data['Date-Time'] < pd.to_datetime('2018/4/7'))].index)
+
+    bar.update(1)
+    bar.set_description('Deleting Unusual Days -- {}'.format(month))
     for year in [2016, 2017, 2018]:
         data = data.drop(data.loc[(data['Date-Time'] >= pd.to_datetime('{}/12/23'.format(year)))
                            & (data['Date-Time'] < pd.to_datetime('{}/12/29'.format(year)))].index)
+    for year in [2016, 2017, 2018]:
+        for month in range(1, 12):
+            data = data.drop(data.loc[(data['Date-Time'] >= pd.to_datetime('{}/{}/26'.format(year, month)))
+                           & (data['Date-Time'] < pd.to_datetime('{}/{}/1'.format(year, month + 1)))].index)
 
     bar.update(1)
     bar.set_description('Deleting Auction Periods -- {}'.format(month))
