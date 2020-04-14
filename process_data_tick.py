@@ -101,8 +101,8 @@ for month in months:
         session_data = data[data['Date-Time'] >= day + pd.Timedelta('{}hours'.format(8))]
         session_data.reset_index(drop=True, inplace=True)
         if len(session_data) < 480000:
-            # data.drop(data.loc[(data['Date-Time'] >= day)
-            #                    & (data['Date-Time'] <= day + pd.Timedelta('{}hours'.format(16)))].index)
+            data.drop(data.loc[(data['Date-Time'] >= day)
+                               & (data['Date-Time'] <= day + pd.Timedelta('{}hours'.format(16)))].index)
         else:
             session_data = session_data.iloc[[10000 * i for i in range(48)],]
             session_data.reset_index(drop=True, inplace=True)
