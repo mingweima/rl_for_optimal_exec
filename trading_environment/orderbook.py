@@ -106,11 +106,9 @@ class OrderBook:
             # Handles the corresponding limit order.
             execution_price, executed_size = self.handleLimitOrder(order)
             implementation_shortfall = (highest_bid_price - execution_price) * executed_size
-        print(self.getTotalBidsQuantity(), abs(action), executed_size)
         # Size of the order cannot exceed the size of LOB.
-        if executed_size != abs(action):
-            print(self.bids)
-            raise ValueError("Size of the Market Order cannot exceed the size of LOB! ")
+        # if executed_size != abs(action):
+        #     raise ValueError("Size of the Market Order cannot exceed the size of LOB! ")
         return execution_price, implementation_shortfall
 
 
