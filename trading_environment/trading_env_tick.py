@@ -95,12 +95,18 @@ class Simulator:
         for i in range(10):
             price = LOB[4 * i + 1]
             size = LOB[4 * i + 2]
-            bids.append({'TYPE': 0, 'ORDER_ID': -1, 'PRICE': price, 'SIZE': size, 'BUY_SELL_FLAG': 'BUY'})
+            if (price > 0) & (size > 0):
+                bids.append({'TYPE': 0, 'ORDER_ID': -1, 'PRICE': price, 'SIZE': size, 'BUY_SELL_FLAG': 'BUY'})
+            else:
+                bids.append({'TYPE': 0, 'ORDER_ID': -1, 'PRICE': 0, 'SIZE': 0, 'BUY_SELL_FLAG': 'BUY'})
         asks = []
         for i in range(10):
             price = LOB[4 * i + 3]
             size = LOB[4 * i + 4]
-            asks.append({'TYPE': 0, 'ORDER_ID': -1, 'PRICE': price, 'SIZE': size, 'BUY_SELL_FLAG': 'SELL'})
+            if (price > 0) & (size > 0):
+                asks.append({'TYPE': 0, 'ORDER_ID': -1, 'PRICE': price, 'SIZE': size, 'BUY_SELL_FLAG': 'SELL'})
+            else:
+                asks.append({'TYPE': 0, 'ORDER_ID': -1, 'PRICE': 0, 'SIZE': 0, 'BUY_SELL_FLAG': 'SELL'})
 
         return [bids, asks]
 
