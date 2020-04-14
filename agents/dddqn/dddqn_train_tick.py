@@ -120,7 +120,7 @@ def dddqn_train(hyperparameters, ac_dict, ob_dict, train_months, test_months):
 
     kappas = [0, 0.1, 0.2, 0.3, 0.4, 0.5]
     for kappa in kappas:
-        bar = tqdm(range(num_of_training_days * 2 * len(list(initial_shares.keys()))), leave=False)
+        bar = tqdm(range(num_of_training_days * len(list(initial_shares.keys()))), leave=False)
         bar.set_description('AC Training Set, kappa = {}'.format(kappa))
         print('Training Set, kappa = {}'.format(kappa), file=almgren_chriss_f)
         rewards = []
@@ -171,7 +171,7 @@ def dddqn_train(hyperparameters, ac_dict, ob_dict, train_months, test_months):
             print('============================================================', file=f)
 
         print('Test Set, kappa = {}'.format(kappa), file=almgren_chriss_f)
-        bar = tqdm(range(num_of_test_days * 2 * len(list(initial_shares.keys()))), leave=False)
+        bar = tqdm(range(num_of_test_days * len(list(initial_shares.keys()))), leave=False)
         bar.set_description('AC Test Set, kappa = {}'.format(kappa))
         rewards = []
         for ticker in initial_shares.keys():
@@ -233,7 +233,7 @@ def dddqn_train(hyperparameters, ac_dict, ob_dict, train_months, test_months):
     for f in [None, almgren_chriss_f]:
         print('============================================================', file=f)
         print('Running Hothead!', file=f)
-    bar = tqdm(range(num_of_test_days * 2 * len(list(initial_shares.keys()))), leave=False)
+    bar = tqdm(range(num_of_test_days * len(list(initial_shares.keys()))), leave=False)
     bar.set_description('Hothead Test Set')
     # Hothead
     rewards = []
