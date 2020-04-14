@@ -59,6 +59,7 @@ def dddqn_train(hyperparameters, ac_dict, ob_dict, train_months, test_months):
             print(data)
             date = pd.to_datetime(data['Date-Time'].dt.strftime('%Y/%m/%d'))
             unique_date = pd.unique(date)
+            print(unique_date)
             train_date[month] = unique_date
             for day in unique_date:
                 train_dict[month][day] = {}
