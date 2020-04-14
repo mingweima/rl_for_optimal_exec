@@ -78,9 +78,9 @@ for month in months:
         data = data.drop(data.loc[(data['Date-Time'] >= pd.to_datetime('{}/12/23'.format(year)))
                            & (data['Date-Time'] < pd.to_datetime('{}/12/29'.format(year)))].index)
     for year in [2016, 2017, 2018]:
-        for month in range(1, 12):
-            data = data.drop(data.loc[(data['Date-Time'] >= pd.to_datetime('{}/{}/26'.format(year, month)))
-                           & (data['Date-Time'] < pd.to_datetime('{}/{}/1'.format(year, month + 1)))].index)
+        for m in range(1, 12):
+            data = data.drop(data.loc[(data['Date-Time'] >= pd.to_datetime('{}/{}/26'.format(year, m)))
+                           & (data['Date-Time'] < pd.to_datetime('{}/{}/1'.format(year, m + 1)))].index)
 
     bar.update(1)
     bar.set_description('Deleting Auction Periods -- {}'.format(month))
@@ -100,8 +100,6 @@ for month in months:
         session_data = data[data['Date-Time'] >= day + pd.Timedelta('{}hours'.format(8))]
         session_data.reset_index(drop=True, inplace=True)
         if len(session_data) < 480000:
-            print(len(session_data))
-            print(session_data['Date-Time'][0])
             data.drop(data.loc[(data['Date-Time'] >= day)
                                & (data['Date-Time'] <= day + pd.Timedelta('{}hours'.format(16)))].index)
         else:
