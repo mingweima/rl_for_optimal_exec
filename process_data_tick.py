@@ -96,12 +96,13 @@ for month in months:
 
     date = pd.to_datetime(data['Date-Time'].dt.strftime('%Y/%m/%d'))
     unique_date = pd.unique(date)
+    unique = []
     for day in unique_date:
         session_data = data[data['Date-Time'] >= day + pd.Timedelta('{}hours'.format(8))]
         session_data.reset_index(drop=True, inplace=True)
         if len(session_data) < 480000:
-            data.drop(data.loc[(data['Date-Time'] >= day)
-                               & (data['Date-Time'] <= day + pd.Timedelta('{}hours'.format(16)))].index)
+            # data.drop(data.loc[(data['Date-Time'] >= day)
+            #                    & (data['Date-Time'] <= day + pd.Timedelta('{}hours'.format(16)))].index)
         else:
             session_data = session_data.iloc[[10000 * i for i in range(48)],]
             session_data.reset_index(drop=True, inplace=True)
@@ -109,9 +110,10 @@ for month in months:
                             '/data/{}/{}_{}.txt'.format(ticker, month, day), 'wb')
             pickle.dump(session_data, df_train)
             df_train.close()
+            unique.append(day)
     df_train = open('/nfs/home/mingweim/rl_for_optimal_exec/'
                     'trading_environment/data/{}/{}.txt'.format(ticker, month), 'wb')
-    pickle.dump(data, df_train)
+    pickle.dump(unique, df_train)
     df_train.close()
 
     bar.update(1)
