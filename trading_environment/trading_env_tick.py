@@ -90,7 +90,7 @@ class Simulator:
 
     def get_historical_order(self):
         LOB = np.array(self.data.loc[self.current_loc])
-
+        print(LOB)
         bids = []
         for i in range(10):
             price = LOB[4 * i + 1]
