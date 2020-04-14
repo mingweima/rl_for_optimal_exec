@@ -61,11 +61,11 @@ def dddqn_train(hyperparameters, ac_dict, ob_dict, train_months, test_months):
             train_date[month] = unique_date
             for day in unique_date:
                 train_dict[month][day] = {}
-                for session in ['morning', 'afternoon']:
+                for session in ['morning']:
                     with open(os.getcwd() +
-                          '/trading_environment/data/{}/{}_{}_{}.txt'.format(ticker, month, day, session), 'rb') as df:
+                          '/trading_environment/data/{}/{}_{}.txt'.format(ticker, month, day), 'rb') as df:
                         data = pickle.load(df, encoding='iso-8859-1')
-                        train_dict[month][day][session] = data
+                        train_dict[month][day] = data
         train_env[ticker] = Simulator(train_dict, train_date, ac_dict, ob_dict, initial_shares[ticker], look_back, price_smooth)
     num_of_training_days = sum(len(v) for _, v in train_date.items())
 
@@ -82,11 +82,11 @@ def dddqn_train(hyperparameters, ac_dict, ob_dict, train_months, test_months):
             test_date[month] = unique_date
             for day in unique_date:
                 test_dict[month][day] = {}
-                for session in ['morning', 'afternoon']:
+                for session in ['morning']:
                     with open(os.getcwd() +
-                          '/trading_environment/data/{}/{}_{}_{}.txt'.format(ticker, month, day, session), 'rb') as df:
+                          '/trading_environment/data/{}/{}_{}.txt'.format(ticker, month, day), 'rb') as df:
                         data = pickle.load(df, encoding='iso-8859-1')
-                        test_dict[month][day][session] = data
+                        test_dict[month][day] = data
         test_env[ticker] = Simulator(test_dict, test_date, ac_dict, ob_dict, initial_shares[ticker], look_back, price_smooth)
     num_of_test_days = sum(len(v) for _, v in test_date.items())
 
@@ -135,10 +135,10 @@ def dddqn_train(hyperparameters, ac_dict, ob_dict, train_months, test_months):
             dones = []
             for month in train_date.keys():
                 for day in train_date[month]:
-                    for session in ['morning', 'afternoon']:
+                    for session in ['morning']:
                         step = 1
                         bar.update(1)
-                        train_env[ticker].reset(month, day, session)
+                        train_env[ticker].reset(month, day)
                         total_reward = 0
                         while True:
                             nj = almgren_chriss(kappa, ac_dict, step, NUM_OF_STEPS)
@@ -152,7 +152,7 @@ def dddqn_train(hyperparameters, ac_dict, ob_dict, train_months, test_months):
                                 dones.append(len(res) - 1)
                                 break
                         rewards.append(total_reward)
-                        print(ticker, ', {}, {} Total Reward: '.format(day, session), round(total_reward, 3),
+                        print(ticker, ', {},  Total Reward: '.format(day), round(total_reward, 3),
                             file=almgren_chriss_f)
             fig = plt.figure(figsize=(40, 20))
             reward_plot = fig.add_subplot(311)
@@ -185,9 +185,9 @@ def dddqn_train(hyperparameters, ac_dict, ob_dict, train_months, test_months):
             dones = []
             for month in test_date.keys():
                 for day in test_date[month]:
-                    for session in ['morning', 'afternoon']:
+                    for session in ['morning']:
                         bar.update(1)
-                        test_env[ticker].reset(month, day, session)
+                        test_env[ticker].reset(month, day)
                         step = 1
                         total_reward = 0
                         while True:
@@ -202,7 +202,7 @@ def dddqn_train(hyperparameters, ac_dict, ob_dict, train_months, test_months):
                                 dones.append(len(res) - 1)
                                 break
                         rewards.append(total_reward)
-                        print(ticker, ', {}, {} Total Reward: '.format(day, session), round(total_reward, 3),
+                        print(ticker, ', {}, Total Reward: '.format(day), round(total_reward, 3),
                             file=almgren_chriss_f)
 
             fig = plt.figure(figsize=(40, 20))
@@ -247,9 +247,9 @@ def dddqn_train(hyperparameters, ac_dict, ob_dict, train_months, test_months):
         acs = []
         for month in test_date.keys():
             for day in test_date[month]:
-                for session in ['morning', 'afternoon']:
+                for session in ['morning']:
                     bar.update(1)
-                    test_env[ticker].reset(month, day, session)
+                    test_env[ticker].reset(month, day)
                     total_reward = 0
                     state, reward, done, info = test_env[ticker].step(-1)
                     total_reward += reward
@@ -257,7 +257,7 @@ def dddqn_train(hyperparameters, ac_dict, ob_dict, train_months, test_months):
                     acs.append(info['size'])
                     ps.append(info['price'])
                     rewards.append(total_reward)
-                    print(ticker, ', {}, {} Total Reward: '.format(day, session), round(total_reward, 3), file=almgren_chriss_f)
+                    print(ticker, ', {}, Total Reward: '.format(day), round(total_reward, 3), file=almgren_chriss_f)
                     # print(ticker, ', {}, {} Total Reward: '.format(day, session), round(total_reward, 3))
         fig = plt.figure(figsize=(40, 20))
         reward_plot = fig.add_subplot(311)
@@ -282,7 +282,7 @@ def dddqn_train(hyperparameters, ac_dict, ob_dict, train_months, test_months):
         print('============================================================', file=f)
 
     def te_performance(month, day, session, ticker):
-        state = test_env[ticker].reset(month, day, session)
+        state = test_env[ticker].reset(month, day)
         state = np.array(state)
         all_reward = []
         while True:
@@ -303,7 +303,7 @@ def dddqn_train(hyperparameters, ac_dict, ob_dict, train_months, test_months):
 
     print('Training Network!')
 
-    state = train_env[list(initial_shares.keys())[0]].reset(list(train_date.keys())[0], train_date[list(train_date.keys())[0]][0], 'morning')
+    state = train_env[list(initial_shares.keys())[0]].reset(list(train_date.keys())[0], train_date[list(train_date.keys())[0]][0])
     state = np.array(state)
     # state = state.reshape(state.shape + (1,))
 
@@ -381,9 +381,9 @@ def dddqn_train(hyperparameters, ac_dict, ob_dict, train_months, test_months):
         bar.set_description('Pretraining')
         for month in train_date.keys():
             for day in train_date[month]:
-                for session in ['morning', 'afternoon']:
+                for session in ['morning']:
                     for ticker in initial_shares.keys():
-                        state = train_env[ticker].reset(month, day, session)
+                        state = train_env[ticker].reset(month, day)
                         while True:
                             choice = random.randint(1, len(possible_actions)) - 1
                             action = possible_actions[choice]
@@ -480,7 +480,7 @@ def dddqn_train(hyperparameters, ac_dict, ob_dict, train_months, test_months):
         np.random.shuffle(months)
         # months = np.random.choice(months, target_network_update)
 
-        bar = tqdm(range(num_of_training_days * 2), leave=False)
+        bar = tqdm(range(num_of_training_days), leave=False)
         bar.set_description('Running Loop {}'.format(loop))
 
         num_of_day = 0
@@ -489,12 +489,12 @@ def dddqn_train(hyperparameters, ac_dict, ob_dict, train_months, test_months):
             np.random.shuffle(days)
             for day in days:
                 num_of_day += 1
-                for session in ['morning', 'afternoon']:
+                for session in ['morning']:
                     bar.update(1)
                     for ticker in initial_shares.keys():
                         step = 0
                         episode_rewards = []
-                        state = train_env[ticker].reset(month, day, session)
+                        state = train_env[ticker].reset(month, day)
                         # state = np.array(state)
 
                         while step < max_steps:
@@ -617,7 +617,7 @@ def dddqn_train(hyperparameters, ac_dict, ob_dict, train_months, test_months):
         train_f.close()
 
         if loop_indx % 1 == 0:
-            bar = tqdm(range(num_of_test_days * 2 * len(list(initial_shares.keys()))), leave=False)
+            bar = tqdm(range(num_of_test_days * len(list(initial_shares.keys()))), leave=False)
             bar.set_description("Testing Results")
 
             total_res = []
@@ -630,9 +630,9 @@ def dddqn_train(hyperparameters, ac_dict, ob_dict, train_months, test_months):
                 file = open(dirpath + '/loop{}_{}.txt'.format(loop_indx, ticker), 'a+')
                 for month in test_date.keys():
                     for day in test_date[month]:
-                        for session in ['morning', 'afternoon']:
+                        for session in ['morning']:
                             bar.update(1)
-                            state = test_env[ticker].reset(month, day, session)
+                            state = test_env[ticker].reset(month, day)
                             step = 1
                             episode_res = 0
                             while True:
@@ -646,8 +646,8 @@ def dddqn_train(hyperparameters, ac_dict, ob_dict, train_months, test_months):
                                 episode_res += reward
                                 acs.append(info['size'])
                                 ps.append(info['price'])
-                                print(ticker, ', day: {}, {}, step: {}, reward: {}, size: {}, price: {} '.format(
-                                    day, session, step, reward, info['size'], info['price']), file=file)
+                                print(ticker, ', day: {}, step: {}, reward: {}, size: {}, price: {} '.format(
+                                    day, step, reward, info['size'], info['price']), file=file)
                                 if done:
                                     dones.append(len(res) - 1)
                                     total_res.append(episode_res)
