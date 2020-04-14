@@ -114,6 +114,7 @@ for month in months:
     df_train = open('/nfs/home/mingweim/rl_for_optimal_exec/'
                     'trading_environment/data/{}/{}.txt'.format(ticker, month), 'wb')
     pickle.dump(unique, df_train)
+    print(unique)
     df_train.close()
 
     bar.update(1)
