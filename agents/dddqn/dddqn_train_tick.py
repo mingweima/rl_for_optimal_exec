@@ -56,6 +56,7 @@ def dddqn_train(hyperparameters, ac_dict, ob_dict, train_months, test_months):
             train_dict[month] = {}
             with open(os.getcwd() + '/trading_environment/data/{}/{}.txt'.format(ticker, month), 'rb') as df_train:
                 data = pickle.load(df_train, encoding='iso-8859-1')
+            print(data)
             date = pd.to_datetime(data['Date-Time'].dt.strftime('%Y/%m/%d'))
             unique_date = pd.unique(date)
             train_date[month] = unique_date
