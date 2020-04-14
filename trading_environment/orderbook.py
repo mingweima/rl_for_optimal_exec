@@ -104,6 +104,7 @@ class OrderBook:
             order =  {'TYPE': 1, 'SIZE': -action, 'ORDER_ID': -1, 'PRICE': 0, 'BUY_SELL_FLAG': 'SELL'}
 
             # Handles the corresponding limit order.
+            print(self.getTotalBidsQuantity())
             execution_price, executed_size = self.handleLimitOrder(order)
             implementation_shortfall = (highest_bid_price - execution_price) * executed_size
         print(self.getTotalBidsQuantity(), abs(action), executed_size)
