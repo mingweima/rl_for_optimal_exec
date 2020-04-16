@@ -23,8 +23,8 @@ if __name__ == "__main__":
     parser.add_argument('--ticker', type=str, default='HSBA')
     parser.add_argument('--lstm_lookback', type=int, default=12)
     parser.add_argument('--liquidate_volume', type=float, default=0.05)
-    parser.add_argument('--num_of_train_months', type=int, default=5)
-    parser.add_argument('--num_of_test_months', type=int, default=2)
+    parser.add_argument('--num_of_train_months', type=int, default=11)
+    parser.add_argument('--num_of_test_months', type=int, default=11)
     parser.add_argument('--price_smooth', type=int, default=10)
 
     args = parser.parse_args()
@@ -84,15 +84,15 @@ if __name__ == "__main__":
 
     test_months = months[args.num_of_train_months:args.num_of_train_months + args.num_of_test_months]
 
-    ac_dict = {0: 0, 1: 0.25, 2: 0.5, 3: 0.6, 4: 7, 5: 0.8, 6: 0.9, 7: 1,
-               8: 1.1, 9: 1.2, 10: 1.3, 11: 1.4, 12: 1.5, 13: 1.75, 14: 2}
+    # ac_dict = {0: 0, 1: 0.25, 2: 0.5, 3: 0.6, 4: 7, 5: 0.8, 6: 0.9, 7: 1,
+    #            8: 1.1, 9: 1.2, 10: 1.3, 11: 1.4, 12: 1.5, 13: 1.75, 14: 2}
 
     # ac_dict = {0: 0, 1: 0.25, 2: 0.5, 3: 0.75, 4: 0.9, 5: 1, 6: 1.1, 7: 1.25,
     #            8: 1.5, 9: 1.75, 10: 2, 11: 2.5, 12: 3, 13: 3.5, 14: 4, 15: 4.5, 16: 5}
     # ac_dict = {0: 1, 1: 1.02, 2: 1.04, 3: 1.06, 4: 1.08, 5: 1.1, 6: 1.12, 7: 1.14, 8: 1.16, 9: 1.18, 10: 1.2}
     # ac_dict = {0: 1, 1: 1.02, 2: 1.04, 3: 1.06, 4: 1.08, 5: 1.1}
     # ac_dict = {0: 0.9, 1: 0.92, 2: 0.94, 3: 0.96, 4: 0.98, 5: 1, 6: 1.02, 7: 1.04, 8: 1.06, 9: 1.08, 10: 1.1}
-    # ac_dict = {0: 1, 1: 1.1, 2: 1.2, 3: 1.3, 4: 1.4, 5: 1.5, 6: 1.6, 7: 1.7, 8: 1.8, 9: 1.9, 10: 2.0}
+    ac_dict = {0: 1, 1: 1.1, 2: 1.2, 3: 1.3, 4: 1.4, 5: 1.5, 6: 1.6, 7: 1.7, 8: 1.8, 9: 1.9, 10: 2.0}
     # Please always set Elapsed Time and Remaining Inventory True, otherwise AC Model will break down
     # ob_dict = {
     #     'Elapsed Time': True,
