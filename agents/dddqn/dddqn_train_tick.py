@@ -164,7 +164,7 @@ def dddqn_train(hyperparameters, ac_dict, ob_dict, train_months, test_months):
             p_plot.set_title('Price')
             p_plot.plot(ps)
             plt.savefig(dirpath + '/AC_train_{}_kappa{}.png'.format(ticker, kappa))
-            fig.close()
+            plt.close()
         bar.close()
 
         for f in [None, almgren_chriss_f]:
@@ -216,7 +216,7 @@ def dddqn_train(hyperparameters, ac_dict, ob_dict, train_months, test_months):
             p_plot.set_title('Price')
             p_plot.plot(ps)
             plt.savefig(dirpath + '/AC_test_{}_kappa{}.png'.format(ticker,kappa))
-            fig.close()
+            plt.close()
 
             AC_list_f = open(dirpath + '/{}_ACtest_res_kappa{}.txt'.format(ticker, kappa), 'wb')
             pickle.dump(res, AC_list_f)
@@ -268,7 +268,7 @@ def dddqn_train(hyperparameters, ac_dict, ob_dict, train_months, test_months):
         p_plot.set_title('Price')
         p_plot.plot(ps)
         plt.savefig(dirpath + '/Hothead_test_{}.png'.format(ticker))
-        fig.close()
+        plt.close()
 
         AC_list_f = open(dirpath + '/{}_Hothead_res.txt'.format(ticker), 'wb')
         pickle.dump(res, AC_list_f)
@@ -671,7 +671,7 @@ def dddqn_train(hyperparameters, ac_dict, ob_dict, train_months, test_months):
                 p_plot.set_title('Price')
                 p_plot.plot(ps)
                 plt.savefig(dirpath + '/loop{}_{}.png'.format(loop_indx, ticker))
-                fig.close()
+                plt.close()
 
                 test_list_f = open(dirpath + '/loop{}_{}_test_res.txt'.format(loop_indx, ticker), 'wb')
                 pickle.dump(res, test_list_f)
@@ -698,12 +698,12 @@ def dddqn_train(hyperparameters, ac_dict, ob_dict, train_months, test_months):
             test_plot = reward_plot.twinx()
             test_plot.plot(test_avg_reward, color='r', linestyle='dashed')
             plt.savefig(dirpath + '/reward_{}.png'.format(loop_indx))
-            fig1.close()
+            plt.close()
 
             fig2 = plt.figure()
             loss_plot = fig2.add_subplot(111)
             loss_plot.plot(loss_per_loop)
             loss_plot.set_title('Loss')
             plt.savefig(dirpath + '/loss_{}.png'.format(loop_indx))
-            fig2.close()
+            plt.close()
     sess.close()
